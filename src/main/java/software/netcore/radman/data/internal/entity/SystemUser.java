@@ -1,0 +1,40 @@
+package software.netcore.radman.data.internal.entity;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+
+/**
+ * @since v. 1.0.0
+ */
+@Getter
+@Setter
+@Entity
+@NoArgsConstructor
+@Table(name = "system_user",
+        uniqueConstraints = @UniqueConstraint(name = "uk_system_user_username", columnNames = {"username"}))
+public class SystemUser {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    private Long id;
+
+    @Column(length = 64, nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(name = "password_length", nullable = false)
+    private String passwordLength;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "last_login_time")
+    private Long lastLoginTime;
+
+}

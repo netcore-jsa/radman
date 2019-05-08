@@ -1,0 +1,115 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="1" author="Johnny">
+        <createTable tableName="system_user">
+            <column autoIncrement="true"
+                    name="id"
+                    type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="username" 
+                    type="VARCHAR(64)">
+                <constraints nullable="false"
+                             unique="true"
+                             uniqueConstraintName="uk_system_user_username"/>
+            </column>
+            <column name="password" 
+                    type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_length"
+                    type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" 
+                    type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_login_time" 
+                    type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Johnny">
+        <createTable tableName="radius_user">
+            <column autoIncrement="true"
+                    name="id"
+                    type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="username"
+                    type="VARCHAR(64)">
+                <constraints nullable="false"
+                             unique="true"
+                             uniqueConstraintName="uk_radius_user_username"/>
+            </column>
+            <column name="description"
+                    type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="Johnny">
+        <createTable tableName="radius_group">
+            <column autoIncrement="true"
+                    name="id"
+                    type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" 
+                    type="VARCHAR(64)">
+                <constraints nullable="false"
+                             unique="true"
+                             uniqueConstraintName="uk_radius_group_name"/>
+            </column>
+            <column name="description"
+                    type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4" author="Johnny">
+        <createTable tableName="radcheck_attribute">
+            <column autoIncrement="true"
+                    name="id"
+                    type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" 
+                    type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description"
+                    type="VARCHAR(255)"/>
+            <column name="sensitive"
+                    type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="5" author="Johnny">
+        <createTable tableName="radreply_attribute">
+            <column autoIncrement="true"
+                    name="id"
+                    type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name"
+                    type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description"
+                    type="VARCHAR(255)"/>
+            <column name="sensitive"
+                    type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

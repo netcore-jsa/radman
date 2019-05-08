@@ -19,7 +19,7 @@ public class RadAcct {
 
     @Id
     @Column(name = "radacctid", length = 21)
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long radAcctId;
 
     @Column(name = "acctsessionid", length = 64, nullable = false)
@@ -51,7 +51,7 @@ public class RadAcct {
     @Temporal(TemporalType.TIMESTAMP)
     private Date acctUpateTime;
 
-    @Column(name = "accttstoptime", columnDefinition = "DATETIME")
+    @Column(name = "acctstoptime", columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date acctStopTime;
 

@@ -18,7 +18,7 @@ public class Nas {
 
     @Id
     @Column(length = 10)
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "nasname", length = 128, nullable = false)
@@ -31,7 +31,7 @@ public class Nas {
     private String type;
 
     @Column(length = 5)
-    private Integer port;
+    private Integer ports;
 
     @Column(length = 60, nullable = false)
     private String secret;

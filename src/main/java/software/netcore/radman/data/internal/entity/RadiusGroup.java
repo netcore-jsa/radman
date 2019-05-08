@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class RadiusGroup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 64, nullable = false, unique = true)

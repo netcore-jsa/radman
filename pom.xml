@@ -19,6 +19,9 @@
     <properties>
         <java.version>1.8</java.version>
         <vaadin.version>13.0.5</vaadin.version>
+        <frontend.maven.plugin.version>1.7.6</frontend.maven.plugin.version>
+        <node.version>v10.13.0</node.version>
+        <npm.version>6.4.1</npm.version>
     </properties>
 
     <dependencies>
@@ -41,12 +44,30 @@
             <scope>test</scope>
         </dependency>
 
+        <!--Webjars-->
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymer</groupId>
+            <artifactId>polymer</artifactId>
+        </dependency>
+
         <!-- other -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -61,6 +82,17 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>vaadin-prereleases</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+        </repository>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

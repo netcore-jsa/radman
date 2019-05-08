@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class RadReplyAttribute {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 64, nullable = false)
@@ -27,7 +27,7 @@ public class RadReplyAttribute {
     @Column
     private String description;
 
-    @Column(nullable = false)
+    @Column
     private boolean sensitive;
 
 }

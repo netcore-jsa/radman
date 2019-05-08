@@ -17,7 +17,7 @@ import javax.persistence.*;
 public class RadGroupCheck {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "UNSIGNED INT(11)")
     private Integer id;
 

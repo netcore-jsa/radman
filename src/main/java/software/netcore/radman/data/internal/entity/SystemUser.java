@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class SystemUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 64, nullable = false, unique = true)
@@ -28,9 +28,9 @@ public class SystemUser {
     private String password;
 
     @Column(name = "password_length", nullable = false)
-    private String passwordLength;
+    private int passwordLength;
 
-    @Column
+    @Column(length = 32, nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 

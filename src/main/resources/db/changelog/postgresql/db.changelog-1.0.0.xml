@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 
-    <changeSet id="1" author="Johnny">
+    <changeSet id="1" author="NetCore j.s.a">
         <createTable tableName="system_user">
             <column autoIncrement="true"
                     name="id"
@@ -36,7 +36,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="2" author="Johnny">
+    <changeSet id="2" author="NetCore j.s.a">
         <createTable tableName="radius_user">
             <column autoIncrement="true"
                     name="id"
@@ -54,7 +54,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="3" author="Johnny">
+    <changeSet id="3" author="NetCore j.s.a">
         <createTable tableName="radius_group">
             <column autoIncrement="true"
                     name="id"
@@ -72,7 +72,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="4" author="Johnny">
+    <changeSet id="4" author="NetCore j.s.a">
         <createTable tableName="radcheck_attribute">
             <column autoIncrement="true"
                     name="id"
@@ -92,7 +92,7 @@
         </createTable>
     </changeSet>
     
-    <changeSet id="5" author="Johnny">
+    <changeSet id="5" author="NetCore j.s.a">
         <createTable tableName="radreply_attribute">
             <column autoIncrement="true"
                     name="id"

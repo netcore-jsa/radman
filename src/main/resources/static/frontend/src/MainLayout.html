@@ -7,48 +7,90 @@
             .main-layout {
                 width: 100%;
                 height: 100%;
-                display: flex;
             }
 
-            .view-container {
-                flex-grow: 1;
-            }
-
-            .menu-bar {
-                padding: 10px;
-                width: 300px;
-                border: 1px solid black;
-            }
-
-            .hamburger {
-                cursor: pointer;
-                position: relative;
-                display: inline-block;
-                width: 1.25em;
-                height: 0.8em;
-                margin-right: 0.3em;
-                border-top: 0.2em solid #000;
-                border-bottom: 0.2em solid #000;
-            }
-
-            .hamburger:before {
-                content: "";
-                position: absolute;
-                top: 0.3em;
-                left: 0;
+            .page-view-container {
                 width: 100%;
-                border-top: 0.2em solid #000;
+            }
+
+            .page-view-container > div {
+                max-width: 1600px;
+                margin: 20px auto 0;
+                padding: 10px;
+            }
+
+            #page-nav {
+                width: 100%;
+                background: #000;
+                position: sticky;
+                top: 0;
+            }
+
+            /* Hide Hamburger */
+            #page-nav label, #hamburger {
+                display: none;
+            }
+
+            /* Menu Items */
+            #page-nav ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            #page-nav ul li {
+                display: inline-block;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            #page-nav ul li a {
+                color: #fff;
+                text-decoration: none;
+            }
+
+            /* [ON SMALL SCREENS] */
+            @media screen and (max-width: 768px) {
+                /* Show Hamburger */
+                #page-nav label {
+                    display: inline-block;
+                    color: #fff;
+                    background: #a02620;
+                    font-style: normal;
+                    font-size: 1.2em;
+                    padding: 10px;
+                }
+
+                /* Break down menu items into vertical */
+                #page-nav ul li {
+                    display: block;
+                }
+
+                #page-nav ul li {
+                    border-top: 1px solid #333;
+                }
+
+                /* Toggle show/hide menu on checkbox click */
+                #page-nav ul {
+                    display: none;
+                }
+
+                #page-nav input:checked ~ ul {
+                    display: block;
+                }
             }
         </style>
 
         <div class="main-layout">
-            <div class="menu-bar">
-                1st div
-                <span class="hamburger"></span>
-            </div>
-            <div class="view-container">
-                2nd div
-                <slot>No component here</slot>
+            <nav id="page-nav">
+                <label for="hamburger">&#9776;</label>
+                <input type="checkbox" id="hamburger"/>
+                <ul id="page-nav-links"></ul>
+            </nav>
+            <div class="page-view-container">
+                <div>
+                    <slot>Nothing to display :(</slot>
+                </div>
             </div>
         </div>
     </template>

@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AuthorizationDto {
+public class AuthorizationAttributeDto {
 
     private Long id;
     private String name;

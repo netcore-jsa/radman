@@ -1,16 +1,16 @@
 package software.netcore.radman.buisness.service.attribute.converter;
 
-import software.netcore.radman.buisness.service.attribute.dto.AuthorizationDto;
+import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.buisness.conversion.DtoConverter;
 import software.netcore.radman.data.internal.entity.RadReplyAttribute;
 
 /**
  * @since v. 1.0.0
  */
-public class DtoToRadReplyAttributeConverter implements DtoConverter<AuthorizationDto, RadReplyAttribute> {
+public class DtoToRadReplyAttributeConverter implements DtoConverter<AuthorizationAttributeDto, RadReplyAttribute> {
 
     @Override
-    public RadReplyAttribute convert(AuthorizationDto source) {
+    public RadReplyAttribute convert(AuthorizationAttributeDto source) {
         RadReplyAttribute target = new RadReplyAttribute();
         target.setId(source.getId());
         target.setName(source.getName());

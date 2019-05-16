@@ -8,7 +8,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
  * @since v. 1.0.0
  */
 @Configuration
-public class ConversionConfiguration {
+public class ConversionServiceConfiguration {
 
     @Bean
     DefaultConversionService defaultConversionService() {

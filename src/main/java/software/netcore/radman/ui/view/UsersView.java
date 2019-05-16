@@ -16,4 +16,5 @@ public class UsersView extends Div {
     public UsersView() {
         add(new Label("Users view"));
     }
+
 }

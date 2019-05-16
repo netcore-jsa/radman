@@ -4,8 +4,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import software.netcore.radman.buisness.service.attribute.dto.AuthenticationDto;
-import software.netcore.radman.buisness.service.attribute.dto.AuthorizationDto;
+import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
+import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.data.internal.repo.RadCheckAttributeRepo;
 import software.netcore.radman.data.internal.repo.RadReplyAttributeRepo;
 
@@ -32,7 +32,7 @@ public class AttributeService {
         return 0;
     }
 
-    public Page<AuthenticationDto> pageAuthenticationAttributeRecords(Pageable pageable) {
+    public Page<AuthenticationAttributeDto> pageAuthenticationAttributeRecords(Pageable pageable) {
         return new PageImpl<>(Collections.emptyList());
     }
 
@@ -40,7 +40,7 @@ public class AttributeService {
         return 0;
     }
 
-    public Page<AuthorizationDto> pageAuthorizationAttributeRecords(Pageable pageable) {
+    public Page<AuthorizationAttributeDto> pageAuthorizationAttributeRecords(Pageable pageable) {
         return new PageImpl<>(Collections.emptyList());
     }
 

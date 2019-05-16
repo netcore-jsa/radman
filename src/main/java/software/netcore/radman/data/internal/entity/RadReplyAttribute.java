@@ -27,7 +27,7 @@ public class RadReplyAttribute {
     @Column
     private String description;
 
-    @Column
+    @Column(nullable = false)
     private boolean sensitive;
 
 }

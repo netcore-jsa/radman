@@ -22,7 +22,7 @@ public class RadCheckAttribute {
     private Long id;
 
     @Column(length = 64, nullable = false)
-    private String name;
+    private String name; // attribute column  name : 3rd-nth column
 
     @Column
     private String description;

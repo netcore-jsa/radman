@@ -22,10 +22,10 @@ public class RadCheck {
     private Integer id;
 
     @Column(nullable = false, length = 64)
-    private String username;
+    private String username; // name column : 1st
 
     @Column(nullable = false, length = 64)
-    private String attribute;
+    private String attribute; // correlates to rad check attribute name
 
     @Column(columnDefinition = "CHAR(2)", nullable = false)
     private String op;

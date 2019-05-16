@@ -49,7 +49,7 @@ public class RadAcct {
 
     @Column(name = "acctupdatetime", columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date acctUpateTime;
+    private Date acctUpdateTime;
 
     @Column(name = "acctstoptime", columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)

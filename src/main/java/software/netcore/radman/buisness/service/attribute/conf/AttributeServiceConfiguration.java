@@ -1,5 +1,6 @@
 package software.netcore.radman.buisness.service.attribute.conf;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
@@ -16,15 +17,16 @@ import software.netcore.radman.data.internal.repo.RadReplyAttributeRepo;
  * @since v. 1.0.0
  */
 @Configuration
-public class AttributeConfiguration {
+public class AttributeServiceConfiguration {
 
     private final RadCheckAttributeRepo checkAttributeRepo;
     private final RadReplyAttributeRepo replyAttributeRepo;
     private final ConversionService conversionService;
 
-    public AttributeConfiguration(RadCheckAttributeRepo checkAttributeRepo,
-                                  RadReplyAttributeRepo replyAttributeRepo,
-                                  DefaultConversionService conversionService) {
+    @Autowired
+    public AttributeServiceConfiguration(RadCheckAttributeRepo checkAttributeRepo,
+                                         RadReplyAttributeRepo replyAttributeRepo,
+                                         DefaultConversionService conversionService) {
         this.checkAttributeRepo = checkAttributeRepo;
         this.replyAttributeRepo = replyAttributeRepo;
         this.conversionService = conversionService;

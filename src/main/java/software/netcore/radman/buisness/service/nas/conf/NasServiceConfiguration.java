@@ -1,5 +1,6 @@
 package software.netcore.radman.buisness.service.nas.conf;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
@@ -16,15 +17,16 @@ import software.netcore.radman.data.radius.repo.RadHuntGroupRepo;
  * @since v. 1.0.0
  */
 @Configuration
-public class NasConfiguration {
+public class NasServiceConfiguration {
 
     private final NasRepo nasRepo;
     private final RadHuntGroupRepo radHuntGroupRepo;
     private final ConversionService conversionService;
 
-    public NasConfiguration(NasRepo nasRepo,
-                            RadHuntGroupRepo radHuntGroupRepo,
-                            DefaultConversionService conversionService) {
+    @Autowired
+    public NasServiceConfiguration(NasRepo nasRepo,
+                                   RadHuntGroupRepo radHuntGroupRepo,
+                                   DefaultConversionService conversionService) {
         this.nasRepo = nasRepo;
         this.radHuntGroupRepo = radHuntGroupRepo;
         this.conversionService = conversionService;

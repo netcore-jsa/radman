@@ -10,8 +10,8 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.attribute.AttributeService;
-import software.netcore.radman.buisness.service.attribute.dto.AuthenticationDto;
-import software.netcore.radman.buisness.service.attribute.dto.AuthorizationDto;
+import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
+import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.ui.menu.MainTemplate;
 
 /**
@@ -28,9 +28,9 @@ public class AttributesView extends Div {
         firstSlot.setWidth("700px");
         firstSlot.add(new H2("Authentication attributes"));
 
-        Grid<AuthenticationDto> authenticationDtoGrid = new Grid<>(AuthenticationDto.class, false);
+        Grid<AuthenticationAttributeDto> authenticationDtoGrid = new Grid<>(AuthenticationAttributeDto.class, false);
         authenticationDtoGrid.setColumns("name", "description", "sensitive");
-        DataProvider<AuthenticationDto, Object> authenticationAttributesDataProvider = new SpringDataProviderBuilder<>(
+        DataProvider<AuthenticationAttributeDto, Object> authenticationAttributesDataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> attributeService.pageAuthenticationAttributeRecords(pageable),
                 value -> attributeService.countAuthenticationAttributeRecords())
                 .withDefaultSort("id", SortDirection.ASCENDING)
@@ -45,9 +45,9 @@ public class AttributesView extends Div {
         secondSlot.setWidth("700px");
         secondSlot.add(new H2("Authorization attributes"));
 
-        Grid<AuthorizationDto> authorizationDtoGrid = new Grid<>(AuthorizationDto.class, false);
+        Grid<AuthorizationAttributeDto> authorizationDtoGrid = new Grid<>(AuthorizationAttributeDto.class, false);
         authorizationDtoGrid.setColumns("name", "description", "sensitive");
-        DataProvider<AuthorizationDto, Object> authorizationAttributesDataProvider = new SpringDataProviderBuilder<>(
+        DataProvider<AuthorizationAttributeDto, Object> authorizationAttributesDataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> attributeService.pageAuthorizationAttributeRecords(pageable),
                 value -> attributeService.countAuthorizationAttributeRecords())
                 .withDefaultSort("id", SortDirection.ASCENDING)

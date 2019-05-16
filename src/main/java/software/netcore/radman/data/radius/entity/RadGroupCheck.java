@@ -22,10 +22,10 @@ public class RadGroupCheck {
     private Integer id;
 
     @Column(name = "groupname", nullable = false, length = 64)
-    private String groupName;
+    private String groupName; // name column : 1st
 
     @Column(nullable = false, length = 64)
-    private String attribute;
+    private String attribute; // correlates to rad check attribute name
 
     @Column(columnDefinition = "CHAR(2)", nullable = false)
     private String op;

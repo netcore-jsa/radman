@@ -1,6 +1,7 @@
-package software.netcore.radman.buisness.service.attribute.dto;
+package software.netcore.radman.buisness.service.user.radius.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -8,11 +9,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AuthenticationDto {
+@NoArgsConstructor
+public class RadiusGroupDto {
 
     private Long id;
     private String name;
     private String description;
-    private boolean sensitive;
 
 }

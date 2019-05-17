@@ -12,17 +12,21 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.user.system.SystemUserService;
 import software.netcore.radman.buisness.service.user.system.dto.Role;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.validator.PasswordValidator;
 import software.netcore.radman.ui.validator.UsernameValidator;
 
@@ -35,18 +39,20 @@ public class SystemUsersView extends Div {
 
     @Autowired
     public SystemUsersView(SystemUserService systemUserService) {
+        Dialog userCreationDialog = new Dialog();
 
-        Dialog creationDialog = new Dialog();
-        SystemAccountForm accountForm = new SystemAccountForm(systemUserDto -> {
-
-        }, () -> creationDialog.setOpened(false));
-        creationDialog.add(accountForm);
+        Button editBtn = new Button("Edit", event -> {
+        });
+        editBtn.setEnabled(false);
+        Button deleteBtn = new Button("Delete");
+        deleteBtn.setEnabled(false);
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("System users"));
-        horizontalLayout.add(new Button("Create", event -> creationDialog.setOpened(true)));
-        horizontalLayout.add(new Button("Delete"));
+        horizontalLayout.add(new Button("Create", event -> userCreationDialog.setOpened(true)));
+        horizontalLayout.add(editBtn);
+        horizontalLayout.add(deleteBtn);
         add(horizontalLayout);
 
         Grid<SystemUserDto> grid = new Grid<>(SystemUserDto.class, false);
@@ -60,14 +66,23 @@ public class SystemUsersView extends Div {
         grid.setColumnReorderingAllowed(true);
         grid.setDataProvider(dataProvider);
         add(grid);
+
+        SystemAccountForm accountForm = new SystemAccountForm(systemUserService,
+                systemUserDto -> {
+                    userCreationDialog.setOpened(false);
+                    grid.getDataProvider().refreshAll();
+                },
+                () -> userCreationDialog.setOpened(false));
+        userCreationDialog.addOpenedChangeListener(event -> accountForm.clear());
+        userCreationDialog.add(accountForm);
     }
 
-    public static class SystemAccountForm extends FormLayout {
+    static class SystemAccountForm extends FormLayout {
 
         @FunctionalInterface
-        public interface ConfirmListener {
+        public interface CreationListener {
 
-            void onConfirm(SystemUserDto systemUserDto);
+            void onCreated(SystemUserDto systemUserDto);
 
         }
 
@@ -78,32 +93,60 @@ public class SystemUsersView extends Div {
 
         }
 
-        SystemAccountForm(ConfirmListener confirmListener, DeclineListener declineListener) {
+        private final Binder<SystemUserDto> binder;
+
+        SystemAccountForm(SystemUserService systemUserService,
+                          CreationListener creationListener,
+                          DeclineListener declineListener) {
             TextField username = new TextField("Username");
+            username.setRequiredIndicatorVisible(true);
             username.setValueChangeMode(ValueChangeMode.EAGER);
             username.setWidthFull();
 
             PasswordField password = new PasswordField("Password");
+            password.setRequiredIndicatorVisible(true);
             password.setValueChangeMode(ValueChangeMode.EAGER);
             password.setWidthFull();
 
-            ComboBox<Role> role = new ComboBox<>("Role");
+            ComboBox<Role> role = new ComboBox<>("Role", Role.values());
+            role.setPreventInvalidInput(true);
+            role.setRequiredIndicatorVisible(true);
             role.setWidthFull();
-            role.setItems(Role.values());
-            role.setValue(Role.READ_ONLY);
 
-            Binder<SystemUserDto> binder = new Binder<>(SystemUserDto.class);
+            binder = new Binder<>(SystemUserDto.class);
             binder.forField(username)
                     .withValidator(new UsernameValidator())
-                    .bind(SystemUserDto::getUsername, SystemUserDto::setPassword);
+                    .bind(SystemUserDto::getUsername, SystemUserDto::setUsername);
             binder.forField(password)
                     .withValidator(new PasswordValidator())
                     .bind(SystemUserDto::getPassword, SystemUserDto::setPassword);
             binder.forField(role)
+                    .withValidator((Validator<Role>) (value, context) -> {
+                        if (value == null) {
+                            return ValidationResult.error("System user access role is required.");
+                        }
+                        return ValidationResult.ok();
+                    })
                     .bind(SystemUserDto::getRole, SystemUserDto::setRole);
 
-            Button createBtn = new Button("Create");
-            Button declineBtn = new Button("Decline", event -> declineListener.onDecline());
+            Button createBtn = new Button("Create", event -> {
+                SystemUserDto userDto = new SystemUserDto();
+                if (binder.writeBeanIfValid(userDto)) {
+                    try {
+                        systemUserService.createSystemUser(userDto);
+                        creationListener.onCreated(userDto);
+                    } catch (DataIntegrityViolationException e) {
+                        username.setInvalid(true);
+                        username.setErrorMessage("User with same username already exist.");
+                    } catch (Exception e) {
+                        ErrorNotification.show("Error", "Ooops something went wrong, try again, please");
+                    }
+                }
+            });
+            Button declineBtn = new Button("Cancel", event -> {
+                clear();
+                declineListener.onDecline();
+            });
             HorizontalLayout formControls = new HorizontalLayout();
             formControls.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             formControls.add(declineBtn, createBtn);
@@ -115,6 +158,13 @@ public class SystemUsersView extends Div {
             add(formControls);
             setMaxWidth("400px");
         }
+
+        void clear() {
+            SystemUserDto systemUserDto = new SystemUserDto();
+            systemUserDto.setRole(Role.ADMIN);
+            binder.readBean(systemUserDto);
+        }
+
     }
 
 }

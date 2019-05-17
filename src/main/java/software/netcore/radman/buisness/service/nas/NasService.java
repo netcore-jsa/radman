@@ -35,8 +35,8 @@ public class NasService {
         return new PageImpl<>(nasDtos, pageable, nasDtos.size());
     }
 
-    public int countNasGroupRecords() {
-        return (int) radHuntGroupRepo.count();
+    public long countNasGroupRecords() {
+        return radHuntGroupRepo.count();
     }
 
     public Page<NasGroupDto> pageNasGroupRecords(Pageable pageable) {

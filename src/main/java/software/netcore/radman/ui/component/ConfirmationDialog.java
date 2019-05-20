@@ -1,0 +1,81 @@
+package software.netcore.radman.ui.component;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import lombok.Setter;
+import software.netcore.radman.ui.CancelListener;
+
+import java.util.Objects;
+
+/**
+ * @since v. 1.0.0
+ */
+public class ConfirmationDialog extends Dialog {
+
+    @FunctionalInterface
+    public interface ConfirmListener {
+
+        void onConfirm();
+
+    }
+
+    private final H3 title = new H3();
+    private final Label description = new Label();
+    private final Button confirmBtn = new Button("Confirm");
+    private final Button cancelBtn = new Button("Cancel");
+
+    @Setter
+    private ConfirmListener confirmListener;
+    @Setter
+    private CancelListener cancelListener;
+
+    public ConfirmationDialog() {
+        HorizontalLayout controlsLayout = new HorizontalLayout();
+        controlsLayout.setWidthFull();
+        controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        controlsLayout.add(cancelBtn);
+        controlsLayout.add(confirmBtn);
+
+        FormLayout layout = new FormLayout();
+        layout.setMaxWidth("500px");
+        layout.add(title);
+        layout.add(description);
+        layout.add(controlsLayout);
+        add(layout);
+
+        cancelBtn.addClickListener(event -> {
+            if (Objects.nonNull(cancelListener)) {
+                cancelListener.onCancel(this);
+            } else {
+                setOpened(false);
+            }
+        });
+        confirmBtn.addClickListener(event -> {
+            if (Objects.nonNull(confirmListener)) {
+                confirmListener.onConfirm();
+            }
+        });
+    }
+
+    public void setTitle(String title) {
+        this.title.setText(title);
+    }
+
+    public void setDescription(String description) {
+        this.description.setText(description);
+    }
+
+    public void setConfirmButtonCaption(String caption) {
+        this.confirmBtn.setText(caption);
+    }
+
+    public void setCancelButtonCaption(String caption) {
+        this.cancelBtn.setText(caption);
+    }
+
+}

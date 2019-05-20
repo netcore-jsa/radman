@@ -1,5 +1,6 @@
 package software.netcore.radman.data.internal.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Table(name = "system_user",
         uniqueConstraints = @UniqueConstraint(name = "uk_system_user_username", columnNames = {"username"}))
 public class SystemUser {

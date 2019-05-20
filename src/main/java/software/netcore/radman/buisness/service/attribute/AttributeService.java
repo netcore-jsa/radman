@@ -44,4 +44,12 @@ public class AttributeService {
         return new PageImpl<>(Collections.emptyList());
     }
 
+    public AuthenticationAttributeDto createAuthenticationAttribute(AuthenticationAttributeDto attributeDto) {
+        return null;
+    }
+
+    public AuthorizationAttributeDto createAuthorizationAttribute(AuthorizationAttributeDto attributeDto) {
+        return null;
+    }
+
 }

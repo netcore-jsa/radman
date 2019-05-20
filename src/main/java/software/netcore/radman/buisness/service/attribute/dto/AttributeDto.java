@@ -8,5 +8,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AuthorizationAttributeDto extends AttributeDto {
+public abstract class AttributeDto {
+
+    private Long id;
+    private String name;
+    private String description;
+    private boolean sensitive;
+
 }

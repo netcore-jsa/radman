@@ -28,7 +28,6 @@ public class SystemUserService {
 
     public SystemUserDto createSystemUser(@NonNull SystemUserDto systemUserDto) {
         SystemUser systemUser = conversionService.convert(systemUserDto, SystemUser.class);
-        assert systemUser != null : "Conversion service returned null!";
         systemUser.setPasswordLength(systemUser.getPassword().length());
         systemUser.setPassword(passwordEncoder.encode(systemUser.getPassword()));
         systemUser = systemUserRepo.save(systemUser);
@@ -37,7 +36,6 @@ public class SystemUserService {
 
     public SystemUserDto updateSystemUser(@NonNull SystemUserDto systemUserDto) {
         SystemUser systemUser = conversionService.convert(systemUserDto, SystemUser.class);
-        assert systemUser != null : "Conversion service returned null!";
         systemUser = systemUserRepo.save(systemUser);
         return conversionService.convert(systemUser, SystemUserDto.class);
     }

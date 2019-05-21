@@ -85,7 +85,7 @@
             </column>
             <column name="description"
                     type="VARCHAR(255)"/>
-            <column name="sensitive"
+            <column name="sensitive_data"
                     type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
@@ -105,11 +105,23 @@
             </column>
             <column name="description"
                     type="VARCHAR(255)"/>
-            <column name="sensitive"
+            <column name="sensitive_data"
                     type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <changeSet id="6" author="NetCore j.s.a">
+        <addUniqueConstraint tableName="radcheck_attribute"
+                             columnNames="name"
+                             constraintName="uk_radcheck_attribute_name"/>
+    </changeSet>
+
+    <changeSet id="7" author="NetCore j.s.a">
+        <addUniqueConstraint tableName="radreply_attribute"
+                             columnNames="name"
+                             constraintName="uk_radreply_attribute_name"/>
     </changeSet>
 
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 package software.netcore.radman.data.internal.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Table(name = "radreply_attribute",
         uniqueConstraints = @UniqueConstraint(name = "uk_radreply_attribute_name", columnNames = {"name"}))
 public class RadReplyAttribute {
@@ -27,7 +29,7 @@ public class RadReplyAttribute {
     @Column
     private String description;
 
-    @Column(nullable = false)
-    private boolean sensitive;
+    @Column(name = "sensitive_data", nullable = false)
+    private boolean sensitiveData;
 
 }

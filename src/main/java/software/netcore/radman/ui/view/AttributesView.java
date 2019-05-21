@@ -11,12 +11,16 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
@@ -24,13 +28,17 @@ import software.netcore.radman.buisness.service.attribute.AttributeService;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
-import software.netcore.radman.ui.CancelListener;
 import software.netcore.radman.ui.CreationListener;
+import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.notification.ErrorNotification;
+
+import java.util.Objects;
 
 /**
  * @since v. 1.0.0
  */
+@Slf4j
 @PageTitle("Radman: Attributes")
 @Route(value = "attributes", layout = MainTemplate.class)
 public class AttributesView extends Div {
@@ -50,31 +58,45 @@ public class AttributesView extends Div {
     }
 
     @SuppressWarnings("Duplicates")
-    abstract static class AttributeGrid<T extends AttributeDto> extends Div {
+    private abstract static class AttributeGrid<T extends AttributeDto> extends Div {
 
-        AttributeService attributeService;
+        final AttributeService attributeService;
+        final Grid<T> grid;
 
-        AttributeGrid(AttributeService attributeService,
-                      AttributeCreationDialog<T> creationDialog) {
+        AttributeGrid(AttributeService attributeService) {
             this.attributeService = attributeService;
             setWidth("50%");
 
-            Grid<T> authorizationDtoGrid = new Grid<>(getClazz(), false);
-            authorizationDtoGrid.setColumns("name", "description", "sensitive");
+            grid = new Grid<>(getClazz(), false);
+            grid.setColumns("name", "description", "sensitiveData");
             DataProvider<T, Object> dataProvider = new SpringDataProviderBuilder<>(
                     (pageable, o) -> pageAttributes(pageable), value -> countAttributes())
                     .withDefaultSort("id", SortDirection.ASCENDING)
                     .build();
-            authorizationDtoGrid.getColumns().forEach(column -> column.setResizable(true));
-            authorizationDtoGrid.setColumnReorderingAllowed(true);
-            authorizationDtoGrid.setDataProvider(dataProvider);
-            authorizationDtoGrid.setWidth("700px");
+            grid.getColumns().forEach(column -> column.setResizable(true));
+            grid.setColumnReorderingAllowed(true);
+            grid.setDataProvider(dataProvider);
+            grid.setWidth("700px");
 
-            Button createBtn = new Button("Create", event -> creationDialog.setOpened(true));
-            Button editBtn = new Button("Edit");
+            Button createBtn = new Button("Create", event -> {
+                getCreationDialog().clear();
+                getCreationDialog().setOpened(true);
+            });
+            Button editBtn = new Button("Edit", event -> {
+                T bean = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+                if (Objects.nonNull(bean)) {
+                    getEditDialog().setOpened(true);
+                    getEditDialog().edit(bean);
+                }
+            });
             editBtn.setEnabled(false);
             Button deleteBtn = new Button("Delete");
             deleteBtn.setEnabled(false);
+
+            grid.asSingleSelect().addValueChangeListener(event -> {
+                editBtn.setEnabled(Objects.nonNull(event.getValue()));
+                deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+            });
 
             HorizontalLayout horizontalLayout = new HorizontalLayout();
             horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
@@ -84,7 +106,7 @@ public class AttributesView extends Div {
             horizontalLayout.add(deleteBtn);
 
             add(horizontalLayout);
-            add(authorizationDtoGrid);
+            add(grid);
         }
 
         abstract String getGridTitle();
@@ -93,17 +115,25 @@ public class AttributesView extends Div {
 
         abstract Page<T> pageAttributes(Pageable pageable);
 
-        abstract int countAttributes();
+        abstract long countAttributes();
+
+        abstract AttributeCreationDialog<T> getCreationDialog();
+
+        abstract AttributeEditDialog<T> getEditDialog();
 
     }
 
-    static class AuthenticationAttributeGrid extends AttributeGrid<AuthenticationAttributeDto> {
+    private static class AuthenticationAttributeGrid extends AttributeGrid<AuthenticationAttributeDto> {
+
+        private final AttributeCreationDialog<AuthenticationAttributeDto> creationDialog;
+        private final AttributeEditDialog<AuthenticationAttributeDto> editDialog;
 
         AuthenticationAttributeGrid(AttributeService attributeService) {
-            super(attributeService,
-                    new AuthenticationAttributeCreationDialog(attributeService,
-                            (source, bean) -> {
-                            }));
+            super(attributeService);
+            creationDialog = new AuthenticationAttributeCreationDialog(attributeService,
+                    (source, bean) -> grid.getDataProvider().refreshAll());
+            editDialog = new AuthenticationAttributeEditDialog(attributeService,
+                    (source, bean) -> grid.getDataProvider().refreshItem(bean));
         }
 
         @Override
@@ -122,20 +152,33 @@ public class AttributesView extends Div {
         }
 
         @Override
-        int countAttributes() {
+        long countAttributes() {
             return attributeService.countAuthenticationAttributeRecords();
+        }
+
+        @Override
+        AttributeCreationDialog<AuthenticationAttributeDto> getCreationDialog() {
+            return creationDialog;
+        }
+
+        @Override
+        AttributeEditDialog<AuthenticationAttributeDto> getEditDialog() {
+            return editDialog;
         }
 
     }
 
-    static class AuthorizationAttributeGrid extends AttributeGrid<AuthorizationAttributeDto> {
+    private static class AuthorizationAttributeGrid extends AttributeGrid<AuthorizationAttributeDto> {
+
+        private final AttributeCreationDialog<AuthorizationAttributeDto> creationDialog;
+        private final AttributeEditDialog<AuthorizationAttributeDto> editDialog;
 
         AuthorizationAttributeGrid(AttributeService attributeService) {
-            super(attributeService,
-                    new AuthorizationAttributeCreationDialog(attributeService,
-                            (source, bean) -> {
-
-                            }));
+            super(attributeService);
+            creationDialog = new AuthorizationAttributeCreationDialog(attributeService,
+                    (source, bean) -> grid.getDataProvider().refreshAll());
+            editDialog = new AuthorizationAttributeEditDialog(attributeService,
+                    (source, bean) -> grid.getDataProvider().refreshItem(bean));
         }
 
         @Override
@@ -154,27 +197,38 @@ public class AttributesView extends Div {
         }
 
         @Override
-        int countAttributes() {
+        long countAttributes() {
             return attributeService.countAuthorizationAttributeRecords();
+        }
+
+        @Override
+        AttributeCreationDialog<AuthorizationAttributeDto> getCreationDialog() {
+            return creationDialog;
+        }
+
+        @Override
+        AttributeEditDialog<AuthorizationAttributeDto> getEditDialog() {
+            return editDialog;
         }
 
     }
 
-    abstract static class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
+    private abstract static class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
 
-        AttributeService attributeService;
-        private CreationListener<T> creationListener;
-        private CancelListener cancelListener;
+        final AttributeService attributeService;
+        private final Binder<T> binder;
 
         AttributeCreationDialog(AttributeService attributeService,
                                 CreationListener<T> creationListener) {
+            this.attributeService = attributeService;
+
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3(getDialogTitle()));
 
-            TextField username = new TextField("Name");
-            username.setRequiredIndicatorVisible(true);
-            username.setValueChangeMode(ValueChangeMode.EAGER);
-            username.setWidthFull();
+            TextField name = new TextField("Name");
+            name.setRequiredIndicatorVisible(true);
+            name.setValueChangeMode(ValueChangeMode.EAGER);
+            name.setWidthFull();
 
             TextArea description = new TextArea("Description");
             description.setValueChangeMode(ValueChangeMode.EAGER);
@@ -183,7 +237,31 @@ public class AttributesView extends Div {
             Checkbox sensitive = new Checkbox("Sensitive");
             sensitive.setWidthFull();
 
-            Button createBtn = new Button("Create");
+            binder = new Binder<>(getClazz());
+            binder.forField(name)
+                    .withValidator(new StringLengthValidator("Attribute name length cannot be less " +
+                            "than 2 and more than 64 characters.", 2, 64))
+                    .bind(AttributeDto::getName, AttributeDto::setName);
+            binder.forField(description).bind(AttributeDto::getDescription, AttributeDto::setDescription);
+            binder.forField(sensitive).bind(AttributeDto::isSensitiveData, AttributeDto::setSensitiveData);
+
+            Button createBtn = new Button("Create", event -> {
+                T dto = getNewBeanInstance();
+                if (binder.writeBeanIfValid(dto)) {
+                    try {
+                        dto = create(dto);
+                        creationListener.onCreated(this, dto);
+                        setOpened(false);
+                    } catch (DataIntegrityViolationException e) {
+                        name.setInvalid(true);
+                        name.setErrorMessage("Attribute with the same name already exist.");
+                    } catch (Exception e) {
+                        log.warn("Failed to create attribute. Reason = '{}'", e.getMessage());
+                        ErrorNotification.show("Error",
+                                "Ooops, something went wrong, try again please");
+                    }
+                }
+            });
             Button cancelBtn = new Button("Cancel", event -> setOpened(false));
 
             HorizontalLayout controlsLayout = new HorizontalLayout();
@@ -192,7 +270,7 @@ public class AttributesView extends Div {
             controlsLayout.add(cancelBtn);
             controlsLayout.add(createBtn);
 
-            formLayout.add(username);
+            formLayout.add(name);
             formLayout.add(description);
             formLayout.add(sensitive);
             formLayout.add(controlsLayout);
@@ -200,17 +278,30 @@ public class AttributesView extends Div {
             add(formLayout);
         }
 
+        abstract Class<T> getClazz();
+
         abstract String getDialogTitle();
 
         abstract T create(T attributeDto);
 
+        abstract T getNewBeanInstance();
+
+        void clear() {
+            binder.readBean(getNewBeanInstance());
+        }
+
     }
 
-    static class AuthenticationAttributeCreationDialog extends AttributeCreationDialog<AuthenticationAttributeDto> {
+    private static class AuthenticationAttributeCreationDialog extends AttributeCreationDialog<AuthenticationAttributeDto> {
 
         AuthenticationAttributeCreationDialog(AttributeService attributeService,
                                               CreationListener<AuthenticationAttributeDto> creationListener) {
             super(attributeService, creationListener);
+        }
+
+        @Override
+        Class<AuthenticationAttributeDto> getClazz() {
+            return AuthenticationAttributeDto.class;
         }
 
         @Override
@@ -223,13 +314,23 @@ public class AttributesView extends Div {
             return attributeService.createAuthenticationAttribute(attributeDto);
         }
 
+        @Override
+        AuthenticationAttributeDto getNewBeanInstance() {
+            return new AuthenticationAttributeDto();
+        }
+
     }
 
-    static class AuthorizationAttributeCreationDialog extends AttributeCreationDialog<AuthorizationAttributeDto> {
+    private static class AuthorizationAttributeCreationDialog extends AttributeCreationDialog<AuthorizationAttributeDto> {
 
         AuthorizationAttributeCreationDialog(AttributeService attributeService,
                                              CreationListener<AuthorizationAttributeDto> creationListener) {
             super(attributeService, creationListener);
+        }
+
+        @Override
+        Class<AuthorizationAttributeDto> getClazz() {
+            return AuthorizationAttributeDto.class;
         }
 
         @Override
@@ -242,9 +343,127 @@ public class AttributesView extends Div {
             return attributeService.createAuthorizationAttribute(attributeDto);
         }
 
+        @Override
+        AuthorizationAttributeDto getNewBeanInstance() {
+            return new AuthorizationAttributeDto();
+        }
+
     }
 
-    static class AttributeEditForm extends FormLayout {
+    @SuppressWarnings("Duplicates")
+    private abstract static class AttributeEditDialog<T extends AttributeDto> extends Dialog {
+
+        final AttributeService attributeService;
+        final Binder<T> binder;
+
+        AttributeEditDialog(AttributeService attributeService, UpdateListener<T> updateListener) {
+            this.attributeService = attributeService;
+
+            FormLayout formLayout = new FormLayout();
+            formLayout.add(new H3(getDialogTitle()));
+
+            TextArea description = new TextArea("Description");
+            description.setValueChangeMode(ValueChangeMode.EAGER);
+            description.setWidthFull();
+
+            Checkbox sensitive = new Checkbox("Sensitive");
+            sensitive.setWidthFull();
+
+            binder = new Binder<>(getClazz());
+            binder.forField(description).bind(AttributeDto::getDescription, AttributeDto::setDescription);
+            binder.forField(sensitive).bind(AttributeDto::isSensitiveData, AttributeDto::setSensitiveData);
+
+            Button cancelBtn = new Button("Cancel", event -> setOpened(false));
+            Button saveBtn = new Button("Save", event -> {
+                if (binder.isValid()) {
+                    try {
+                        T attributeDto = binder.getBean();
+                        attributeDto = save(attributeDto);
+                        updateListener.onUpdated(this, attributeDto);
+                        setOpened(false);
+                    } catch (Exception e) {
+                        log.warn("Failed to update attribute. Reason = '{}'", e.getMessage());
+                        ErrorNotification.show("Error",
+                                "Ooops, something went wrong, try again please");
+                    }
+                }
+            });
+
+            HorizontalLayout controlsLayout = new HorizontalLayout();
+            controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+            controlsLayout.setWidthFull();
+            controlsLayout.add(cancelBtn);
+            controlsLayout.add(saveBtn);
+
+            formLayout.add(description);
+            formLayout.add(sensitive);
+            formLayout.add(controlsLayout);
+            formLayout.setMaxWidth("500px");
+            add(formLayout);
+        }
+
+        abstract Class<T> getClazz();
+
+        abstract String getDialogTitle();
+
+        abstract T save(T attributeDto);
+
+        void edit(T attributeDto) {
+            binder.setBean(attributeDto);
+            System.out.println();
+        }
+
+    }
+
+    private static class AuthorizationAttributeEditDialog extends AttributeEditDialog<AuthorizationAttributeDto> {
+
+        AuthorizationAttributeEditDialog(AttributeService attributeService,
+                                         UpdateListener<AuthorizationAttributeDto> updateListener) {
+            super(attributeService, updateListener);
+        }
+
+        @Override
+        Class<AuthorizationAttributeDto> getClazz() {
+            return AuthorizationAttributeDto.class;
+        }
+
+        @Override
+        String getDialogTitle() {
+            return "Edit authorization attribute";
+        }
+
+        @Override
+        AuthorizationAttributeDto save(AuthorizationAttributeDto attributeDto) {
+            return attributeService.updateAuthorizationAttribute(attributeDto);
+        }
+
+        @Override
+        void edit(AuthorizationAttributeDto attributeDto) {
+            binder.setBean(attributeDto);
+        }
+    }
+
+    private static class AuthenticationAttributeEditDialog extends AttributeEditDialog<AuthenticationAttributeDto> {
+
+        AuthenticationAttributeEditDialog(AttributeService attributeService,
+                                          UpdateListener<AuthenticationAttributeDto> updateListener) {
+            super(attributeService, updateListener);
+        }
+
+        @Override
+        Class<AuthenticationAttributeDto> getClazz() {
+            return AuthenticationAttributeDto.class;
+        }
+
+        @Override
+        String getDialogTitle() {
+            return "Edit authentication attribute";
+        }
+
+        @Override
+        AuthenticationAttributeDto save(AuthenticationAttributeDto attributeDto) {
+            return attributeService.updateAuthenticationAttribute(attributeDto);
+        }
 
     }
 

@@ -15,7 +15,7 @@ public class DtoToRadReplyAttributeConverter implements DtoConverter<Authorizati
         target.setId(source.getId());
         target.setName(source.getName());
         target.setDescription(source.getDescription());
-        target.setSensitive(source.isSensitive());
+        target.setSensitiveData(source.isSensitiveData());
         return target;
     }
 

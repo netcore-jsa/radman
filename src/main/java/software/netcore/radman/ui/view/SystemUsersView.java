@@ -189,7 +189,7 @@ public class SystemUsersView extends Div {
                         creationListener.onCreated(this, userDto);
                     } catch (DataIntegrityViolationException e) {
                         username.setInvalid(true);
-                        username.setErrorMessage("User with same username already exist.");
+                        username.setErrorMessage("User with the same username already exist.");
                     } catch (Exception e) {
                         log.warn("Failed to create system user. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",

@@ -15,7 +15,7 @@ public class RadCheckAttributeToDtoConverter implements DtoConverter<RadCheckAtt
         target.setId(source.getId());
         target.setName(source.getName());
         target.setDescription(source.getDescription());
-        target.setSensitive(source.isSensitive());
+        target.setSensitiveData(source.isSensitiveData());
         return target;
     }
 

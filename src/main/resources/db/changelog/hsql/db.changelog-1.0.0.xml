@@ -85,7 +85,7 @@
             </column>
             <column name="description"
                     type="VARCHAR(255)"/>
-            <column name="sensitive"
+            <column name="sensitive_data"
                     type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
@@ -105,7 +105,7 @@
             </column>
             <column name="description"
                     type="VARCHAR(255)"/>
-            <column name="sensitive"
+            <column name="sensitive_data"
                     type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>

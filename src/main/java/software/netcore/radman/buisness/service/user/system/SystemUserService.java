@@ -40,6 +40,10 @@ public class SystemUserService {
         return conversionService.convert(systemUser, SystemUserDto.class);
     }
 
+    public void deleteSystemUser(@NonNull SystemUserDto user) {
+        systemUserRepo.deleteById(user.getId());
+    }
+
     public long countSystemUsers() {
         return systemUserRepo.countSystemUsers();
     }
@@ -50,10 +54,6 @@ public class SystemUserService {
                 .map(user -> conversionService.convert(user, SystemUserDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(userDtos, pageable, userDtos.size());
-    }
-
-    public void deleteSystemUser(@NonNull SystemUserDto user) {
-        systemUserRepo.deleteById(user.getId());
     }
 
 }

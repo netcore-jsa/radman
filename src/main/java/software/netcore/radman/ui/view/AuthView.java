@@ -21,8 +21,15 @@ import java.util.Map;
 @Route(value = "auth", layout = MainTemplate.class)
 public class AuthView extends Div {
 
+    private final AuthService authService;
+
     @Autowired
     public AuthView(AuthService authService) {
+        this.authService = authService;
+        buildView();
+    }
+
+    private void buildView() {
         add(new H2("Authentication"));
         AuthenticationDto authenticationDto = authService.getAuthentications();
         Grid<Map<String, String>> authenticationGrid = new Grid<>();
@@ -41,6 +48,5 @@ public class AuthView extends Div {
         authorizationGrid.setItems(authorizationDto.getData());
         add(authorizationGrid);
     }
-
 
 }

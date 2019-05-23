@@ -8,8 +8,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
-import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.buisness.service.nas.NasService;
+import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.ui.menu.MainTemplate;
 
 /**
@@ -19,8 +19,15 @@ import software.netcore.radman.ui.menu.MainTemplate;
 @Route(value = "nas_groups", layout = MainTemplate.class)
 public class NasGroupsView extends Div {
 
+    private final NasService nasService;
+
     @Autowired
     public NasGroupsView(NasService nasService) {
+        this.nasService = nasService;
+        buildView();
+    }
+
+    private void buildView() {
         Grid<NasGroupDto> grid = new Grid<>(NasGroupDto.class, false);
         grid.setColumns("groupName", "nasIpAddress", "nasPortId");
         DataProvider<NasGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(

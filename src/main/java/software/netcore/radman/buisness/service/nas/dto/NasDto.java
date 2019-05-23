@@ -1,5 +1,6 @@
 package software.netcore.radman.buisness.service.nas.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public class NasDto {
 
     private Integer id;

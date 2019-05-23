@@ -33,30 +33,6 @@ public class AttributeService {
         this.conversionService = conversionService;
     }
 
-    public long countAuthenticationAttributeRecords() {
-        return checkAttributeRepo.count();
-    }
-
-    public Page<AuthenticationAttributeDto> pageAuthenticationAttributeRecords(Pageable pageable) {
-        Page<RadCheckAttribute> page = checkAttributeRepo.pageCheckAttributes(pageable);
-        List<AuthenticationAttributeDto> attributeDtos = page.stream()
-                .map(attribute -> conversionService.convert(attribute, AuthenticationAttributeDto.class))
-                .collect(Collectors.toList());
-        return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
-    }
-
-    public long countAuthorizationAttributeRecords() {
-        return replyAttributeRepo.count();
-    }
-
-    public Page<AuthorizationAttributeDto> pageAuthorizationAttributeRecords(Pageable pageable) {
-        Page<RadReplyAttribute> page = replyAttributeRepo.pageReplyAttributes(pageable);
-        List<AuthorizationAttributeDto> attributeDtos = page.stream()
-                .map(attribute -> conversionService.convert(attribute, AuthorizationAttributeDto.class))
-                .collect(Collectors.toList());
-        return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
-    }
-
     public AuthenticationAttributeDto createAuthenticationAttribute(@NonNull AuthenticationAttributeDto attributeDto) {
         RadCheckAttribute attribute = conversionService.convert(attributeDto, RadCheckAttribute.class);
         attribute = checkAttributeRepo.save(attribute);
@@ -69,16 +45,48 @@ public class AttributeService {
         return conversionService.convert(attribute, AuthorizationAttributeDto.class);
     }
 
+    public AuthenticationAttributeDto updateAuthenticationAttribute(@NotNull AuthenticationAttributeDto attributeDto) {
+        RadCheckAttribute attribute = conversionService.convert(attributeDto, RadCheckAttribute.class);
+        attribute = checkAttributeRepo.save(attribute);
+        return conversionService.convert(attribute, AuthenticationAttributeDto.class);
+    }
+
     public AuthorizationAttributeDto updateAuthorizationAttribute(@NonNull AuthorizationAttributeDto attributeDto) {
         RadReplyAttribute attribute = conversionService.convert(attributeDto, RadReplyAttribute.class);
         attribute = replyAttributeRepo.save(attribute);
         return conversionService.convert(attribute, AuthorizationAttributeDto.class);
     }
 
-    public AuthenticationAttributeDto updateAuthenticationAttribute(@NotNull AuthenticationAttributeDto attributeDto) {
-        RadCheckAttribute attribute = conversionService.convert(attributeDto, RadCheckAttribute.class);
-        attribute = checkAttributeRepo.save(attribute);
-        return conversionService.convert(attribute, AuthenticationAttributeDto.class);
+    public void deleteAuthenticationAttribute(@NonNull AuthenticationAttributeDto attributeDto) {
+        checkAttributeRepo.deleteById(attributeDto.getId());
+    }
+
+    public void deleteAuthorizationAttribute(@NonNull AuthorizationAttributeDto attributeDto) {
+        replyAttributeRepo.deleteById(attributeDto.getId());
+    }
+
+    public long countAuthenticationAttributeRecords() {
+        return checkAttributeRepo.count();
+    }
+
+    public Page<AuthenticationAttributeDto> pageAuthenticationAttributeRecords(@NonNull Pageable pageable) {
+        Page<RadCheckAttribute> page = checkAttributeRepo.pageCheckAttributes(pageable);
+        List<AuthenticationAttributeDto> attributeDtos = page.stream()
+                .map(attribute -> conversionService.convert(attribute, AuthenticationAttributeDto.class))
+                .collect(Collectors.toList());
+        return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
+    }
+
+    public long countAuthorizationAttributeRecords() {
+        return replyAttributeRepo.count();
+    }
+
+    public Page<AuthorizationAttributeDto> pageAuthorizationAttributeRecords(@NonNull Pageable pageable) {
+        Page<RadReplyAttribute> page = replyAttributeRepo.pageReplyAttributes(pageable);
+        List<AuthorizationAttributeDto> attributeDtos = page.stream()
+                .map(attribute -> conversionService.convert(attribute, AuthorizationAttributeDto.class))
+                .collect(Collectors.toList());
+        return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
     }
 
 }

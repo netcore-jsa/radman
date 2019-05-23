@@ -19,8 +19,15 @@ import software.netcore.radman.ui.menu.MainTemplate;
 @Route(value = "tutorial", layout = MainTemplate.class)
 public class AccountingView extends Div {
 
+    private final AccountingService accountingService;
+
     @Autowired
     public AccountingView(AccountingService accountingService) {
+        this.accountingService = accountingService;
+        buildView();
+    }
+
+    private void buildView() {
         Grid<AccountingDto> accountingGrid = new Grid<>(AccountingDto.class, true);
         DataProvider<AccountingDto, Object> dataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> accountingService.pageAccountingRecords(pageable),

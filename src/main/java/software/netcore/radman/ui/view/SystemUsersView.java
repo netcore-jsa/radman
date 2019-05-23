@@ -7,6 +7,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -84,16 +85,10 @@ public class SystemUsersView extends Div {
         userDeleteDialog.setTitle("Delete system user");
         userDeleteDialog.setConfirmButtonCaption("Confirm");
         SystemUserCreationDialog createDialog = new SystemUserCreationDialog(systemUserService,
-                (source, bean) -> {
-                    ((SystemUserCreationDialog) source).setOpened(false);
-                    grid.getDataProvider().refreshAll();
-                });
+                (source, bean) -> grid.getDataProvider().refreshAll());
         createDialog.addOpenedChangeListener(event -> createDialog.clear());
         SystemUserEditDialog editDialog = new SystemUserEditDialog(systemUserService,
-                (source, bean) -> {
-                    ((SystemUserEditDialog) source).setOpened(false);
-                    grid.getDataProvider().refreshItem(bean);
-                });
+                (source, bean) -> grid.getDataProvider().refreshItem(bean));
 
         Button createBtn = new Button("Create", event -> createDialog.setOpened(true));
         Button editBtn = new Button("Edit", event -> editDialog.setOpened(true));
@@ -140,7 +135,6 @@ public class SystemUsersView extends Div {
         add(grid);
     }
 
-    @SuppressWarnings("Duplicates")
     static class SystemUserCreationDialog extends Dialog {
 
         private final Binder<SystemUserDto> binder;
@@ -148,37 +142,28 @@ public class SystemUsersView extends Div {
         SystemUserCreationDialog(SystemUserService systemUserService,
                                  CreationListener<SystemUserDto> creationListener) {
             FormLayout formLayout = new FormLayout();
-
             formLayout.add(new H3("New system user"));
-
             TextField username = new TextField("Username");
-            username.setRequiredIndicatorVisible(true);
             username.setValueChangeMode(ValueChangeMode.EAGER);
             username.setWidthFull();
-
             PasswordField password = new PasswordField("Password");
-            password.setRequiredIndicatorVisible(true);
             password.setValueChangeMode(ValueChangeMode.EAGER);
             password.setWidthFull();
-
             ComboBox<Role> role = new ComboBox<>("Role", Role.values());
             role.setPreventInvalidInput(true);
             role.setWidthFull();
 
             binder = new Binder<>(SystemUserDto.class);
             binder.forField(username)
+                    .asRequired("Username is required.")
                     .withValidator(new UsernameValidator())
                     .bind(SystemUserDto::getUsername, SystemUserDto::setUsername);
             binder.forField(password)
+                    .asRequired("Password is required.")
                     .withValidator(new PasswordValidator())
                     .bind(SystemUserDto::getPassword, SystemUserDto::setPassword);
             binder.forField(role)
-                    .withValidator((Validator<Role>) (value, context) -> {
-                        if (value == null) {
-                            return ValidationResult.error("System user access role is required.");
-                        }
-                        return ValidationResult.ok();
-                    })
+                    .asRequired("Role is required.")
                     .bind(SystemUserDto::getRole, SystemUserDto::setRole);
 
             Button createBtn = new Button("Create", event -> {
@@ -194,6 +179,8 @@ public class SystemUsersView extends Div {
                         log.warn("Failed to create system user. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
+                    } finally {
+                        setOpened(false);
                     }
                 }
             });
@@ -209,6 +196,7 @@ public class SystemUsersView extends Div {
             formLayout.add(username);
             formLayout.add(password);
             formLayout.add(role);
+            formLayout.add(new Hr());
             formLayout.add(controls);
             formLayout.setMaxWidth("400px");
             add(formLayout);
@@ -222,7 +210,6 @@ public class SystemUsersView extends Div {
 
     }
 
-    @SuppressWarnings("Duplicates")
     static class SystemUserEditDialog extends Dialog {
 
         private final Binder<SystemUserDto> binder;
@@ -231,13 +218,13 @@ public class SystemUsersView extends Div {
                              UpdateListener<SystemUserDto> updateListener) {
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3("Edit system user"));
-
             ComboBox<Role> role = new ComboBox<>("Role", Role.values());
             role.setPreventInvalidInput(true);
             role.setWidthFull();
 
             binder = new Binder<>(SystemUserDto.class);
             binder.forField(role)
+                    .asRequired("Role is required")
                     .withValidator((Validator<Role>) (value, context) -> {
                         if (value == null) {
                             return ValidationResult.error("System user access role is required.");
@@ -256,6 +243,8 @@ public class SystemUsersView extends Div {
                         log.warn("Failed to update system user. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
+                    } finally {
+                        setOpened(false);
                     }
                 }
             });
@@ -267,6 +256,7 @@ public class SystemUsersView extends Div {
             controls.setWidthFull();
 
             formLayout.add(role);
+            formLayout.add(new Hr());
             formLayout.add(controls);
             formLayout.setMaxWidth("400px");
             add(formLayout);

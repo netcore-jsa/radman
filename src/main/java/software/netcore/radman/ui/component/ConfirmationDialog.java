@@ -35,6 +35,10 @@ public class ConfirmationDialog extends Dialog {
     private CancelListener cancelListener;
 
     public ConfirmationDialog() {
+        this(null);
+    }
+
+    public ConfirmationDialog(String maxWidth) {
         HorizontalLayout controlsLayout = new HorizontalLayout();
         controlsLayout.setWidthFull();
         controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -42,7 +46,7 @@ public class ConfirmationDialog extends Dialog {
         controlsLayout.add(confirmBtn);
 
         FormLayout layout = new FormLayout();
-        layout.setMaxWidth("500px");
+        layout.setMaxWidth(maxWidth == null ? "500px" : maxWidth);
         layout.add(title);
         layout.add(description);
         layout.add(controlsLayout);

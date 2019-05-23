@@ -7,6 +7,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -30,6 +31,7 @@ import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttr
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
+import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 
@@ -57,9 +59,9 @@ public class AttributesView extends Div {
         add(new AuthorizationAttributeGrid(attributeService));
     }
 
-    @SuppressWarnings("Duplicates")
     private abstract static class AttributeGrid<T extends AttributeDto> extends Div {
 
+        private final ConfirmationDialog deleteDialog;
         final AttributeService attributeService;
         final Grid<T> grid;
 
@@ -78,6 +80,22 @@ public class AttributesView extends Div {
             grid.setDataProvider(dataProvider);
             grid.setWidth("700px");
 
+            deleteDialog = new ConfirmationDialog("365px");
+            deleteDialog.setTitle("Delete attribute");
+            deleteDialog.setConfirmListener(() -> {
+                try {
+                    T attributeDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+                    deleteAttribute(attributeDto);
+                    grid.getDataProvider().refreshAll();
+                } catch (Exception e) {
+                    log.warn("Failed to create attribute. Reason = '{}'", e.getMessage());
+                    ErrorNotification.show("Error",
+                            "Ooops, something went wrong, try again please");
+                } finally {
+                    deleteDialog.setOpened(false);
+                }
+            });
+
             Button createBtn = new Button("Create", event -> {
                 getCreationDialog().clear();
                 getCreationDialog().setOpened(true);
@@ -90,7 +108,14 @@ public class AttributesView extends Div {
                 }
             });
             editBtn.setEnabled(false);
-            Button deleteBtn = new Button("Delete");
+            Button deleteBtn = new Button("Delete", event -> {
+                T attributeDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+                if (Objects.nonNull(attributeDto)) {
+                    deleteDialog.setDescription("Are you sure you want to delete '"
+                            + attributeDto.getName() + "' attribute?");
+                    deleteDialog.setOpened(true);
+                }
+            });
             deleteBtn.setEnabled(false);
 
             grid.asSingleSelect().addValueChangeListener(event -> {
@@ -116,6 +141,8 @@ public class AttributesView extends Div {
         abstract Page<T> pageAttributes(Pageable pageable);
 
         abstract long countAttributes();
+
+        abstract void deleteAttribute(T attributeDto);
 
         abstract AttributeCreationDialog<T> getCreationDialog();
 
@@ -154,6 +181,11 @@ public class AttributesView extends Div {
         @Override
         long countAttributes() {
             return attributeService.countAuthenticationAttributeRecords();
+        }
+
+        @Override
+        void deleteAttribute(AuthenticationAttributeDto attributeDto) {
+            attributeService.deleteAuthenticationAttribute(attributeDto);
         }
 
         @Override
@@ -202,6 +234,11 @@ public class AttributesView extends Div {
         }
 
         @Override
+        void deleteAttribute(AuthorizationAttributeDto attributeDto) {
+            attributeService.deleteAuthorizationAttribute(attributeDto);
+        }
+
+        @Override
         AttributeCreationDialog<AuthorizationAttributeDto> getCreationDialog() {
             return creationDialog;
         }
@@ -224,21 +261,18 @@ public class AttributesView extends Div {
 
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3(getDialogTitle()));
-
             TextField name = new TextField("Name");
-            name.setRequiredIndicatorVisible(true);
             name.setValueChangeMode(ValueChangeMode.EAGER);
             name.setWidthFull();
-
             TextArea description = new TextArea("Description");
             description.setValueChangeMode(ValueChangeMode.EAGER);
             description.setWidthFull();
-
             Checkbox sensitive = new Checkbox("Sensitive");
             sensitive.setWidthFull();
 
             binder = new Binder<>(getClazz());
             binder.forField(name)
+                    .asRequired("Name is required")
                     .withValidator(new StringLengthValidator("Attribute name length cannot be less " +
                             "than 2 and more than 64 characters.", 2, 64))
                     .bind(AttributeDto::getName, AttributeDto::setName);
@@ -262,17 +296,17 @@ public class AttributesView extends Div {
                     }
                 }
             });
-            Button cancelBtn = new Button("Cancel", event -> setOpened(false));
 
             HorizontalLayout controlsLayout = new HorizontalLayout();
             controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             controlsLayout.setWidthFull();
-            controlsLayout.add(cancelBtn);
+            controlsLayout.add(new Button("Cancel", event -> setOpened(false)));
             controlsLayout.add(createBtn);
 
             formLayout.add(name);
             formLayout.add(description);
             formLayout.add(sensitive);
+            formLayout.add(new Hr());
             formLayout.add(controlsLayout);
             formLayout.setMaxWidth("500px");
             add(formLayout);
@@ -361,11 +395,9 @@ public class AttributesView extends Div {
 
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3(getDialogTitle()));
-
             TextArea description = new TextArea("Description");
             description.setValueChangeMode(ValueChangeMode.EAGER);
             description.setWidthFull();
-
             Checkbox sensitive = new Checkbox("Sensitive");
             sensitive.setWidthFull();
 
@@ -397,6 +429,7 @@ public class AttributesView extends Div {
 
             formLayout.add(description);
             formLayout.add(sensitive);
+            formLayout.add(new Hr());
             formLayout.add(controlsLayout);
             formLayout.setMaxWidth("500px");
             add(formLayout);

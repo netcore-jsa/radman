@@ -23,6 +23,22 @@ public class NasService {
     private final RadHuntGroupRepo radHuntGroupRepo;
     private final ConversionService conversionService;
 
+    public NasDto createNas(NasDto nasDto) {
+        Nas nas = conversionService.convert(nasDto, Nas.class);
+        nas = nasRepo.save(nas);
+        return conversionService.convert(nas, NasDto.class);
+    }
+
+    public NasDto updateNas(NasDto nasDto) {
+        Nas nas = conversionService.convert(nasDto, Nas.class);
+        nas = nasRepo.save(nas);
+        return conversionService.convert(nas, NasDto.class);
+    }
+
+    public void deleteNas(NasDto nasDto) {
+        nasRepo.deleteById(nasDto.getId());
+    }
+
     public int countNasRecords() {
         return (int) nasRepo.count();
     }

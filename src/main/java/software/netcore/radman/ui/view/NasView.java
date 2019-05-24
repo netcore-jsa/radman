@@ -13,11 +13,10 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
-import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
@@ -25,6 +24,7 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
+import software.netcore.radman.buisness.exception.NotFoundException;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.ui.CreationListener;
@@ -97,12 +97,19 @@ public class NasView extends Div {
                 nasEditDialog.editNas(nasDto);
             }
         });
+        editBtn.setEnabled(false);
         Button deleteBtn = new Button("Delete", event -> {
             NasDto nasDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(nasDto)) {
                 nasDeleteDialog.setDescription("Are you sure you want to remove '" + nasDto.getNasName() + "' NAS?");
                 nasDeleteDialog.setOpened(true);
             }
+        });
+        deleteBtn.setEnabled(false);
+
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            editBtn.setEnabled(Objects.nonNull(event.getValue()));
+            deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -177,6 +184,8 @@ public class NasView extends Div {
                     try {
                         NasDto dto = nasService.updateNas(binder.getBean());
                         updateListener.onUpdated(this, dto);
+                    } catch (NotFoundException e) {
+                        //TODO
                     } catch (Exception e) {
                         log.warn("Failed to update NAS. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
@@ -202,7 +211,6 @@ public class NasView extends Div {
         NasFormDialog(NasService nasService) {
             this.nasService = nasService;
 
-            add(new H3(getDialogTitle()));
             TextField name = new TextField("Name");
             name.setValueChangeMode(ValueChangeMode.EAGER);
             TextField shortName = new TextField("Short name");
@@ -234,39 +242,23 @@ public class NasView extends Div {
             controlsLayout.add(getConfirmBtn());
             controlsLayout.setWidthFull();
 
+            add(new H3(getDialogTitle()));
             add(formLayout);
             add(new Hr());
             add(controlsLayout);
 
-            binder = new Binder<>(NasDto.class);
-            binder.forField(name)
-                    .asRequired("Name is required.")
-                    .withValidator(new StringLengthValidator("Name has to contain 2, " +
-                            "up to 128 characters.", 2, 128))
-                    .bind(NasDto::getNasName, NasDto::setNasName);
-            binder.forField(shortName)
-                    .bind(NasDto::getShortName, NasDto::setShortName);
-            binder.forField(type)
-                    .bind(NasDto::getType, NasDto::setType);
+            binder = new BeanValidationBinder<>(NasDto.class);
+            binder.bind(name, "nasName");
+            binder.bind(shortName, "shortName");
+            binder.bind(type, "type");
             binder.forField(port)
                     .withConverter(new DoubleToIntegerConverter("Port must be number " +
                             "between 1 and " + 65535 + "."))
-                    .withValidator(new IntegerRangeValidator("Port must be number " +
-                            "between 1 and " + 65535 + ".", 1, 65535))
-                    .bind(NasDto::getPorts, NasDto::setPorts);
-            binder.forField(secret)
-                    .asRequired("Secret is required")
-                    .withValidator(new StringLengthValidator("Secret can contain " +
-                            "at most 60 characters.", 0, 60))
-                    .bind(NasDto::getSecret, NasDto::setSecret);
-            binder.forField(server)
-                    .withValidator(new StringLengthValidator("Server can contain " +
-                            "at most 64 characters.", 0, 64))
-                    .bind(NasDto::getServer, NasDto::setServer);
-            binder.forField(community)
-                    .bind(NasDto::getCommunity, NasDto::setCommunity);
-            binder.forField(description)
-                    .bind(NasDto::getDescription, NasDto::setDescription);
+                    .bind("ports");
+            binder.bind(secret, "secret");
+            binder.bind(server, "server");
+            binder.bind(community, "community");
+            binder.bind(description, "description");
         }
 
         abstract String getDialogTitle();

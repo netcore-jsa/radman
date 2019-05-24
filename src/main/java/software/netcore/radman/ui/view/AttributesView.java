@@ -12,10 +12,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -270,14 +270,10 @@ public class AttributesView extends Div {
             Checkbox sensitive = new Checkbox("Sensitive");
             sensitive.setWidthFull();
 
-            binder = new Binder<>(getClazz());
-            binder.forField(name)
-                    .asRequired("Name is required")
-                    .withValidator(new StringLengthValidator("Attribute name length cannot be less " +
-                            "than 2 and more than 64 characters.", 2, 64))
-                    .bind(AttributeDto::getName, AttributeDto::setName);
-            binder.forField(description).bind(AttributeDto::getDescription, AttributeDto::setDescription);
-            binder.forField(sensitive).bind(AttributeDto::isSensitiveData, AttributeDto::setSensitiveData);
+            binder = new BeanValidationBinder<>(getClazz());
+            binder.bind(name, "name");
+            binder.bind(description, "description");
+            binder.bind(sensitive, "sensitiveData");
 
             Button createBtn = new Button("Create", event -> {
                 T dto = getNewBeanInstance();

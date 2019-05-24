@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
@@ -33,8 +34,6 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
-import software.netcore.radman.ui.validator.PasswordValidator;
-import software.netcore.radman.ui.validator.UsernameValidator;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -153,18 +152,10 @@ public class SystemUsersView extends Div {
             role.setPreventInvalidInput(true);
             role.setWidthFull();
 
-            binder = new Binder<>(SystemUserDto.class);
-            binder.forField(username)
-                    .asRequired("Username is required.")
-                    .withValidator(new UsernameValidator())
-                    .bind(SystemUserDto::getUsername, SystemUserDto::setUsername);
-            binder.forField(password)
-                    .asRequired("Password is required.")
-                    .withValidator(new PasswordValidator())
-                    .bind(SystemUserDto::getPassword, SystemUserDto::setPassword);
-            binder.forField(role)
-                    .asRequired("Role is required.")
-                    .bind(SystemUserDto::getRole, SystemUserDto::setRole);
+            binder = new BeanValidationBinder<>(SystemUserDto.class);
+            binder.bind(username, "username");
+            binder.bind(password, "password");
+            binder.bind(role, "role");
 
             Button createBtn = new Button("Create", event -> {
                 SystemUserDto userDto = new SystemUserDto();

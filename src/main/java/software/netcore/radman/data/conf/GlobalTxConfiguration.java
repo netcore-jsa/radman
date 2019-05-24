@@ -24,7 +24,7 @@ public class GlobalTxConfiguration {
     }
 
     @Bean
-    ChainedTransactionManager transactionManager() {
+    PlatformTransactionManager transactionManager() {
         return new ChainedTransactionManager(radiusTxManager, radmanTxManager);
     }
 

@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
+import software.netcore.radman.buisness.validation.constrain.Cheap;
+import software.netcore.radman.buisness.validation.constrain.Expensive;
 
+import javax.validation.GroupSequence;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * @since v. 1.0.0
@@ -15,12 +17,13 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
+@GroupSequence(value = {Cheap.class, Expensive.class, NasDto.class})
 public class NasDto {
 
     private Integer id;
 
-    @NotEmpty(message = "Name is required")
-    @Length(min = 3, max = 128, message = "Name length has to be within 3 to 128 characters")
+    @NotEmpty(message = "Name is required", groups = Cheap.class)
+    @Length(min = 3, max = 128, message = "Name length has to be within 3 to 128 characters", groups = Expensive.class)
     private String nasName;
 
     @Length(max = 32, message = "Short name length can be maximally 32 characters")
@@ -32,8 +35,8 @@ public class NasDto {
     @Range(min = 1, max = 65535, message = "Port number has to be within range 1 to 65535")
     private Integer ports;
 
-    @NotEmpty(message = "Secret is required")
-    @Length(max = 60, message = "Secret length can be maximally 60 characters")
+    @NotEmpty(message = "Secret is required", groups = Cheap.class)
+    @Length(max = 60, message = "Secret length can be maximally 60 characters", groups = Expensive.class)
     private String secret;
 
     @Length(max = 64, message = "Server length can be maximally 64 characters")

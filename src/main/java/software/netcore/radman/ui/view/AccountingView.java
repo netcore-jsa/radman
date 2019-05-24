@@ -6,6 +6,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.accounting.AccountingService;
@@ -15,6 +16,7 @@ import software.netcore.radman.ui.menu.MainTemplate;
 /**
  * @since v. 1.0.0
  */
+@Slf4j
 @PageTitle("Radman: Accounting")
 @Route(value = "tutorial", layout = MainTemplate.class)
 public class AccountingView extends Div {

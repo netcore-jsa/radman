@@ -11,12 +11,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.nas.NasService;
@@ -28,6 +28,7 @@ import java.util.Objects;
 /**
  * @since v. 1.0.0
  */
+@Slf4j
 @PageTitle("Radman: NAS groups")
 @Route(value = "nas_groups", layout = MainTemplate.class)
 public class NasGroupsView extends Div {
@@ -84,7 +85,7 @@ public class NasGroupsView extends Div {
     static abstract class NasGroupFormDialog extends Dialog {
 
         final NasService nasService;
-        final Binder<NasGroupDto> binder;
+        final BeanValidationBinder<NasGroupDto> binder;
 
         NasGroupFormDialog(NasService nasService) {
             this.nasService = nasService;
@@ -136,9 +137,7 @@ public class NasGroupsView extends Div {
         @Override
         Button getConfirmBtn() {
             return new Button("Create", event -> {
-                if (binder.isValid()) {
-
-                }
+              binder.validate();
             });
         }
 

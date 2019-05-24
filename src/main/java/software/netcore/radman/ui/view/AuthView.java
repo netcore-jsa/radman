@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.auth.dto.AuthenticationDto;
@@ -17,6 +18,7 @@ import java.util.Map;
 /**
  * @since v. 1.0.0
  */
+@Slf4j
 @PageTitle("Radman: Auth (AA)")
 @Route(value = "auth", layout = MainTemplate.class)
 public class AuthView extends Div {

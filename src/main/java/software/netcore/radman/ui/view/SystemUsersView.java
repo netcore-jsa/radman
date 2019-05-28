@@ -12,10 +12,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
@@ -95,13 +92,6 @@ public class SystemUsersView extends Div {
         Button deleteBtn = new Button("Delete");
         deleteBtn.setEnabled(false);
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
-        horizontalLayout.add(new H3("System users"));
-        horizontalLayout.add(createBtn);
-        horizontalLayout.add(editBtn);
-        horizontalLayout.add(deleteBtn);
-
         grid.asSingleSelect().addValueChangeListener(event -> {
             editBtn.setEnabled(Objects.nonNull(event.getValue()));
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
@@ -129,6 +119,13 @@ public class SystemUsersView extends Div {
                 userDeleteDialog.setOpened(false);
             }
         });
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
+        horizontalLayout.add(new H3("System users"));
+        horizontalLayout.add(createBtn);
+        horizontalLayout.add(editBtn);
+        horizontalLayout.add(deleteBtn);
 
         add(horizontalLayout);
         add(grid);
@@ -163,6 +160,7 @@ public class SystemUsersView extends Div {
                     try {
                         userDto = systemUserService.createSystemUser(userDto);
                         creationListener.onCreated(this, userDto);
+                        setOpened(false);
                     } catch (DataIntegrityViolationException e) {
                         username.setInvalid(true);
                         username.setErrorMessage("User with the same username already exist.");
@@ -170,8 +168,6 @@ public class SystemUsersView extends Div {
                         log.warn("Failed to create system user. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
-                    } finally {
-                        setOpened(false);
                     }
                 }
             });
@@ -225,17 +221,17 @@ public class SystemUsersView extends Div {
                     .bind(SystemUserDto::getRole, SystemUserDto::setRole);
 
             Button saveBtn = new Button("Save", event -> {
-                if (binder.isValid()) {
+                BinderValidationStatus<SystemUserDto> validationStatus = binder.validate();
+                if (validationStatus.isOk()) {
                     try {
                         SystemUserDto userDto = binder.getBean();
                         userDto = systemUserService.updateSystemUser(userDto);
                         updateListener.onUpdated(this, userDto);
+                        setOpened(false);
                     } catch (Exception e) {
                         log.warn("Failed to update system user. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
-                    } finally {
-                        setOpened(false);
                     }
                 }
             });

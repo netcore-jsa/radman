@@ -1,5 +1,6 @@
 package software.netcore.radman.data.radius.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Table(name = "radgroupcheck")
 public class RadGroupCheck {
 

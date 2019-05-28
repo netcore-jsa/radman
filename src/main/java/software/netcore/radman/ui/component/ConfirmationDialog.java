@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -49,6 +50,7 @@ public class ConfirmationDialog extends Dialog {
         layout.setMaxWidth(maxWidth == null ? "500px" : maxWidth);
         layout.add(title);
         layout.add(description);
+        layout.add(new Hr());
         layout.add(controlsLayout);
         add(layout);
 

@@ -1,5 +1,6 @@
 package software.netcore.radman.data.radius.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(of = {"radAcctId", "acctUniqueId"})
 @Table(name = "radacct", uniqueConstraints = @UniqueConstraint(name = "acctuniqueid", columnNames = {"acctuniqueid"}))
 public class RadAcct {
 

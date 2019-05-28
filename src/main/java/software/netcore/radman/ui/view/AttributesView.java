@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -403,7 +404,8 @@ public class AttributesView extends Div {
 
             Button cancelBtn = new Button("Cancel", event -> setOpened(false));
             Button saveBtn = new Button("Save", event -> {
-                if (binder.isValid()) {
+                BinderValidationStatus<T> validationStatus = binder.validate();
+                if (validationStatus.isOk()) {
                     try {
                         T attributeDto = binder.getBean();
                         attributeDto = save(attributeDto);

@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -33,6 +34,7 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.converter.DoubleToIntegerConverter;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.support.Filter;
 
 import java.util.Objects;
 
@@ -44,6 +46,7 @@ import java.util.Objects;
 @Route(value = "", layout = MainTemplate.class)
 public class NasView extends Div {
 
+    private final Filter filter = new Filter();
     private final NasService nasService;
 
     @Autowired
@@ -59,7 +62,8 @@ public class NasView extends Div {
                 -> nasDto.getSecret().replaceAll(".", "*")).setHeader("Secret");
         grid.addColumns("server", "community", "ports", "type");
         DataProvider<NasDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> nasService.pageNasRecords(pageable), value -> nasService.countNasRecords())
+                (pageable, o) -> nasService.pageNasRecords(filter.getSearchText(), pageable),
+                value -> nasService.countNasRecords(filter.getSearchText()))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.setDataProvider(dataProvider);
@@ -112,12 +116,20 @@ public class NasView extends Div {
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
 
+        TextField search = new TextField(event -> {
+            filter.setSearchText(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPlaceholder("Search...");
+
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("NAS"));
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
+        horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
     }
@@ -145,12 +157,12 @@ public class NasView extends Div {
                     try {
                         nasDto = nasService.createNas(nasDto);
                         creationListener.onCreated(this, nasDto);
+                        setOpened(false);
                     } catch (Exception e) {
                         log.warn("Failed to create NAS. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
                     }
-                    setOpened(false);
                 }
             });
         }
@@ -180,10 +192,12 @@ public class NasView extends Div {
         @Override
         Button getConfirmBtn() {
             return new Button("Save", event -> {
-                if (binder.isValid()) {
+                BinderValidationStatus<NasDto> validationStatus = binder.validate();
+                if (validationStatus.isOk()) {
                     try {
                         NasDto dto = nasService.updateNas(binder.getBean());
                         updateListener.onUpdated(this, dto);
+                        setOpened(false);
                     } catch (NotFoundException e) {
                         //TODO
                     } catch (Exception e) {
@@ -191,7 +205,6 @@ public class NasView extends Div {
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
                     }
-                    setOpened(false);
                 }
             });
         }

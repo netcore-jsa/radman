@@ -1,14 +1,14 @@
 package software.netcore.radman.data.radius.repo;
 
-import org.springframework.data.repository.CrudRepository;
 import software.netcore.radman.data.radius.entity.RadCheck;
+import software.netcore.radman.data.spec.BaseRepository;
 
 import java.util.List;
 
 /**
  * @since v. 1.0.0
  */
-public interface RadCheckRepo extends CrudRepository<RadCheck, Integer> {
+public interface RadCheckRepo extends BaseRepository<RadCheck, Integer> {
 
     List<RadCheck> findAll();
 

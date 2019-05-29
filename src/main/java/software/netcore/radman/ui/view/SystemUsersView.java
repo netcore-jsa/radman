@@ -31,6 +31,7 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.support.Filter;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -46,11 +47,12 @@ import java.util.Objects;
 @Route(value = "system_users", layout = MainTemplate.class)
 public class SystemUsersView extends Div {
 
-    private final SystemUserService systemUserService;
+    private final Filter filter = new Filter();
+    private final SystemUserService service;
 
     @Autowired
-    public SystemUsersView(SystemUserService systemUserService) {
-        this.systemUserService = systemUserService;
+    public SystemUsersView(SystemUserService service) {
+        this.service = service;
         buildView();
     }
 
@@ -69,8 +71,8 @@ public class SystemUsersView extends Div {
                 .setHeader("Last login time")
                 .setSortProperty("lastLoginTime");
         DataProvider<SystemUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> systemUserService.pageSystemUsers(pageable),
-                value -> systemUserService.countSystemUsers())
+                (pageable, o) -> service.pageSystemUsers(filter.getSearchText(), pageable),
+                value -> service.countSystemUsers(filter.getSearchText()))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
@@ -80,10 +82,10 @@ public class SystemUsersView extends Div {
         ConfirmationDialog userDeleteDialog = new ConfirmationDialog();
         userDeleteDialog.setTitle("Delete system user");
         userDeleteDialog.setConfirmButtonCaption("Confirm");
-        SystemUserCreationDialog createDialog = new SystemUserCreationDialog(systemUserService,
+        SystemUserCreationDialog createDialog = new SystemUserCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());
         createDialog.addOpenedChangeListener(event -> createDialog.clear());
-        SystemUserEditDialog editDialog = new SystemUserEditDialog(systemUserService,
+        SystemUserEditDialog editDialog = new SystemUserEditDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
 
         Button createBtn = new Button("Create", event -> createDialog.setOpened(true));
@@ -96,6 +98,13 @@ public class SystemUsersView extends Div {
             editBtn.setEnabled(Objects.nonNull(event.getValue()));
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
+
+        TextField search = new TextField(event -> {
+            filter.setSearchText(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPlaceholder("Search...");
 
         editBtn.addClickListener(event -> {
             SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
@@ -114,7 +123,7 @@ public class SystemUsersView extends Div {
         userDeleteDialog.setConfirmListener(() -> {
             SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(user)) {
-                systemUserService.deleteSystemUser(user);
+                service.deleteSystemUser(user);
                 grid.getDataProvider().refreshAll();
                 userDeleteDialog.setOpened(false);
             }
@@ -126,7 +135,7 @@ public class SystemUsersView extends Div {
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
-
+        horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
     }
@@ -135,7 +144,7 @@ public class SystemUsersView extends Div {
 
         private final Binder<SystemUserDto> binder;
 
-        SystemUserCreationDialog(SystemUserService systemUserService,
+        SystemUserCreationDialog(SystemUserService service,
                                  CreationListener<SystemUserDto> creationListener) {
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3("New system user"));
@@ -158,7 +167,7 @@ public class SystemUsersView extends Div {
                 SystemUserDto userDto = new SystemUserDto();
                 if (binder.writeBeanIfValid(userDto)) {
                     try {
-                        userDto = systemUserService.createSystemUser(userDto);
+                        userDto = service.createSystemUser(userDto);
                         creationListener.onCreated(this, userDto);
                         setOpened(false);
                     } catch (DataIntegrityViolationException e) {
@@ -201,7 +210,7 @@ public class SystemUsersView extends Div {
 
         private final Binder<SystemUserDto> binder;
 
-        SystemUserEditDialog(SystemUserService systemUserService,
+        SystemUserEditDialog(SystemUserService service,
                              UpdateListener<SystemUserDto> updateListener) {
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3("Edit system user"));
@@ -225,7 +234,7 @@ public class SystemUsersView extends Div {
                 if (validationStatus.isOk()) {
                     try {
                         SystemUserDto userDto = binder.getBean();
-                        userDto = systemUserService.updateSystemUser(userDto);
+                        userDto = service.updateSystemUser(userDto);
                         updateListener.onUpdated(this, userDto);
                         setOpened(false);
                     } catch (Exception e) {

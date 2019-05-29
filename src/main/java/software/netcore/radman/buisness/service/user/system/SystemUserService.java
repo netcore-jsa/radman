@@ -1,5 +1,7 @@
 package software.netcore.radman.buisness.service.user.system;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
+import software.netcore.radman.data.internal.entity.QSystemUser;
 import software.netcore.radman.data.internal.entity.SystemUser;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
 
@@ -44,16 +48,25 @@ public class SystemUserService {
         systemUserRepo.deleteById(user.getId());
     }
 
-    public long countSystemUsers() {
-        return systemUserRepo.countSystemUsers();
+    public long countSystemUsers(String searchText) {
+        return systemUserRepo.count(buildSystemUserSearchPredicate(searchText));
     }
 
-    public Page<SystemUserDto> pageSystemUsers(Pageable pageable) {
-        Page<SystemUser> page = systemUserRepo.pageSystemUsers(pageable);
+    public Page<SystemUserDto> pageSystemUsers(String searchText, Pageable pageable) {
+        Page<SystemUser> page = systemUserRepo.findAll(buildSystemUserSearchPredicate(searchText), pageable);
         List<SystemUserDto> userDtos = page.stream()
                 .map(user -> conversionService.convert(user, SystemUserDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(userDtos, pageable, userDtos.size());
+    }
+
+    private Predicate buildSystemUserSearchPredicate(String searchText) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (!StringUtils.isEmpty(searchText)) {
+            booleanBuilder.or(QSystemUser.systemUser.username.contains(searchText));
+            booleanBuilder.or(QSystemUser.systemUser.role.stringValue().contains(searchText));
+        }
+        return booleanBuilder;
     }
 
 }

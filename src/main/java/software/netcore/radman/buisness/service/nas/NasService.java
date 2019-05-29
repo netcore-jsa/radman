@@ -15,6 +15,7 @@ import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.data.radius.entity.Nas;
 import software.netcore.radman.data.radius.entity.QNas;
+import software.netcore.radman.data.radius.entity.QRadHuntGroup;
 import software.netcore.radman.data.radius.entity.RadHuntGroup;
 import software.netcore.radman.data.radius.repo.NasRepo;
 import software.netcore.radman.data.radius.repo.RadHuntGroupRepo;
@@ -82,30 +83,30 @@ public class NasService {
     }
 
     public long countNasRecords(String searchText) {
-        return nasRepo.count(buildNasEntitySearchPredicate(searchText));
+        return nasRepo.count(buildNasSearchPredicate(searchText));
     }
 
     public Page<NasDto> pageNasRecords(String searchText, Pageable pageable) {
-        Page<Nas> page = nasRepo.findAll(buildNasEntitySearchPredicate(searchText), pageable);
+        Page<Nas> page = nasRepo.findAll(buildNasSearchPredicate(searchText), pageable);
         List<NasDto> nasDtos = page.stream()
                 .map(nas -> conversionService.convert(nas, NasDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(nasDtos, pageable, nasDtos.size());
     }
 
-    public long countNasGroupRecords() {
-        return radHuntGroupRepo.count();
+    public long countNasGroupRecords(String searchText) {
+        return radHuntGroupRepo.count(buildNasGroupSearchPredicate(searchText));
     }
 
-    public Page<NasGroupDto> pageNasGroupRecords(Pageable pageable) {
-        Page<RadHuntGroup> page = radHuntGroupRepo.pageRadHuntGroupRecords(pageable);
+    public Page<NasGroupDto> pageNasGroupRecords(String searchText, Pageable pageable) {
+        Page<RadHuntGroup> page = radHuntGroupRepo.findAll(buildNasGroupSearchPredicate(searchText), pageable);
         List<NasGroupDto> nasGroupDtos = page.stream()
                 .map(radHuntGroup -> conversionService.convert(radHuntGroup, NasGroupDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(nasGroupDtos, pageable, nasGroupDtos.size());
     }
 
-    private Predicate buildNasEntitySearchPredicate(String searchText) {
+    private Predicate buildNasSearchPredicate(String searchText) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (!StringUtils.isEmpty(searchText)) {
             booleanBuilder.or(QNas.nas.nasName.contains(searchText));
@@ -117,6 +118,16 @@ public class NasService {
             booleanBuilder.or(QNas.nas.type.contains(searchText));
         }
         return booleanBuilder.getValue();
+    }
+
+    private Predicate buildNasGroupSearchPredicate(String searchText) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (!StringUtils.isEmpty(searchText)) {
+            booleanBuilder.or(QRadHuntGroup.radHuntGroup.groupName.contains(searchText));
+            booleanBuilder.or(QRadHuntGroup.radHuntGroup.nasIpAddress.contains(searchText));
+            booleanBuilder.or(QRadHuntGroup.radHuntGroup.nasPortId.contains(searchText));
+        }
+        return booleanBuilder;
     }
 
     // -------------------  DEV STAFF - will be removed  --------------------------------------------------

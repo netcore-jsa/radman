@@ -28,6 +28,7 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.support.Filter;
 
 import java.util.Objects;
 
@@ -39,6 +40,7 @@ import java.util.Objects;
 @Route(value = "nas_groups", layout = MainTemplate.class)
 public class NasGroupsView extends Div {
 
+    private final Filter filter = new Filter();
     private final NasService nasService;
 
     @Autowired
@@ -51,8 +53,8 @@ public class NasGroupsView extends Div {
         Grid<NasGroupDto> grid = new Grid<>(NasGroupDto.class, false);
         grid.setColumns("groupName", "nasIpAddress", "nasPortId");
         DataProvider<NasGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> nasService.pageNasGroupRecords(pageable),
-                value -> nasService.countNasGroupRecords())
+                (pageable, o) -> nasService.pageNasGroupRecords(filter.getSearchText(), pageable),
+                value -> nasService.countNasGroupRecords(filter.getSearchText()))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
@@ -91,12 +93,20 @@ public class NasGroupsView extends Div {
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
 
+        TextField search = new TextField(event -> {
+            filter.setSearchText(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPlaceholder("Search...");
+
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("NAS groups"));
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
+        horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
     }

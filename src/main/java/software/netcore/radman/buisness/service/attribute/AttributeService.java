@@ -1,12 +1,18 @@
 package software.netcore.radman.buisness.service.attribute;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import lombok.NonNull;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
+import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
+import software.netcore.radman.data.internal.entity.QRadCheckAttribute;
+import software.netcore.radman.data.internal.entity.QRadReplyAttribute;
 import software.netcore.radman.data.internal.entity.RadCheckAttribute;
 import software.netcore.radman.data.internal.entity.RadReplyAttribute;
 import software.netcore.radman.data.internal.repo.RadCheckAttributeRepo;
@@ -65,28 +71,58 @@ public class AttributeService {
         replyAttributeRepo.deleteById(attributeDto.getId());
     }
 
-    public long countAuthenticationAttributeRecords() {
-        return checkAttributeRepo.count();
+    public long countAuthenticationAttributeRecords(@NonNull AttributeFilter filter) {
+        return checkAttributeRepo.count(buildAuthenticationAttributeSearchPredicate(filter));
     }
 
-    public Page<AuthenticationAttributeDto> pageAuthenticationAttributeRecords(@NonNull Pageable pageable) {
-        Page<RadCheckAttribute> page = checkAttributeRepo.pageCheckAttributes(pageable);
+    public Page<AuthenticationAttributeDto> pageAuthenticationAttributeRecords(@NonNull AttributeFilter filter,
+                                                                               @NonNull Pageable pageable) {
+        Page<RadCheckAttribute> page = checkAttributeRepo.findAll(
+                buildAuthenticationAttributeSearchPredicate(filter), pageable);
         List<AuthenticationAttributeDto> attributeDtos = page.stream()
                 .map(attribute -> conversionService.convert(attribute, AuthenticationAttributeDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
     }
 
-    public long countAuthorizationAttributeRecords() {
-        return replyAttributeRepo.count();
+    public long countAuthorizationAttributeRecords(@NonNull AttributeFilter filter) {
+        return replyAttributeRepo.count(buildAuthorizationAttributeSearchPredicate(filter));
     }
 
-    public Page<AuthorizationAttributeDto> pageAuthorizationAttributeRecords(@NonNull Pageable pageable) {
-        Page<RadReplyAttribute> page = replyAttributeRepo.pageReplyAttributes(pageable);
+    public Page<AuthorizationAttributeDto> pageAuthorizationAttributeRecords(@NonNull AttributeFilter filter,
+                                                                             @NonNull Pageable pageable) {
+        Page<RadReplyAttribute> page = replyAttributeRepo.findAll(
+                buildAuthorizationAttributeSearchPredicate(filter), pageable);
         List<AuthorizationAttributeDto> attributeDtos = page.stream()
                 .map(attribute -> conversionService.convert(attribute, AuthorizationAttributeDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
+    }
+
+    private Predicate buildAuthenticationAttributeSearchPredicate(AttributeFilter filter) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (!StringUtils.isEmpty(filter.getSearchText())) {
+            if (filter.isSearchByName()) {
+                booleanBuilder.or(QRadCheckAttribute.radCheckAttribute.name.contains(filter.getSearchText()));
+            }
+            if (filter.isSearchByDescription()) {
+                booleanBuilder.or(QRadCheckAttribute.radCheckAttribute.description.contains(filter.getSearchText()));
+            }
+        }
+        return booleanBuilder;
+    }
+
+    private Predicate buildAuthorizationAttributeSearchPredicate(AttributeFilter filter) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (!StringUtils.isEmpty(filter.getSearchText())) {
+            if (filter.isSearchByName()) {
+                booleanBuilder.or(QRadReplyAttribute.radReplyAttribute.name.contains(filter.getSearchText()));
+            }
+            if (filter.isSearchByDescription()) {
+                booleanBuilder.or(QRadReplyAttribute.radReplyAttribute.description.contains(filter.getSearchText()));
+            }
+        }
+        return booleanBuilder;
     }
 
 }

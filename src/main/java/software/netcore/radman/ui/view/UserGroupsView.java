@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
+import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -38,6 +39,7 @@ import java.util.Objects;
 @Route(value = "user_groups", layout = MainTemplate.class)
 public class UserGroupsView extends Div {
 
+    private final RadiusGroupFilter filter = new RadiusGroupFilter();
     private final RadiusUserService service;
 
     public UserGroupsView(RadiusUserService service) {
@@ -49,8 +51,8 @@ public class UserGroupsView extends Div {
         Grid<RadiusGroupDto> grid = new Grid<>(RadiusGroupDto.class, false);
         grid.addColumns("name", "description");
         DataProvider<RadiusGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> service.pageRadiusUsersGroup(pageable),
-                value -> service.countRadiusUsersGroup())
+                (pageable, o) -> service.pageRadiusUsersGroup(filter, pageable),
+                value -> service.countRadiusUsersGroup(filter))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
@@ -88,13 +90,20 @@ public class UserGroupsView extends Div {
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
 
+        TextField search = new TextField(event -> {
+            filter.setSearchText(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPlaceholder("Search...");
+
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Users"));
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
-
+        horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
     }

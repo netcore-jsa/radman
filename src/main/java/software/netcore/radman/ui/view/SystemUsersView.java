@@ -79,19 +79,37 @@ public class SystemUsersView extends Div {
         grid.setColumnReorderingAllowed(true);
         grid.setDataProvider(dataProvider);
 
-        ConfirmationDialog userDeleteDialog = new ConfirmationDialog();
-        userDeleteDialog.setTitle("Delete system user");
-        userDeleteDialog.setConfirmButtonCaption("Confirm");
         SystemUserCreationDialog createDialog = new SystemUserCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());
-        createDialog.addOpenedChangeListener(event -> createDialog.clear());
         SystemUserEditDialog editDialog = new SystemUserEditDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
+        ConfirmationDialog deleteDialog = new ConfirmationDialog();
+        deleteDialog.setTitle("Delete system user");
+        deleteDialog.setConfirmButtonCaption("Confirm");
+        deleteDialog.setConfirmListener(() -> {
+            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+            if (Objects.nonNull(user)) {
+                service.deleteSystemUser(user);
+                grid.getDataProvider().refreshAll();
+                deleteDialog.setOpened(false);
+            }
+        });
 
-        Button createBtn = new Button("Create", event -> createDialog.setOpened(true));
-        Button editBtn = new Button("Edit", event -> editDialog.setOpened(true));
+        Button createBtn = new Button("Create", event -> createDialog.startCreation());
+        Button editBtn = new Button("Edit", event -> {
+            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+            if (Objects.nonNull(user)) {
+                editDialog.edit(user);
+            }
+        });
         editBtn.setEnabled(false);
-        Button deleteBtn = new Button("Delete");
+        Button deleteBtn = new Button("Delete", event -> {
+            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+            if (Objects.nonNull(user)) {
+                deleteDialog.setDescription("Are you sure you want to delete '" + user.getUsername() + "' user?");
+                deleteDialog.setOpened(true);
+            }
+        });
         deleteBtn.setEnabled(false);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -105,29 +123,6 @@ public class SystemUsersView extends Div {
         });
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
-
-        editBtn.addClickListener(event -> {
-            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-            if (Objects.nonNull(user)) {
-                editDialog.edit(user);
-                editDialog.setOpened(true);
-            }
-        });
-        deleteBtn.addClickListener(event -> {
-            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-            if (Objects.nonNull(user)) {
-                userDeleteDialog.setDescription("Are you sure you want to delete '" + user.getUsername() + "' user?");
-                userDeleteDialog.setOpened(true);
-            }
-        });
-        userDeleteDialog.setConfirmListener(() -> {
-            SystemUserDto user = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-            if (Objects.nonNull(user)) {
-                service.deleteSystemUser(user);
-                grid.getDataProvider().refreshAll();
-                userDeleteDialog.setOpened(false);
-            }
-        });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
@@ -180,10 +175,7 @@ public class SystemUsersView extends Div {
                     }
                 }
             });
-            Button cancelBtn = new Button("Cancel", event -> {
-                clear();
-                setOpened(false);
-            });
+            Button cancelBtn = new Button("Cancel", event -> setOpened(false));
             HorizontalLayout controls = new HorizontalLayout();
             controls.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             controls.add(cancelBtn, createBtn);
@@ -198,7 +190,7 @@ public class SystemUsersView extends Div {
             add(formLayout);
         }
 
-        void clear() {
+        void startCreation() {
             SystemUserDto systemUserDto = new SystemUserDto();
             systemUserDto.setRole(Role.ADMIN);
             binder.readBean(systemUserDto);
@@ -259,6 +251,7 @@ public class SystemUsersView extends Div {
         }
 
         void edit(SystemUserDto systemUserDto) {
+            setOpened(true);
             binder.setBean(systemUserDto);
         }
 

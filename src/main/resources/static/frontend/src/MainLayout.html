@@ -20,10 +20,10 @@
             }
 
             #page-nav {
-                width: 100%;
-                background: #000;
-                position: sticky;
                 top: 0;
+                width: 100%;
+                position: sticky;
+                background: #24292e;
             }
 
             /* Hide Hamburger */
@@ -33,40 +33,55 @@
 
             /* Menu Items */
             #page-nav ul {
-                list-style-type: none;
                 margin: 0;
                 padding: 0;
+                color: #e6e6e6;
+                list-style-type: none;
             }
 
             #page-nav ul li {
+                transition: all 0.2s ease;
+                box-sizing: border-box;
                 display: inline-block;
                 padding: 10px;
-                box-sizing: border-box;
+            }
+
+            #page-nav ul li.selected,
+            #page-nav ul li:hover {
+                background-color: #333e48;
             }
 
             #page-nav ul li a {
-                color: #fff;
+                color: inherit;
+                display: block;
                 text-decoration: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
             }
 
             /* [ON SMALL SCREENS] */
             @media screen and (max-width: 768px) {
                 /* Show Hamburger */
                 #page-nav label {
-                    display: inline-block;
                     color: #fff;
-                    background: #a02620;
+                    padding: 5px;
+                    cursor: pointer;
+                    font-size: 1.5em;
+                    margin-left: 5px;
                     font-style: normal;
-                    font-size: 1.2em;
-                    padding: 10px;
+                    background: #24292e;
+                    display: inline-block;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
                 }
 
                 /* Break down menu items into vertical */
                 #page-nav ul li {
                     display: block;
-                }
-
-                #page-nav ul li {
                     border-top: 1px solid #333;
                 }
 
@@ -83,6 +98,9 @@
 
         <div class="main-layout">
             <nav id="page-nav">
+                <div style="float: right;">
+                    <button>Logout</button>
+                </div>
                 <label for="hamburger">&#9776;</label>
                 <input type="checkbox" id="hamburger"/>
                 <ul id="page-nav-links"></ul>

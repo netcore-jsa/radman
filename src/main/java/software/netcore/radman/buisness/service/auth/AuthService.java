@@ -1,9 +1,9 @@
 package software.netcore.radman.buisness.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
-import software.netcore.radman.buisness.service.auth.dto.AuthenticationDto;
-import software.netcore.radman.buisness.service.auth.dto.AuthorizationDto;
+import software.netcore.radman.buisness.service.auth.dto.*;
 import software.netcore.radman.data.internal.entity.RadCheckAttribute;
 import software.netcore.radman.data.internal.entity.RadReplyAttribute;
 import software.netcore.radman.data.internal.repo.RadCheckAttributeRepo;
@@ -28,9 +28,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private static final String USER_TYPE = "user";
-    private static final String GROUP_TYPE = "group";
-
     // radius
     private final RadCheckRepo radCheckRepo;
     private final RadReplyRepo radReplyRepo;
@@ -41,7 +38,29 @@ public class AuthService {
     private final RadCheckAttributeRepo radCheckAttributeRepo;
     private final RadReplyAttributeRepo radReplyAttributeRepo;
 
-    public AuthenticationDto getAuthentications() {
+    private final ConversionService conversionService;
+
+    public void createAuthentication(AuthenticationDto authenticationDto) {
+        if (authenticationDto.getAuthTarget() == AuthTarget.RADIUS_USER) {
+            RadCheck radCheck = conversionService.convert(authenticationDto, RadCheck.class);
+            radCheckRepo.save(radCheck);
+        } else {
+            RadGroupCheck radGroupCheck = conversionService.convert(authenticationDto, RadGroupCheck.class);
+            radGroupCheckRepo.save(radGroupCheck);
+        }
+    }
+
+    public void createAuthorization(AuthorizationDto authorizationDto) {
+        if (authorizationDto.getAuthTarget() == AuthTarget.RADIUS_USER) {
+            RadReply radReply = conversionService.convert(authorizationDto, RadReply.class);
+            radReplyRepo.save(radReply);
+        } else {
+            RadGroupReply radGroupReply = conversionService.convert(authorizationDto, RadGroupReply.class);
+            radGroupReplyRepo.save(radGroupReply);
+        }
+    }
+
+    public AuthorizationsDto getAuthorizations() {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
         List<RadReply> radReplies = radReplyRepo.findAll();
@@ -69,7 +88,8 @@ public class AuthService {
                 List<RadReply> attrRadReplies = radReplyMap.get(radReplyAttribute.getName());
                 for (RadReply attrRadReply : attrRadReplies) {
                     String key = attrRadReply.getUsername();
-                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key, USER_TYPE, usersData);
+                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
+                            AuthTarget.RADIUS_USER.getValue(), usersData);
                     singleUserData.put(radReplyAttribute.getName(),
                             attrRadReply.getOp() + " " + attrRadReply.getValue());
                 }
@@ -79,7 +99,8 @@ public class AuthService {
                 List<RadGroupReply> attrRadGroupReplies = radGroupCheckMap.get(radReplyAttribute.getName());
                 for (RadGroupReply attrRadGroupCheck : attrRadGroupReplies) {
                     String key = attrRadGroupCheck.getGroupName();
-                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key, GROUP_TYPE, groupsData);
+                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
+                            AuthTarget.RADIUS_GROUP.getValue(), groupsData);
                     singleGroupData.put(radReplyAttribute.getName(),
                             attrRadGroupCheck.getOp() + " " + attrRadGroupCheck.getValue());
                 }
@@ -89,11 +110,11 @@ public class AuthService {
         List<Map<String, String>> data = new ArrayList<>();
         data.addAll(usersData.values());
         data.addAll(groupsData.values());
-        return new AuthenticationDto(columnsSpec, data);
+        return new AuthorizationsDto(columnsSpec, data);
     }
 
 
-    public AuthorizationDto getAuthorizations() {
+    public AuthenticationsDto getAuthentications() {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
         List<RadCheck> radChecks = radCheckRepo.findAll();
@@ -121,7 +142,8 @@ public class AuthService {
                 List<RadCheck> attrRadChecks = radCheckMap.get(radCheckAttribute.getName());
                 for (RadCheck attrRadCheck : attrRadChecks) {
                     String key = attrRadCheck.getUsername();
-                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key, USER_TYPE, usersData);
+                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
+                            AuthTarget.RADIUS_USER.getValue(), usersData);
                     singleUserData.put(radCheckAttribute.getName(),
                             attrRadCheck.getOp() + " " + attrRadCheck.getValue());
                 }
@@ -131,7 +153,8 @@ public class AuthService {
                 List<RadGroupCheck> attrRadGroupChecks = radGroupCheckMap.get(radCheckAttribute.getName());
                 for (RadGroupCheck attrRadGroupCheck : attrRadGroupChecks) {
                     String key = attrRadGroupCheck.getGroupName();
-                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key, GROUP_TYPE, groupsData);
+                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
+                            AuthTarget.RADIUS_GROUP.getValue(), groupsData);
                     singleGroupData.put(radCheckAttribute.getName(),
                             attrRadGroupCheck.getOp() + " " + attrRadGroupCheck.getValue());
                 }
@@ -141,7 +164,7 @@ public class AuthService {
         List<Map<String, String>> data = new ArrayList<>();
         data.addAll(usersData.values());
         data.addAll(groupsData.values());
-        return new AuthorizationDto(columnsSpec, data);
+        return new AuthenticationsDto(columnsSpec, data);
     }
 
     private Map<String, String> initCommonColumnsSpec() {

@@ -1,16 +1,33 @@
 package software.netcore.radman.buisness.service.auth.dto;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
-import java.util.Map;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
+/**
+ * @since v. 1.0.0
+ */
+@Setter
 @Getter
-@RequiredArgsConstructor
-abstract class AuthDto {
+public abstract class AuthDto {
 
-    private final Map<String, String> columnsSpec;
-    private final List<Map<String, String>> data;
+    private Integer id;
+
+    @NotEmpty(message = "Name is required")
+    private String name;
+
+    @NotNull(message = "Type is required")
+    private AuthTarget authTarget;
+
+    @NotEmpty(message = "Attribute is required")
+    private String attribute;
+
+    @NotNull(message = "Operation is required")
+    private RadiusOp op;
+
+    @NotEmpty(message = "Value is required")
+    private String value;
 
 }

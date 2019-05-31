@@ -2,6 +2,7 @@ package software.netcore.radman.buisness.service.nas;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -20,6 +21,7 @@ import software.netcore.radman.data.radius.entity.RadHuntGroup;
 import software.netcore.radman.data.radius.repo.NasRepo;
 import software.netcore.radman.data.radius.repo.RadHuntGroupRepo;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
@@ -36,20 +38,20 @@ public class NasService {
     private final RadHuntGroupRepo radHuntGroupRepo;
     private final ConversionService conversionService;
 
-    public NasDto createNas(NasDto nasDto) {
+    public NasDto createNas(@NonNull NasDto nasDto) {
         Nas nas = conversionService.convert(nasDto, Nas.class);
         nas = nasRepo.save(nas);
         return conversionService.convert(nas, NasDto.class);
     }
 
-    public NasGroupDto createNasGroup(NasGroupDto nasGroupDto) {
+    public NasGroupDto createNasGroup(@NonNull NasGroupDto nasGroupDto) {
         RadHuntGroup radHuntGroup = conversionService.convert(nasGroupDto, RadHuntGroup.class);
         radHuntGroup = radHuntGroupRepo.save(radHuntGroup);
         return conversionService.convert(radHuntGroup, NasGroupDto.class);
     }
 
     @Transactional
-    public NasDto updateNas(NasDto nasDto) throws NotFoundException {
+    public NasDto updateNas(@NonNull NasDto nasDto) throws NotFoundException {
         assert nasDto.getId() != null;
         Nas nasUpdate = conversionService.convert(nasDto, Nas.class);
         Nas nas = nasRepo.findById(nasUpdate.getId()).orElse(null);
@@ -67,26 +69,26 @@ public class NasService {
         return conversionService.convert(nasUpdate, NasDto.class);
     }
 
-    public NasGroupDto updateNasGroup(NasGroupDto nasGroupDto) {
+    public NasGroupDto updateNasGroup(@NonNull NasGroupDto nasGroupDto) {
         assert nasGroupDto.getId() != null;
         RadHuntGroup radHuntGroup = conversionService.convert(nasGroupDto, RadHuntGroup.class);
         radHuntGroup = radHuntGroupRepo.save(radHuntGroup);
         return conversionService.convert(radHuntGroup, NasGroupDto.class);
     }
 
-    public void deleteNas(NasDto nasDto) {
+    public void deleteNas(@NonNull NasDto nasDto) {
         nasRepo.deleteById(nasDto.getId());
     }
 
-    public void deleteNasGroup(NasGroupDto nasGroupDto) {
+    public void deleteNasGroup(@NonNull NasGroupDto nasGroupDto) {
         radHuntGroupRepo.deleteById(nasGroupDto.getId());
     }
 
-    public long countNasRecords(String searchText) {
+    public long countNasRecords(@Nullable String searchText) {
         return nasRepo.count(buildNasSearchPredicate(searchText));
     }
 
-    public Page<NasDto> pageNasRecords(String searchText, Pageable pageable) {
+    public Page<NasDto> pageNasRecords(@Nullable String searchText, @NonNull Pageable pageable) {
         Page<Nas> page = nasRepo.findAll(buildNasSearchPredicate(searchText), pageable);
         List<NasDto> nasDtos = page.stream()
                 .map(nas -> conversionService.convert(nas, NasDto.class))
@@ -94,11 +96,11 @@ public class NasService {
         return new PageImpl<>(nasDtos, pageable, nasDtos.size());
     }
 
-    public long countNasGroupRecords(String searchText) {
+    public long countNasGroupRecords(@Nullable String searchText) {
         return radHuntGroupRepo.count(buildNasGroupSearchPredicate(searchText));
     }
 
-    public Page<NasGroupDto> pageNasGroupRecords(String searchText, Pageable pageable) {
+    public Page<NasGroupDto> pageNasGroupRecords(@Nullable String searchText, @NonNull Pageable pageable) {
         Page<RadHuntGroup> page = radHuntGroupRepo.findAll(buildNasGroupSearchPredicate(searchText), pageable);
         List<NasGroupDto> nasGroupDtos = page.stream()
                 .map(radHuntGroup -> conversionService.convert(radHuntGroup, NasGroupDto.class))
@@ -106,7 +108,7 @@ public class NasService {
         return new PageImpl<>(nasGroupDtos, pageable, nasGroupDtos.size());
     }
 
-    private Predicate buildNasSearchPredicate(String searchText) {
+    private Predicate buildNasSearchPredicate(@Nullable String searchText) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (!StringUtils.isEmpty(searchText)) {
             booleanBuilder.or(QNas.nas.nasName.contains(searchText));
@@ -120,7 +122,7 @@ public class NasService {
         return booleanBuilder.getValue();
     }
 
-    private Predicate buildNasGroupSearchPredicate(String searchText) {
+    private Predicate buildNasGroupSearchPredicate(@Nullable String searchText) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (!StringUtils.isEmpty(searchText)) {
             booleanBuilder.or(QRadHuntGroup.radHuntGroup.groupName.contains(searchText));

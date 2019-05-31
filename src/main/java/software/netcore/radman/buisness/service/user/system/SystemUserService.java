@@ -16,6 +16,7 @@ import software.netcore.radman.data.internal.entity.QSystemUser;
 import software.netcore.radman.data.internal.entity.SystemUser;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,11 +49,11 @@ public class SystemUserService {
         systemUserRepo.deleteById(user.getId());
     }
 
-    public long countSystemUsers(String searchText) {
+    public long countSystemUsers(@Nullable String searchText) {
         return systemUserRepo.count(buildSystemUserSearchPredicate(searchText));
     }
 
-    public Page<SystemUserDto> pageSystemUsers(String searchText, Pageable pageable) {
+    public Page<SystemUserDto> pageSystemUsers(@Nullable String searchText, @NonNull Pageable pageable) {
         Page<SystemUser> page = systemUserRepo.findAll(buildSystemUserSearchPredicate(searchText), pageable);
         List<SystemUserDto> userDtos = page.stream()
                 .map(user -> conversionService.convert(user, SystemUserDto.class))
@@ -60,7 +61,7 @@ public class SystemUserService {
         return new PageImpl<>(userDtos, pageable, userDtos.size());
     }
 
-    private Predicate buildSystemUserSearchPredicate(String searchText) {
+    private Predicate buildSystemUserSearchPredicate(@Nullable String searchText) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (!StringUtils.isEmpty(searchText)) {
             booleanBuilder.or(QSystemUser.systemUser.username.contains(searchText));

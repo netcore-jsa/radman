@@ -23,11 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
+import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserFilter;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.support.Filter;
 
 import java.util.Objects;
 
@@ -39,6 +41,7 @@ import java.util.Objects;
 @Route(value = "users", layout = MainTemplate.class)
 public class UsersView extends Div {
 
+    private final RadiusUserFilter filter = new RadiusUserFilter(true, true);
     private final RadiusUserService service;
 
     @Autowired
@@ -51,8 +54,8 @@ public class UsersView extends Div {
         Grid<RadiusUserDto> grid = new Grid<>(RadiusUserDto.class, false);
         grid.addColumns("username", "description");
         DataProvider<RadiusUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> service.pageRadiusUsers(pageable),
-                value -> service.countRadiusUsers())
+                (pageable, o) -> service.pageRadiusUsers(filter, pageable),
+                value -> service.countRadiusUsers(filter))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
@@ -90,13 +93,20 @@ public class UsersView extends Div {
             deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
         });
 
+        TextField search = new TextField(event -> {
+            filter.setSearchText(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPlaceholder("Search...");
+
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Users"));
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
-
+        horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
     }

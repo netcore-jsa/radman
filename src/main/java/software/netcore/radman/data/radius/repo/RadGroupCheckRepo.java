@@ -12,4 +12,6 @@ public interface RadGroupCheckRepo extends BaseRepository<RadGroupCheck, Integer
 
     List<RadGroupCheck> findAll();
 
+    void deleteByGroupName(String name);
+
 }

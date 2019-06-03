@@ -12,4 +12,6 @@ public interface RadGroupReplyRepo extends BaseRepository<RadGroupReply, Integer
 
     List<RadGroupReply> findAll();
 
+    void deleteByGroupName(String name);
+
 }

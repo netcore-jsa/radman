@@ -17,10 +17,7 @@ import software.netcore.radman.data.radius.repo.RadGroupCheckRepo;
 import software.netcore.radman.data.radius.repo.RadGroupReplyRepo;
 import software.netcore.radman.data.radius.repo.RadReplyRepo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @since v. 1.0.0
@@ -60,6 +57,25 @@ public class AuthService {
         }
     }
 
+    public void deleteAuthentication(String name, String type) {
+        AuthTarget authTarget = AuthTarget.fromValue(type);
+        if (authTarget == AuthTarget.RADIUS_USER) {
+            radCheckRepo.deleteByUsername(name);
+        } else {
+            radGroupCheckRepo.deleteByGroupName(name);
+        }
+    }
+
+    public void deleteAuthorization(String name, String type) {
+        AuthTarget authTarget = AuthTarget.fromValue(type);
+        if (authTarget == AuthTarget.RADIUS_USER) {
+            radReplyRepo.deleteByUsername(name);
+        } else {
+            radGroupReplyRepo.deleteByGroupName(name);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
     public AuthorizationsDto getAuthorizations() {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
@@ -71,10 +87,10 @@ public class AuthService {
         }
 
         List<RadGroupReply> radGroupReplies = radGroupReplyRepo.findAll();
-        Map<String, List<RadGroupReply>> radGroupCheckMap = new HashMap<>();
+        Map<String, List<RadGroupReply>> radGroupReplyMap = new HashMap<>();
         for (RadGroupReply radGroupReply : radGroupReplies) {
-            radGroupCheckMap.putIfAbsent(radGroupReply.getAttribute(), new ArrayList<>());
-            radGroupCheckMap.get(radGroupReply.getAttribute()).add(radGroupReply);
+            radGroupReplyMap.putIfAbsent(radGroupReply.getAttribute(), new ArrayList<>());
+            radGroupReplyMap.get(radGroupReply.getAttribute()).add(radGroupReply);
         }
 
         Map<String, Map<String, String>> usersData = new HashMap<>();
@@ -90,19 +106,23 @@ public class AuthService {
                     String key = attrRadReply.getUsername();
                     Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
                             AuthTarget.RADIUS_USER.getValue(), usersData);
-                    singleUserData.put(radReplyAttribute.getName(),
-                            attrRadReply.getOp() + " " + attrRadReply.getValue());
+                    String attrValue = radReplyAttribute.isSensitiveData() ?
+                            attrRadReply.getValue().replaceAll(".", "*")
+                            : attrRadReply.getValue();
+                    singleUserData.put(radReplyAttribute.getName(), attrRadReply.getOp() + " " + attrValue);
                 }
             }
 
-            if (radGroupCheckMap.containsKey(radReplyAttribute.getName())) {
-                List<RadGroupReply> attrRadGroupReplies = radGroupCheckMap.get(radReplyAttribute.getName());
-                for (RadGroupReply attrRadGroupCheck : attrRadGroupReplies) {
-                    String key = attrRadGroupCheck.getGroupName();
+            if (radGroupReplyMap.containsKey(radReplyAttribute.getName())) {
+                List<RadGroupReply> attrRadGroupReplies = radGroupReplyMap.get(radReplyAttribute.getName());
+                for (RadGroupReply attrRadGroupReply : attrRadGroupReplies) {
+                    String key = attrRadGroupReply.getGroupName();
                     Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
                             AuthTarget.RADIUS_GROUP.getValue(), groupsData);
-                    singleGroupData.put(radReplyAttribute.getName(),
-                            attrRadGroupCheck.getOp() + " " + attrRadGroupCheck.getValue());
+                    String attrValue = radReplyAttribute.isSensitiveData() ?
+                            attrRadGroupReply.getValue().replaceAll(".", "*")
+                            : attrRadGroupReply.getValue();
+                    singleGroupData.put(radReplyAttribute.getName(), attrRadGroupReply.getOp() + " " + attrValue);
                 }
             }
         }
@@ -114,6 +134,7 @@ public class AuthService {
     }
 
 
+    @SuppressWarnings("Duplicates")
     public AuthenticationsDto getAuthentications() {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
@@ -144,8 +165,10 @@ public class AuthService {
                     String key = attrRadCheck.getUsername();
                     Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
                             AuthTarget.RADIUS_USER.getValue(), usersData);
-                    singleUserData.put(radCheckAttribute.getName(),
-                            attrRadCheck.getOp() + " " + attrRadCheck.getValue());
+                    String attrValue = radCheckAttribute.isSensitiveData() ?
+                            attrRadCheck.getValue().replaceAll(".", "*") :
+                            attrRadCheck.getValue();
+                    singleUserData.put(radCheckAttribute.getName(), attrRadCheck.getOp() + " " + attrValue);
                 }
             }
 
@@ -155,8 +178,10 @@ public class AuthService {
                     String key = attrRadGroupCheck.getGroupName();
                     Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
                             AuthTarget.RADIUS_GROUP.getValue(), groupsData);
-                    singleGroupData.put(radCheckAttribute.getName(),
-                            attrRadGroupCheck.getOp() + " " + attrRadGroupCheck.getValue());
+                    String attrValue = radCheckAttribute.isSensitiveData() ?
+                            attrRadGroupCheck.getValue().replaceAll(".", "*")
+                            : attrRadGroupCheck.getValue();
+                    singleGroupData.put(radCheckAttribute.getName(), attrRadGroupCheck.getOp() + " " + attrValue);
                 }
             }
         }
@@ -168,7 +193,7 @@ public class AuthService {
     }
 
     private Map<String, String> initCommonColumnsSpec() {
-        Map<String, String> columnsSpec = new HashMap<>();
+        Map<String, String> columnsSpec = new LinkedHashMap<>();
         columnsSpec.put("name", "Name");
         columnsSpec.put("type", "Type");
         return columnsSpec;

@@ -12,4 +12,6 @@ public interface RadCheckRepo extends BaseRepository<RadCheck, Integer> {
 
     List<RadCheck> findAll();
 
+    void deleteByUsername(String name);
+
 }

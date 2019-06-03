@@ -50,6 +50,7 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @since v. 1.0.0
@@ -85,9 +86,28 @@ public class AuthView extends Div {
 
         AuthGrid(AuthService service) {
             this.service = service;
-            deleteDialog = new ConfirmationDialog();
 
             grid = new Grid<>();
+            deleteDialog = new ConfirmationDialog();
+            deleteDialog.setTitle("Delete assigned attributes");
+            deleteDialog.setDescription("Are you sure?");
+            deleteDialog.setConfirmListener(() -> {
+                Map<String, String> row = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
+                if (Objects.nonNull(row)) {
+                    String name = row.get("name");
+                    String type = row.get("type");
+                    try {
+                        deleteAssigment(name, type);
+                        deleteDialog.setOpened(false);
+                        refreshGrid();
+                    } catch (Exception e) {
+                        log.warn("Failed to delete auth. Reason = '{}'", e.getMessage());
+                        ErrorNotification.show("Error",
+                                "Ooops, something went wrong, try again please");
+                    }
+                }
+            });
+
             Button assignBtn = new Button("Assign attribute", event -> getAssigmentDialog().startAssigment());
             Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
 
@@ -111,12 +131,14 @@ public class AuthView extends Div {
         }
 
         void refreshGrid() {
+            grid.getColumns().forEach(column -> column.setSortable(false));
             grid.removeAllColumns();
             AuthsDto authsDto = getAuthsDto(filter.getSearchText());
             authsDto.getColumnsSpec().keySet().forEach(key
                     -> grid.addColumn((ValueProvider<Map<String, String>, Object>) map
                     -> map.get(key)).setHeader(key));
             grid.setItems(authsDto.getData());
+            grid.getColumns().forEach(column -> column.setSortable(true));
         }
 
         abstract String getGridTitle();
@@ -124,6 +146,8 @@ public class AuthView extends Div {
         abstract T getAuthsDto(String searchText);
 
         abstract AttributeAssignmentDialog<U, ? extends AttributeDto> getAssigmentDialog();
+
+        abstract void deleteAssigment(String name, String type);
 
     }
 
@@ -152,6 +176,11 @@ public class AuthView extends Div {
             return assigmentDialog;
         }
 
+        @Override
+        void deleteAssigment(String name, String type) {
+            service.deleteAuthentication(name, type);
+        }
+
     }
 
     private static class AuthorizationGrid extends AuthGrid<AuthorizationsDto, AuthorizationDto> {
@@ -177,6 +206,11 @@ public class AuthView extends Div {
         @Override
         AttributeAssignmentDialog<AuthorizationDto, ? extends AttributeDto> getAssigmentDialog() {
             return assigmentDialog;
+        }
+
+        @Override
+        void deleteAssigment(String name, String type) {
+            service.deleteAuthorization(name, type);
         }
 
     }

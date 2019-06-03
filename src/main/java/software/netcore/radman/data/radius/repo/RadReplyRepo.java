@@ -12,4 +12,6 @@ public interface RadReplyRepo extends BaseRepository<RadReply, Integer> {
 
     List<RadReply> findAll();
 
+    void deleteByUsername(String name);
+
 }

@@ -15,7 +15,7 @@ public class RadiusUserDtoToNameConverter implements Converter<RadiusUserDto, St
     @Override
     public Result<String> convertToModel(RadiusUserDto value, ValueContext context) {
         if (value == null) {
-            return Result.ok(null);
+            return Result.ok("");
         }
         radiusUserDto = value;
         return Result.ok(value.getUsername());

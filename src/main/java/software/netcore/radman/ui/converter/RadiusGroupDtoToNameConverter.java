@@ -15,7 +15,7 @@ public class RadiusGroupDtoToNameConverter implements Converter<RadiusGroupDto, 
     @Override
     public Result<String> convertToModel(RadiusGroupDto value, ValueContext context) {
         if (value == null) {
-            return Result.ok(null);
+            return Result.ok("");
         }
         radiusGroupDto = value;
         return Result.ok(value.getName());

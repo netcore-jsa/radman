@@ -4,11 +4,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -29,7 +29,6 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
-import software.netcore.radman.ui.support.Filter;
 
 import java.util.Objects;
 
@@ -39,7 +38,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: Users")
 @Route(value = "users", layout = MainTemplate.class)
-public class UsersView extends Div {
+public class UsersView extends VerticalLayout {
 
     private final RadiusUserFilter filter = new RadiusUserFilter(true, true);
     private final RadiusUserService service;
@@ -51,6 +50,9 @@ public class UsersView extends Div {
     }
 
     private void buildView() {
+        setHeightFull();
+        setSpacing(false);
+
         Grid<RadiusUserDto> grid = new Grid<>(RadiusUserDto.class, false);
         grid.addColumns("username", "description");
         DataProvider<RadiusUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -60,6 +62,8 @@ public class UsersView extends Div {
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
         grid.setDataProvider(dataProvider);
+        grid.setMinHeight("500px");
+        grid.setHeight("100%");
 
         UserCreationDialog creationDialog = new UserCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());

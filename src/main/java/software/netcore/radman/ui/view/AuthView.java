@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -58,7 +59,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: Auth (AA)")
 @Route(value = "auth", layout = MainTemplate.class)
-public class AuthView extends Div {
+public class AuthView extends VerticalLayout {
 
     private final AuthService authService;
     private final RadiusUserService userService;
@@ -86,6 +87,7 @@ public class AuthView extends Div {
 
         AuthGrid(AuthService service) {
             this.service = service;
+            setWidth("100%");
 
             grid = new Grid<>();
             deleteDialog = new ConfirmationDialog();
@@ -111,9 +113,12 @@ public class AuthView extends Div {
             Button assignBtn = new Button("Assign attribute", event -> getAssigmentDialog().startAssigment());
             Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
 
+            grid.asSingleSelect().addValueChangeListener(event ->
+                    deleteBtn.setEnabled(Objects.nonNull(event.getValue())));
+
             TextField search = new TextField(event -> {
                 filter.setSearchText(event.getValue());
-                grid.getDataProvider().refreshAll();
+                refreshGrid();
             });
             search.setValueChangeMode(ValueChangeMode.EAGER);
             search.setPlaceholder("Search...");
@@ -131,19 +136,19 @@ public class AuthView extends Div {
         }
 
         void refreshGrid() {
-            grid.getColumns().forEach(column -> column.setSortable(false));
-            grid.removeAllColumns();
-            AuthsDto authsDto = getAuthsDto(filter.getSearchText());
-            authsDto.getColumnsSpec().keySet().forEach(key
-                    -> grid.addColumn((ValueProvider<Map<String, String>, Object>) map
-                    -> map.get(key)).setHeader(key));
+            AuthsDto authsDto = getAuthsDto(filter);
+            if (grid.getColumns().size() == 0) {
+                authsDto.getColumnsSpec().keySet().forEach(key
+                        -> grid.addColumn((ValueProvider<Map<String, String>, Object>) map
+                        -> map.get(key)).setHeader(key));
+                grid.getColumns().forEach(column -> column.setSortable(true));
+            }
             grid.setItems(authsDto.getData());
-            grid.getColumns().forEach(column -> column.setSortable(true));
         }
 
         abstract String getGridTitle();
 
-        abstract T getAuthsDto(String searchText);
+        abstract T getAuthsDto(Filter filter);
 
         abstract AttributeAssignmentDialog<U, ? extends AttributeDto> getAssigmentDialog();
 
@@ -167,8 +172,8 @@ public class AuthView extends Div {
         }
 
         @Override
-        AuthenticationsDto getAuthsDto(String searchText) {
-            return service.getAuthentications();
+        AuthenticationsDto getAuthsDto(Filter filter) {
+            return service.getAuthentications(filter);
         }
 
         @Override
@@ -199,8 +204,8 @@ public class AuthView extends Div {
         }
 
         @Override
-        AuthorizationsDto getAuthsDto(String searchText) {
-            return service.getAuthorizations();
+        AuthorizationsDto getAuthsDto(Filter filter) {
+            return service.getAuthorizations(filter);
         }
 
         @Override
@@ -217,12 +222,14 @@ public class AuthView extends Div {
 
     private static abstract class AttributeAssignmentDialog<T extends AuthDto, U extends AttributeDto> extends Dialog {
 
-        final Binder<T> binder;
         final AuthService authService;
         final RadiusUserService userService;
         final AttributeService attributeService;
-        private final ComboBox<RadiusUserDto> username;
-        private final ComboBox<RadiusGroupDto> groupName;
+        private final CreationListener<Void> creationListener;
+
+        Binder<T> binder;
+        private ComboBox<RadiusUserDto> username;
+        private ComboBox<RadiusGroupDto> groupName;
         private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> value;
 
         AttributeAssignmentDialog(AuthService authService, RadiusUserService userService,
@@ -230,6 +237,11 @@ public class AuthView extends Div {
             this.authService = authService;
             this.userService = userService;
             this.attributeService = attributeService;
+            this.creationListener = creationListener;
+        }
+
+        private void build() {
+            removeAll();
             binder = new BeanValidationBinder<>(getClazz());
 
             HorizontalLayout authTargetConfigLayout = new HorizontalLayout();
@@ -376,6 +388,7 @@ public class AuthView extends Div {
         abstract void assignAuth(T authDto);
 
         void startAssigment() {
+            build();
             setOpened(true);
             T auth = getNewBeanInstance();
             auth.setAuthTarget(AuthTarget.RADIUS_USER);

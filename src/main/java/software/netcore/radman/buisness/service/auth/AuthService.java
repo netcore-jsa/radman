@@ -1,8 +1,8 @@
 package software.netcore.radman.buisness.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.util.StringUtils;
 import software.netcore.radman.buisness.service.auth.dto.*;
 import software.netcore.radman.data.internal.entity.RadCheckAttribute;
 import software.netcore.radman.data.internal.entity.RadReplyAttribute;
@@ -16,6 +16,7 @@ import software.netcore.radman.data.radius.repo.RadCheckRepo;
 import software.netcore.radman.data.radius.repo.RadGroupCheckRepo;
 import software.netcore.radman.data.radius.repo.RadGroupReplyRepo;
 import software.netcore.radman.data.radius.repo.RadReplyRepo;
+import software.netcore.radman.ui.support.Filter;
 
 import java.util.*;
 
@@ -24,6 +25,9 @@ import java.util.*;
  */
 @RequiredArgsConstructor
 public class AuthService {
+
+    private static final String NAME_COLUMN_KEY = "name";
+    private static final String TYPE_COLUMN_KEY = "type";
 
     // radius
     private final RadCheckRepo radCheckRepo;
@@ -40,9 +44,12 @@ public class AuthService {
     public void createAuthentication(AuthenticationDto authenticationDto) {
         if (authenticationDto.getAuthTarget() == AuthTarget.RADIUS_USER) {
             RadCheck radCheck = conversionService.convert(authenticationDto, RadCheck.class);
+            radCheckRepo.deleteByUsernameAndAttribute(radCheck.getUsername(), radCheck.getAttribute());
             radCheckRepo.save(radCheck);
         } else {
             RadGroupCheck radGroupCheck = conversionService.convert(authenticationDto, RadGroupCheck.class);
+            radGroupCheckRepo.deleteAllByGroupNameAndAttribute(radGroupCheck.getGroupName(),
+                    radGroupCheck.getAttribute());
             radGroupCheckRepo.save(radGroupCheck);
         }
     }
@@ -50,9 +57,12 @@ public class AuthService {
     public void createAuthorization(AuthorizationDto authorizationDto) {
         if (authorizationDto.getAuthTarget() == AuthTarget.RADIUS_USER) {
             RadReply radReply = conversionService.convert(authorizationDto, RadReply.class);
+            radReplyRepo.deleteByUsernameAndAttribute(radReply.getUsername(), radReply.getAttribute());
             radReplyRepo.save(radReply);
         } else {
             RadGroupReply radGroupReply = conversionService.convert(authorizationDto, RadGroupReply.class);
+            radGroupReplyRepo.deleteAllByGroupNameAndAttribute(radGroupReply.getGroupName(),
+                    radGroupReply.getAttribute());
             radGroupReplyRepo.save(radGroupReply);
         }
     }
@@ -60,23 +70,23 @@ public class AuthService {
     public void deleteAuthentication(String name, String type) {
         AuthTarget authTarget = AuthTarget.fromValue(type);
         if (authTarget == AuthTarget.RADIUS_USER) {
-            radCheckRepo.deleteByUsername(name);
+            radCheckRepo.deleteAllByUsername(name);
         } else {
-            radGroupCheckRepo.deleteByGroupName(name);
+            radGroupCheckRepo.deleteAllByGroupName(name);
         }
     }
 
     public void deleteAuthorization(String name, String type) {
         AuthTarget authTarget = AuthTarget.fromValue(type);
         if (authTarget == AuthTarget.RADIUS_USER) {
-            radReplyRepo.deleteByUsername(name);
+            radReplyRepo.deleteAllByUsername(name);
         } else {
-            radGroupReplyRepo.deleteByGroupName(name);
+            radGroupReplyRepo.deleteAllByGroupName(name);
         }
     }
 
     @SuppressWarnings("Duplicates")
-    public AuthorizationsDto getAuthorizations() {
+    public AuthorizationsDto getAuthorizations(Filter filter) {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
         List<RadReply> radReplies = radReplyRepo.findAll();
@@ -97,27 +107,27 @@ public class AuthService {
         Map<String, Map<String, String>> groupsData = new HashMap<>();
 
         List<RadReplyAttribute> radReplyAttributes = radReplyAttributeRepo.findAll();
+        Map<String, RadReplyAttribute> repliesAttrMapping = new HashMap<>();
         for (RadReplyAttribute radReplyAttribute : radReplyAttributes) {
+            repliesAttrMapping.put(radReplyAttribute.getName(), radReplyAttribute);
             columnsSpec.put(radReplyAttribute.getName(), StringUtils.capitalize(radReplyAttribute.getName()));
 
             if (radReplyMap.containsKey(radReplyAttribute.getName())) {
                 List<RadReply> attrRadReplies = radReplyMap.get(radReplyAttribute.getName());
                 for (RadReply attrRadReply : attrRadReplies) {
-                    String key = attrRadReply.getUsername();
-                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
+                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(attrRadReply.getUsername(),
                             AuthTarget.RADIUS_USER.getValue(), usersData);
                     String attrValue = radReplyAttribute.isSensitiveData() ?
-                            attrRadReply.getValue().replaceAll(".", "*")
-                            : attrRadReply.getValue();
-                    singleUserData.put(radReplyAttribute.getName(), attrRadReply.getOp() + " " + attrValue);
+                            attrRadReply.getValue().replaceAll(".", "*") : attrRadReply.getValue();
+                    String finalValue = attrRadReply.getOp() + " " + attrValue;
+                    singleUserData.put(radReplyAttribute.getName(), finalValue);
                 }
             }
 
             if (radGroupReplyMap.containsKey(radReplyAttribute.getName())) {
                 List<RadGroupReply> attrRadGroupReplies = radGroupReplyMap.get(radReplyAttribute.getName());
                 for (RadGroupReply attrRadGroupReply : attrRadGroupReplies) {
-                    String key = attrRadGroupReply.getGroupName();
-                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
+                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(attrRadGroupReply.getGroupName(),
                             AuthTarget.RADIUS_GROUP.getValue(), groupsData);
                     String attrValue = radReplyAttribute.isSensitiveData() ?
                             attrRadGroupReply.getValue().replaceAll(".", "*")
@@ -130,12 +140,41 @@ public class AuthService {
         List<Map<String, String>> data = new ArrayList<>();
         data.addAll(usersData.values());
         data.addAll(groupsData.values());
+
+        // apply filter
+        if (!StringUtils.isEmpty(filter.getSearchText())) {
+            Iterator<Map<String, String>> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                Map<String, String> row = iterator.next();
+                boolean pass = false;
+                for (String key : row.keySet()) {
+                    if (Objects.equals(NAME_COLUMN_KEY, key) || Objects.equals(TYPE_COLUMN_KEY, key)) {
+                        String opValue = row.get(key);
+                        if (Objects.nonNull(opValue)) {
+                            pass = pass || StringUtils.contains(opValue, filter.getSearchText());
+                        }
+                    } else {
+                        RadReplyAttribute radReplyAttribute = repliesAttrMapping.get(key);
+                        if (!radReplyAttribute.isSensitiveData()) {
+                            String opValue = row.get(key);
+                            if (Objects.nonNull(opValue)) {
+                                pass = pass || StringUtils.contains(opValue, filter.getSearchText());
+                            }
+                        }
+                    }
+                }
+                if (!pass) {
+                    iterator.remove();
+                }
+            }
+        }
+
         return new AuthorizationsDto(columnsSpec, data);
     }
 
 
     @SuppressWarnings("Duplicates")
-    public AuthenticationsDto getAuthentications() {
+    public AuthenticationsDto getAuthentications(Filter filter) {
         Map<String, String> columnsSpec = initCommonColumnsSpec();
 
         List<RadCheck> radChecks = radCheckRepo.findAll();
@@ -156,14 +195,15 @@ public class AuthService {
         Map<String, Map<String, String>> groupsData = new HashMap<>();
 
         List<RadCheckAttribute> radCheckAttributes = radCheckAttributeRepo.findAll();
+        Map<String, RadCheckAttribute> checksAttrMapping = new HashMap<>();
         for (RadCheckAttribute radCheckAttribute : radCheckAttributes) {
+            checksAttrMapping.put(radCheckAttribute.getName(), radCheckAttribute);
             columnsSpec.put(radCheckAttribute.getName(), StringUtils.capitalize(radCheckAttribute.getName()));
 
             if (radCheckMap.containsKey(radCheckAttribute.getName())) {
                 List<RadCheck> attrRadChecks = radCheckMap.get(radCheckAttribute.getName());
                 for (RadCheck attrRadCheck : attrRadChecks) {
-                    String key = attrRadCheck.getUsername();
-                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(key,
+                    Map<String, String> singleUserData = initDefaultRowDataIfRequired(attrRadCheck.getUsername(),
                             AuthTarget.RADIUS_USER.getValue(), usersData);
                     String attrValue = radCheckAttribute.isSensitiveData() ?
                             attrRadCheck.getValue().replaceAll(".", "*") :
@@ -175,8 +215,7 @@ public class AuthService {
             if (radGroupCheckMap.containsKey(radCheckAttribute.getName())) {
                 List<RadGroupCheck> attrRadGroupChecks = radGroupCheckMap.get(radCheckAttribute.getName());
                 for (RadGroupCheck attrRadGroupCheck : attrRadGroupChecks) {
-                    String key = attrRadGroupCheck.getGroupName();
-                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(key,
+                    Map<String, String> singleGroupData = initDefaultRowDataIfRequired(attrRadGroupCheck.getGroupName(),
                             AuthTarget.RADIUS_GROUP.getValue(), groupsData);
                     String attrValue = radCheckAttribute.isSensitiveData() ?
                             attrRadGroupCheck.getValue().replaceAll(".", "*")
@@ -189,24 +228,54 @@ public class AuthService {
         List<Map<String, String>> data = new ArrayList<>();
         data.addAll(usersData.values());
         data.addAll(groupsData.values());
+
+        // apply filter
+        if (!StringUtils.isEmpty(filter.getSearchText())) {
+            Iterator<Map<String, String>> iterator = data.iterator();
+            while (iterator.hasNext()) {
+                Map<String, String> row = iterator.next();
+                boolean pass = false;
+                for (String key : row.keySet()) {
+                    if (Objects.equals(NAME_COLUMN_KEY, key) || Objects.equals(TYPE_COLUMN_KEY, key)) {
+                        String opValue = row.get(key);
+                        if (Objects.nonNull(opValue)) {
+                            pass = pass || StringUtils.contains(opValue, filter.getSearchText());
+                        }
+                    } else {
+                        RadCheckAttribute radReplyAttribute = checksAttrMapping.get(key);
+                        if (!radReplyAttribute.isSensitiveData()) {
+                            String opValue = row.get(key);
+                            if (Objects.nonNull(opValue)) {
+                                pass = pass || StringUtils.contains(opValue, filter.getSearchText());
+                            }
+                        }
+                    }
+                }
+                if (!pass) {
+                    iterator.remove();
+                }
+            }
+        }
+
         return new AuthenticationsDto(columnsSpec, data);
     }
 
     private Map<String, String> initCommonColumnsSpec() {
         Map<String, String> columnsSpec = new LinkedHashMap<>();
-        columnsSpec.put("name", "Name");
-        columnsSpec.put("type", "Type");
+        columnsSpec.put(NAME_COLUMN_KEY, "Name");
+        columnsSpec.put(TYPE_COLUMN_KEY, "Type");
         return columnsSpec;
     }
 
-    private Map<String, String> initDefaultRowDataIfRequired(String key, String type,
+    private Map<String, String> initDefaultRowDataIfRequired(String name, String type,
                                                              Map<String, Map<String, String>> data) {
+        String key = name + ":" + type;
         Map<String, String> singleData;
         if (!data.containsKey(key)) { // inits user data if non exists
             singleData = new HashMap<>();
             data.put(key, singleData);
-            singleData.put("name", key);
-            singleData.put("type", type);
+            singleData.put(NAME_COLUMN_KEY, name);
+            singleData.put(TYPE_COLUMN_KEY, type);
         } else {
             singleData = data.get(key);
         }

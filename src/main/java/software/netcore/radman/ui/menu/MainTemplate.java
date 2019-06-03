@@ -23,7 +23,7 @@ import java.util.Objects;
 @Push
 @Tag("main-layout")
 @HtmlImport("src/MainLayout.html")
-@BodySize(height = "100%", width = "100%")
+@BodySize(height = "100vh", width = "100vw")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MainTemplate extends PolymerTemplate<TemplateModel> implements RouterLayout {
 

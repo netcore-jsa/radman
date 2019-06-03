@@ -1,10 +1,10 @@
 package software.netcore.radman.data.radius.repo;
 
 import software.netcore.radman.data.radius.entity.RadUserGroup;
-import software.netcore.radman.data.spec.BaseRepository;
+import software.netcore.radman.data.radius.spec.RadiusRepository;
 
 /**
  * @since v. 1.0.0
  */
-public interface RadUserGroupRepo extends BaseRepository<RadUserGroup, Integer> {
+public interface RadUserGroupRepo extends RadiusRepository<RadUserGroup> {
 }

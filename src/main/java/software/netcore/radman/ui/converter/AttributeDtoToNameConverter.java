@@ -15,7 +15,7 @@ public class AttributeDtoToNameConverter<T extends AttributeDto> implements Conv
     @Override
     public Result<String> convertToModel(T value, ValueContext context) {
         if (value == null) {
-            return Result.ok(null);
+            return Result.ok("");
         }
         attributeDto = value;
         return Result.ok(value.getName());

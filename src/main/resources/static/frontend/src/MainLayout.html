@@ -7,22 +7,28 @@
             .main-layout {
                 width: 100%;
                 height: 100%;
+                display: flex;
+                overflow: hidden;
+                flex-direction: column;
             }
 
             .page-view-container {
+                flex: 1;
                 width: 100%;
+                display: flex;
+                overflow-y: auto;
             }
 
             .page-view-container > div {
+                flex: 1;
+                margin: 0 auto;
                 max-width: 1600px;
-                margin: 20px auto 0;
-                padding: 10px;
             }
 
             #page-nav {
                 top: 0;
+                flex: 0;
                 width: 100%;
-                position: sticky;
                 background: #24292e;
             }
 
@@ -40,10 +46,9 @@
             }
 
             #page-nav ul li {
-                transition: all 0.2s ease;
-                box-sizing: border-box;
                 display: inline-block;
-                padding: 10px;
+                box-sizing: border-box;
+                transition: all 0.2s ease;
             }
 
             #page-nav ul li.selected,
@@ -52,6 +57,7 @@
             }
 
             #page-nav ul li a {
+                padding: 10px;
                 color: inherit;
                 display: block;
                 text-decoration: none;

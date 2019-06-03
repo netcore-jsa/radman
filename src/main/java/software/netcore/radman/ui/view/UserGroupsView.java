@@ -4,11 +4,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -37,7 +37,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: User groups")
 @Route(value = "user_groups", layout = MainTemplate.class)
-public class UserGroupsView extends Div {
+public class UserGroupsView extends VerticalLayout {
 
     private final RadiusGroupFilter filter = new RadiusGroupFilter();
     private final RadiusUserService service;
@@ -48,6 +48,9 @@ public class UserGroupsView extends Div {
     }
 
     private void buildView() {
+        setHeightFull();
+        setSpacing(false);
+
         Grid<RadiusGroupDto> grid = new Grid<>(RadiusGroupDto.class, false);
         grid.addColumns("name", "description");
         DataProvider<RadiusGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -57,6 +60,8 @@ public class UserGroupsView extends Div {
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
         grid.setDataProvider(dataProvider);
+        grid.setMinHeight("500px");
+        grid.setHeight("100%");
 
         UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());

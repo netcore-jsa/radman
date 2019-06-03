@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -45,7 +46,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: Attributes")
 @Route(value = "attributes", layout = MainTemplate.class)
-public class AttributesView extends Div {
+public class AttributesView extends VerticalLayout {
 
     private final AttributeService attributeService;
 
@@ -56,7 +57,6 @@ public class AttributesView extends Div {
     }
 
     private void buildView() {
-        getElement().getStyle().set("display", "flex");
         add(new AuthenticationAttributeGrid(attributeService));
         add(new AuthorizationAttributeGrid(attributeService));
     }
@@ -70,7 +70,7 @@ public class AttributesView extends Div {
 
         AttributeGrid(AttributeService service) {
             this.service = service;
-            setWidth("50%");
+            setWidth("100%");
 
             grid = new Grid<>(getClazz(), false);
             grid.setColumns("name", "description", "sensitiveData");
@@ -82,7 +82,6 @@ public class AttributesView extends Div {
             grid.getColumns().forEach(column -> column.setResizable(true));
             grid.setColumnReorderingAllowed(true);
             grid.setDataProvider(dataProvider);
-            grid.setWidth("700px");
 
             deleteDialog = new ConfirmationDialog("365px");
             deleteDialog.setTitle("Delete attribute");

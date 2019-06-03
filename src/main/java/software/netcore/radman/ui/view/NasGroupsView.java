@@ -4,11 +4,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -38,7 +38,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: NAS groups")
 @Route(value = "nas_groups", layout = MainTemplate.class)
-public class NasGroupsView extends Div {
+public class NasGroupsView extends VerticalLayout {
 
     private final Filter filter = new Filter();
     private final NasService nasService;
@@ -50,6 +50,9 @@ public class NasGroupsView extends Div {
     }
 
     private void buildView() {
+        setHeightFull();
+        setSpacing(false);
+
         Grid<NasGroupDto> grid = new Grid<>(NasGroupDto.class, false);
         grid.setColumns("groupName", "nasIpAddress", "nasPortId");
         DataProvider<NasGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -60,6 +63,8 @@ public class NasGroupsView extends Div {
         grid.getColumns().forEach(column -> column.setResizable(true));
         grid.setColumnReorderingAllowed(true);
         grid.setDataProvider(dataProvider);
+        grid.setMinHeight("500px");
+        grid.setHeight("100%");
 
         NasGroupCreateDialog createDialog = new NasGroupCreateDialog(nasService,
                 (source, bean) -> grid.getDataProvider().refreshAll());

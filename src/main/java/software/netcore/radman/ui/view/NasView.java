@@ -4,11 +4,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -44,7 +44,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: NAS")
 @Route(value = "", layout = MainTemplate.class)
-public class NasView extends Div {
+public class NasView extends VerticalLayout {
 
     private final Filter filter = new Filter();
     private final NasService nasService;
@@ -56,6 +56,9 @@ public class NasView extends Div {
     }
 
     private void buildView() {
+        setHeightFull();
+        setSpacing(false);
+
         Grid<NasDto> grid = new Grid<>(NasDto.class, false);
         grid.addColumns("nasName", "shortName", "description");
         grid.addColumn((ValueProvider<NasDto, String>) nasDto
@@ -69,6 +72,8 @@ public class NasView extends Div {
         grid.setDataProvider(dataProvider);
         grid.getColumns().forEach(column -> column.setResizable(true));
         grid.setColumnReorderingAllowed(true);
+        grid.setMinHeight("500px");
+        grid.setHeight("100%");
 
         ConfirmationDialog nasDeleteDialog = new ConfirmationDialog("340px");
         nasDeleteDialog.setTitle("Delete NAS");

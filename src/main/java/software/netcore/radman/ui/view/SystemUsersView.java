@@ -5,11 +5,11 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
@@ -45,7 +45,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: System users")
 @Route(value = "system_users", layout = MainTemplate.class)
-public class SystemUsersView extends Div {
+public class SystemUsersView extends VerticalLayout {
 
     private final Filter filter = new Filter();
     private final SystemUserService service;
@@ -58,6 +58,9 @@ public class SystemUsersView extends Div {
 
     @SuppressWarnings("Duplicates")
     private void buildView() {
+        setHeightFull();
+        setSpacing(false);
+
         Grid<SystemUserDto> grid = new Grid<>(SystemUserDto.class, false);
         grid.addColumns("username", "role");
         grid.addColumn(new LocalDateTimeRenderer<>(systemUserDto -> {
@@ -78,6 +81,8 @@ public class SystemUsersView extends Div {
         grid.getColumns().forEach(column -> column.setResizable(true));
         grid.setColumnReorderingAllowed(true);
         grid.setDataProvider(dataProvider);
+        grid.setMinHeight("500px");
+        grid.setHeight("100%");
 
         SystemUserCreationDialog createDialog = new SystemUserCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());

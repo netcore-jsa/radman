@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.user.system.SystemUserService;
+import software.netcore.radman.buisness.service.user.system.dto.AuthProvider;
 import software.netcore.radman.buisness.service.user.system.dto.Role;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.CreationListener;
@@ -73,6 +74,7 @@ public class SystemUsersView extends VerticalLayout {
                 .setSortable(true)
                 .setHeader("Last login time")
                 .setSortProperty("lastLoginTime");
+        grid.addColumn("authProvider").setHeader("Authentication provider");
         DataProvider<SystemUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> service.pageSystemUsers(filter.getSearchText(), pageable),
                 value -> service.countSystemUsers(filter.getSearchText()))
@@ -146,6 +148,8 @@ public class SystemUsersView extends VerticalLayout {
 
         SystemUserCreationDialog(SystemUserService service,
                                  CreationListener<SystemUserDto> creationListener) {
+            binder = new BeanValidationBinder<>(SystemUserDto.class);
+
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3("New system user"));
             TextField username = new TextField("Username");
@@ -157,11 +161,22 @@ public class SystemUsersView extends VerticalLayout {
             ComboBox<Role> role = new ComboBox<>("Role", Role.values());
             role.setPreventInvalidInput(true);
             role.setWidthFull();
+            ComboBox<AuthProvider> authProvider = new ComboBox<>("Authentication provider", AuthProvider.values());
+            authProvider.setPreventInvalidInput(true);
+            authProvider.setWidthFull();
+            authProvider.addValueChangeListener(event -> {
+                if (AuthProvider.LOCAL == event.getValue()) {
+                    binder.bind(password, "password");
+                    password.setVisible(true);
+                } else {
+                    binder.removeBinding("password");
+                    password.setVisible(false);
+                }
+            });
 
-            binder = new BeanValidationBinder<>(SystemUserDto.class);
             binder.bind(username, "username");
-            binder.bind(password, "password");
             binder.bind(role, "role");
+            binder.bind(authProvider, "authProvider");
 
             Button createBtn = new Button("Create", event -> {
                 SystemUserDto userDto = new SystemUserDto();
@@ -189,6 +204,7 @@ public class SystemUsersView extends VerticalLayout {
             formLayout.add(username);
             formLayout.add(password);
             formLayout.add(role);
+            formLayout.add(authProvider);
             formLayout.add(new Hr());
             formLayout.add(controls);
             formLayout.setMaxWidth("400px");
@@ -198,7 +214,9 @@ public class SystemUsersView extends VerticalLayout {
         void startCreation() {
             SystemUserDto systemUserDto = new SystemUserDto();
             systemUserDto.setRole(Role.ADMIN);
+            systemUserDto.setAuthProvider(AuthProvider.LOCAL);
             binder.readBean(systemUserDto);
+            setOpened(true);
         }
 
     }

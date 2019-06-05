@@ -1,0 +1,45 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/vaadin-button/vaadin-button.html">
+<link rel="import" href="../bower_components/vaadin-text-field/vaadin-text-field.html">
+<link rel="import" href="../bower_components/vaadin-text-field/vaadin-password-field.html">
+<link rel="import" href="../bower_components/vaadin-ordered-layout/vaadin-vertical-layout.html">
+
+<dom-module id="login-view">
+    <template>
+        <div class="container">
+            <iron-form class="login" id="form" allow-redirect>
+                <form method="post" action="login">
+                    <vaadin-vertical-layout>
+                        <vaadin-text-field id="username" name="username" autofocus required></vaadin-text-field>
+                        <vaadin-password-field id="password" name="password" required></vaadin-password-field>
+                        <vaadin-button on-tap="login" theme="primary">
+                            Login
+                        </vaadin-button>
+                    </vaadin-vertical-layout>
+                </form>
+            </iron-form>
+        </div>
+    </template>
+
+    <script>
+        class LoginView extends Polymer.GestureEventListeners(Polymer.Element) {
+            static get is() {
+                return 'login-view';
+            }
+
+            static get properties() {
+                return {};
+            }
+
+            login() {
+                if (!this.$.username.invalid && !this.$.password.invalid) {
+                    this.$.form.submit();
+                }
+            }
+        }
+
+        window.customElements.define(LoginView.is, LoginView);
+    </script>
+</dom-module>

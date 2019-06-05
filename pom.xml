@@ -27,6 +27,7 @@
         <!--vaadin dependencies-->
         <vaadin.version>13.0.7</vaadin.version>
         <vaadin-spring-data-provider.version>2.0.1</vaadin-spring-data-provider.version>
+        <iron-form.version>2.4.0</iron-form.version>
     </properties>
 
     <dependencies>
@@ -49,8 +50,13 @@
             <version>${vaadin-spring-data-provider.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-ldap</artifactId>
+            <version>${spring-security.version}</version>
         </dependency>
 
         <!--webjars-->
@@ -61,6 +67,15 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-form-layout-flow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-icons-flow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-form</artifactId>
+            <version>${iron-form.version}</version>
         </dependency>
 
         <!-- data-->

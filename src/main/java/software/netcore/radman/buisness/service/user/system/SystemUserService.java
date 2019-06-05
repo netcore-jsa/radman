@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
+import software.netcore.radman.data.internal.entity.AuthProvider;
 import software.netcore.radman.data.internal.entity.QSystemUser;
 import software.netcore.radman.data.internal.entity.SystemUser;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
@@ -33,8 +34,10 @@ public class SystemUserService {
 
     public SystemUserDto createSystemUser(@NonNull SystemUserDto systemUserDto) {
         SystemUser systemUser = conversionService.convert(systemUserDto, SystemUser.class);
-        systemUser.setPasswordLength(systemUser.getPassword().length());
-        systemUser.setPassword(passwordEncoder.encode(systemUser.getPassword()));
+        if (systemUser.getAuthProvider() == AuthProvider.LOCAL) {
+            systemUser.setPasswordLength(systemUser.getPassword().length());
+            systemUser.setPassword(passwordEncoder.encode(systemUser.getPassword()));
+        }
         systemUser = systemUserRepo.save(systemUser);
         return conversionService.convert(systemUser, SystemUserDto.class);
     }

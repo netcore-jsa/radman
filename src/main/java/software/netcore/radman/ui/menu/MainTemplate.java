@@ -6,6 +6,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.BodySize;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
+import com.vaadin.flow.component.polymertemplate.EventHandler;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -46,6 +47,7 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
     private void addNavigation(Class<? extends Component> navigationTarget, String name) {
         Element li = ElementFactory.createListItem();
         RouterLink routerLink = new RouterLink(name, navigationTarget);
+        routerLink.getClassNames().add("button");
         linksContainer.appendChild(li.appendChild(routerLink.getElement()));
         routerLink.setHighlightCondition((r, event) -> Objects.equals(r.getHref(), event.getLocation().getPath()));
         routerLink.setHighlightAction((r, highlight) -> {
@@ -55,6 +57,11 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
                 li.getClassList().remove(SELECTED_CLASS_NAME);
             }
         });
+    }
+
+    @EventHandler
+    private void logout() {
+        System.out.println("logout");
     }
 
 }

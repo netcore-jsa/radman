@@ -1,5 +1,8 @@
 <!-- Dependency resources -->
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/vaadin-button/vaadin-button.html">
+<link rel="import" href="../bower_components/vaadin-icons/vaadin-icons.html">
 
 <dom-module id="main-layout">
     <template>
@@ -27,8 +30,8 @@
 
             #page-nav {
                 top: 0;
-                flex: 0;
                 width: 100%;
+                height: 3em;
                 background: #24292e;
             }
 
@@ -60,11 +63,26 @@
                 padding: 10px;
                 color: inherit;
                 display: block;
+                font-size: 13pt;
+                font-weight: 500;
                 text-decoration: none;
+                -moz-osx-font-smoothing: auto;
+                -webkit-font-smoothing: antialiased;
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 -ms-user-select: none;
                 user-select: none;
+            }
+
+            #page-nav > .account-nav {
+                height: 3em;
+                float: right;
+                display: flex;
+                align-items: center;
+            }
+
+            .logout {
+                color: #e6e6e6;
             }
 
             /* [ON SMALL SCREENS] */
@@ -73,7 +91,6 @@
                 #page-nav label {
                     color: #fff;
                     padding: 5px;
-                    cursor: pointer;
                     font-size: 1.5em;
                     margin-left: 5px;
                     font-style: normal;
@@ -104,8 +121,11 @@
 
         <div class="main-layout">
             <nav id="page-nav">
-                <div style="float: right;">
-                    <button>Logout</button>
+                <div class="account-nav">
+                    <vaadin-button class="logout" theme="tertiary" on-click="logout">
+                        <iron-icon icon="vaadin:sign-out" slot="prefix"></iron-icon>
+                        Logout
+                    </vaadin-button>
                 </div>
                 <label for="hamburger">&#9776;</label>
                 <input type="checkbox" id="hamburger"/>

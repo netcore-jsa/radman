@@ -94,14 +94,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(fallbackAuthenticationProvider());
         auth.authenticationProvider(localAuthenticationProvider());
-        if (ldapProperties().isLdapEnabled()) {
+        if (ldapProperties().isEnabled()) {
             //@formatter:off
             auth.ldapAuthentication()
-                    .userDnPatterns(ldapProperties().getLdapUserDnPattern())
+                    .userDnPatterns(ldapProperties().getUserDnPattern())
                     .contextSource()
-                        .managerDn(ldapProperties().getLdapSecurityPrincipal())
-                        .managerPassword(ldapProperties().getLdapSecurityPrincipal())
-                        .url(ldapProperties().getLdapUrls() + ldapProperties().getLdapBaseDn())
+                        .url(ldapProperties().getUrls() + ldapProperties().getBaseDn())
                     .and()
                         .ldapAuthoritiesPopulator(ldapAuthoritiesPopulator());
             //@formatter:on

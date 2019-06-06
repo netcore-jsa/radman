@@ -8,10 +8,30 @@
 
 <dom-module id="login-view">
     <template>
+        <style>
+            .container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            iron-form {
+                max-width: 400px;
+            }
+
+            vaadin-password-field,
+            vaadin-text-field {
+                width: 100%;
+            }
+
+        </style>
         <div class="container">
             <iron-form class="login" id="form" allow-redirect>
                 <form method="post" action="login">
                     <vaadin-vertical-layout>
+                        <h2>Radman</h2>
                         <vaadin-text-field id="username" name="username" autofocus required></vaadin-text-field>
                         <vaadin-password-field id="password" name="password" required></vaadin-password-field>
                         <vaadin-button on-tap="login" theme="primary">
@@ -27,10 +47,6 @@
         class LoginView extends Polymer.GestureEventListeners(Polymer.Element) {
             static get is() {
                 return 'login-view';
-            }
-
-            static get properties() {
-                return {};
             }
 
             login() {

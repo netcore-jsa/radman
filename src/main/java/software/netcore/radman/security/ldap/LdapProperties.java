@@ -10,11 +10,9 @@ import lombok.Setter;
 @Setter
 public class LdapProperties {
 
-    private String ldapUrls;
-    private String ldapBaseDn;
-    private String ldapSecurityPrincipal;
-    private String ldapPrincipalPassword;
-    private String ldapUserDnPattern;
-    private boolean ldapEnabled;
+    private boolean enabled;
+    private String urls;
+    private String baseDn;
+    private String userDnPattern;
 
 }

@@ -2,6 +2,7 @@ package software.netcore.radman.ui.menu;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.BodySize;
 import com.vaadin.flow.component.page.Push;
@@ -14,6 +15,7 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.templatemodel.TemplateModel;
+import org.springframework.security.core.context.SecurityContextHolder;
 import software.netcore.radman.ui.view.*;
 
 import java.util.Objects;
@@ -61,7 +63,11 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
 
     @EventHandler
     private void logout() {
-        System.out.println("logout");
+        SecurityContextHolder.clearContext();
+        UI ui = UI.getCurrent();
+        ui.getSession().getSession().invalidate();
+        ui.getSession().close();
+        ui.getPage().reload();
     }
 
 }

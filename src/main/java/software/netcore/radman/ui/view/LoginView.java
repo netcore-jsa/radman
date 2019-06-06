@@ -22,7 +22,6 @@ public class LoginView extends PolymerTemplate<TemplateModel> implements BeforeE
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        System.out.println(hashCode());
         securityService.initiateFallbackUser();
     }
 

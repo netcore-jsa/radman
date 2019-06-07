@@ -45,7 +45,7 @@ public class AccountingView extends VerticalLayout {
         DataProvider<AccountingDto, Object> dataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> accountingService.pageAccountingRecords(filter, pageable),
                 value -> accountingService.countAccountingRecords(filter))
-                .withDefaultSort("id", SortDirection.ASCENDING)
+                .withDefaultSort("radAcctId", SortDirection.ASCENDING)
                 .build();
         grid.setDataProvider(dataProvider);
         grid.getColumns().forEach(column -> column.setResizable(true));

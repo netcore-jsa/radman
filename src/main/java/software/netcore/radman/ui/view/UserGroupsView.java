@@ -74,7 +74,15 @@ public class UserGroupsView extends VerticalLayout {
         deleteDialog.setConfirmListener(() -> {
             RadiusGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
-                service.deleteRadiusUsersGroup(dto);
+                try {
+                    service.deleteRadiusUsersGroup(dto);
+                    grid.getDataProvider().refreshAll();
+                } catch (Exception e) {
+                    log.warn("Failed to delete users group. Reason = '{}'", e.getMessage());
+                    ErrorNotification.show("Error",
+                            "Ooops, something went wrong, try again please");
+                }
+                deleteDialog.setOpened(false);
             }
         });
 

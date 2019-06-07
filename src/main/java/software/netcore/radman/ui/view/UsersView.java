@@ -76,7 +76,15 @@ public class UsersView extends VerticalLayout {
         deleteDialog.setConfirmListener(() -> {
             RadiusUserDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
-                service.deleteRadiusUser(dto);
+                try {
+                    service.deleteRadiusUser(dto);
+                    grid.getDataProvider().refreshAll();
+                } catch (Exception e) {
+                    log.warn("Failed to delete user. Reason = '{}'", e.getMessage());
+                    ErrorNotification.show("Error",
+                            "Ooops, something went wrong, try again please");
+                }
+                deleteDialog.setOpened(false);
             }
         });
 

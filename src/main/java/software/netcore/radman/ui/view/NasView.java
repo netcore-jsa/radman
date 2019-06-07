@@ -25,7 +25,6 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
-import software.netcore.radman.buisness.exception.NotFoundException;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.ui.CreationListener;
@@ -91,7 +90,6 @@ public class NasView extends VerticalLayout {
                 }
             }
             nasDeleteDialog.setOpened(false);
-
         });
 
         NasEditDialog nasEditDialog = new NasEditDialog(nasService,
@@ -182,11 +180,16 @@ public class NasView extends VerticalLayout {
     static class NasEditDialog extends NasFormDialog {
 
         private final UpdateListener<NasDto> updateListener;
+        private ConfirmationDialog confirmationDialog;
+        private String originNasName;
 
         NasEditDialog(NasService nasService,
                       UpdateListener<NasDto> updateListener) {
             super(nasService);
             this.updateListener = updateListener;
+
+            confirmationDialog = new ConfirmationDialog();
+            confirmationDialog.setTitle("Confirm NAS change");
         }
 
         @Override
@@ -200,11 +203,21 @@ public class NasView extends VerticalLayout {
                 BinderValidationStatus<NasDto> validationStatus = binder.validate();
                 if (validationStatus.isOk()) {
                     try {
-                        NasDto dto = nasService.updateNas(binder.getBean());
-                        updateListener.onUpdated(this, dto);
+                        NasDto dto = binder.getBean();
+                        if (!Objects.equals(dto.getNasName(), originNasName)
+                                && nasService.existsNasGroupWithIpAddress(originNasName)) {
+                            confirmationDialog.setDescription(String.format("NAS '%s' found in a NAS group - " +
+                                    "do not forget to update NAS group configuration. " +
+                                    "Are you sure you want to change this NAS?", originNasName));
+                            confirmationDialog.setConfirmListener(() -> {
+                                confirmationDialog.setOpened(false);
+                                saveNas(dto);
+                            });
+                            confirmationDialog.setOpened(true);
+                        } else {
+                            saveNas(dto);
+                        }
                         setOpened(false);
-                    } catch (NotFoundException e) {
-                        //TODO
                     } catch (Exception e) {
                         log.warn("Failed to update NAS. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
@@ -216,7 +229,13 @@ public class NasView extends VerticalLayout {
 
         void editNas(NasDto dto) {
             setOpened(true);
+            originNasName = dto.getNasName();
             binder.setBean(dto);
+        }
+
+        private void saveNas(NasDto dto) {
+            dto = nasService.updateNas(dto);
+            updateListener.onUpdated(this, dto);
         }
 
     }

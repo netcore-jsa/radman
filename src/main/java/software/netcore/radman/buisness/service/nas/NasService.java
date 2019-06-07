@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import software.netcore.radman.buisness.exception.NotFoundException;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.data.radius.entity.Nas;
@@ -24,7 +23,6 @@ import software.netcore.radman.data.radius.repo.RadHuntGroupRepo;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,22 +49,15 @@ public class NasService {
     }
 
     @Transactional
-    public NasDto updateNas(@NonNull NasDto nasDto) throws NotFoundException {
+    public NasDto updateNas(@NonNull NasDto nasDto) {
         assert nasDto.getId() != null;
         Nas nasUpdate = conversionService.convert(nasDto, Nas.class);
-        Nas nas = nasRepo.findById(nasUpdate.getId()).orElse(null);
-        if (Objects.isNull(nas)) {
-            log.info("Failed to update NAS. Nas with name '{}' and id '{}' not found",
-                    nasDto.getNasName(), nasDto.getId());
-            throw new NotFoundException("Failed to update NAS. Not found");
-        }
-        if (!Objects.equals(nasUpdate.getNasName(), nas.getNasName())) {
-            List<RadHuntGroup> radHuntGroups = radHuntGroupRepo.findByNasIpAddress(nas.getNasName());
-            radHuntGroups.forEach(radHuntGroup -> radHuntGroup.setNasIpAddress(nasDto.getNasName()));
-            radHuntGroupRepo.saveAll(radHuntGroups);
-        }
         nasUpdate = nasRepo.save(nasUpdate);
         return conversionService.convert(nasUpdate, NasDto.class);
+    }
+
+    public boolean existsNasWithName(String name) {
+        return nasRepo.existsByNasName(name);
     }
 
     public NasGroupDto updateNasGroup(@NonNull NasGroupDto nasGroupDto) {
@@ -74,6 +65,10 @@ public class NasService {
         RadHuntGroup radHuntGroup = conversionService.convert(nasGroupDto, RadHuntGroup.class);
         radHuntGroup = radHuntGroupRepo.save(radHuntGroup);
         return conversionService.convert(radHuntGroup, NasGroupDto.class);
+    }
+
+    public boolean existsNasGroupWithIpAddress(String ipAddress){
+        return radHuntGroupRepo.existsByNasIpAddress(ipAddress);
     }
 
     public void deleteNas(@NonNull NasDto nasDto) {

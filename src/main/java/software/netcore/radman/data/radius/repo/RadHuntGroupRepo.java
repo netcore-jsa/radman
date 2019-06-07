@@ -10,6 +10,6 @@ import java.util.List;
  */
 public interface RadHuntGroupRepo extends RadiusRepository<RadHuntGroup> {
 
-    List<RadHuntGroup> findByNasIpAddress(String nasIpAddress);
+    boolean existsByNasIpAddress(String ipAddress);
 
 }

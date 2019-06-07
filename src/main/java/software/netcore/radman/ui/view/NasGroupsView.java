@@ -77,7 +77,14 @@ public class NasGroupsView extends VerticalLayout {
         deleteDialog.setConfirmListener(() -> {
             NasGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
-                nasService.deleteNasGroup(dto);
+                try {
+                    nasService.deleteNasGroup(dto);
+                    grid.getDataProvider().refreshAll();
+                } catch (Exception e) {
+                    log.warn("Failed to delete NAS group. Reason = '{}'", e.getMessage());
+                    ErrorNotification.show("Error",
+                            "Ooops, something went wrong, try again please");
+                }
                 deleteDialog.setOpened(false);
             }
         });
@@ -197,10 +204,15 @@ public class NasGroupsView extends VerticalLayout {
     static class NasGroupEditDialog extends NasGroupFormDialog {
 
         private final UpdateListener<NasGroupDto> updateListener;
+        private final ConfirmationDialog confirmationDialog;
+        private String originIpAddress;
 
         NasGroupEditDialog(NasService nasService, UpdateListener<NasGroupDto> updateListener) {
             super(nasService);
             this.updateListener = updateListener;
+
+            confirmationDialog = new ConfirmationDialog();
+            confirmationDialog.setTitle("Confirm NAS group change");
         }
 
         @Override
@@ -215,8 +227,17 @@ public class NasGroupsView extends VerticalLayout {
                 if (validationStatus.isOk()) {
                     try {
                         NasGroupDto dto = binder.getBean();
-                        dto = nasService.updateNasGroup(dto);
-                        updateListener.onUpdated(this, dto);
+                        if (!Objects.equals(dto.getNasIpAddress(), originIpAddress)
+                                && nasService.existsNasWithName(originIpAddress)) {
+                            confirmationDialog.setDescription("Do not forget to edit the NAS in the NAS table.");
+                            confirmationDialog.setConfirmListener(() -> {
+                                confirmationDialog.setOpened(false);
+                                saveNasGroup(dto);
+                            });
+                            confirmationDialog.setOpened(true);
+                        } else {
+                            saveNasGroup(dto);
+                        }
                         setOpened(false);
                     } catch (Exception e) {
                         log.warn("Failed to update NAS group. Reason = '{}'", e.getMessage());
@@ -229,7 +250,13 @@ public class NasGroupsView extends VerticalLayout {
 
         void editNasGroup(NasGroupDto dto) {
             setOpened(true);
+            originIpAddress = dto.getNasIpAddress();
             binder.setBean(dto);
+        }
+
+        private void saveNasGroup(NasGroupDto dto) {
+            nasService.updateNasGroup(dto);
+            updateListener.onUpdated(this, dto);
         }
 
     }

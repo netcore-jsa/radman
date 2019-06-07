@@ -127,6 +127,12 @@
             <artifactId>postgresql</artifactId>
         </dependency>
 
+        <!--dev tools-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
         <!--test-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -162,7 +168,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <configuration>
+                    <excludeDevtools>true</excludeDevtools>
+                    <finalName>${project.artifactId}.product</finalName>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>

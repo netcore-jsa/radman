@@ -170,9 +170,16 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
 
                 <configuration>
-                    <finalName>${project.artifactId}.product</finalName>
-
                     <excludeDevtools>true</excludeDevtools>
+                    <finalName>${project.artifactId}.product</finalName>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+
+                <configuration>
                     <excludes>
                         <exclude>*.properties</exclude>
                     </excludes>

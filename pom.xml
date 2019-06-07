@@ -10,24 +10,32 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>software.netcore.radman</groupId>
+    <name>RadMan</name>
+    <description>Radius Manager</description>
+
+    <groupId>software.netcore</groupId>
     <artifactId>radman</artifactId>
     <version>1.0.0</version>
-    <name>radman</name>
-    <description>Radius manager</description>
 
     <properties>
+        <!--general java configuration-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <frontend-maven-plugin.version>1.7.6</frontend-maven-plugin.version>
-        <node.version>v10.13.0</node.version>
-        <npm.version>6.4.1</npm.version>
-        <hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
-        <apt-mave-plugin.version>1.1.3</apt-mave-plugin.version>
+
+        <!--maven configuration-->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <!--vaadin dependencies-->
         <vaadin.version>13.0.8</vaadin.version>
-        <vaadin-spring-data-provider.version>2.0.1</vaadin-spring-data-provider.version>
         <iron-form.version>2.4.0</iron-form.version>
+
+        <!--spring dependencies-->
+        <vaadin-spring-data-provider.version>2.0.1</vaadin-spring-data-provider.version>
+        <hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
+
+        <!--maven plugins-->
+        <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -50,7 +58,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -133,12 +140,6 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate-validator.version}</version>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -165,7 +166,7 @@
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
-                <version>${apt-mave-plugin.version}</version>
+                <version>${apt-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>

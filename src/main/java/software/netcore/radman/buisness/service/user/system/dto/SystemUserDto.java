@@ -40,6 +40,9 @@ public class SystemUserDto {
     @NotNull(message = "Role is required")
     private Role role;
 
+    @NotNull(message = "Authentication provider is required")
+    private AuthProvider authProvider;
+
     private Long lastLoginTime;
 
     public void setPassword(String password) {

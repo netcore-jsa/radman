@@ -10,10 +10,12 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -27,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.attribute.AttributeService;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
+import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.ui.CreationListener;
@@ -43,7 +46,7 @@ import java.util.Objects;
 @Slf4j
 @PageTitle("Radman: Attributes")
 @Route(value = "attributes", layout = MainTemplate.class)
-public class AttributesView extends Div {
+public class AttributesView extends VerticalLayout {
 
     private final AttributeService attributeService;
 
@@ -54,31 +57,31 @@ public class AttributesView extends Div {
     }
 
     private void buildView() {
-        getElement().getStyle().set("display", "flex");
         add(new AuthenticationAttributeGrid(attributeService));
         add(new AuthorizationAttributeGrid(attributeService));
     }
 
     private abstract static class AttributeGrid<T extends AttributeDto> extends Div {
 
+        private final AttributeFilter filter = new AttributeFilter(true, true);
         private final ConfirmationDialog deleteDialog;
-        final AttributeService attributeService;
+        final AttributeService service;
         final Grid<T> grid;
 
-        AttributeGrid(AttributeService attributeService) {
-            this.attributeService = attributeService;
-            setWidth("50%");
+        AttributeGrid(AttributeService service) {
+            this.service = service;
+            setWidth("100%");
 
             grid = new Grid<>(getClazz(), false);
             grid.setColumns("name", "description", "sensitiveData");
             DataProvider<T, Object> dataProvider = new SpringDataProviderBuilder<>(
-                    (pageable, o) -> pageAttributes(pageable), value -> countAttributes())
+                    (pageable, o) -> pageAttributes(filter, pageable),
+                    value -> countAttributes(filter))
                     .withDefaultSort("id", SortDirection.ASCENDING)
                     .build();
             grid.getColumns().forEach(column -> column.setResizable(true));
             grid.setColumnReorderingAllowed(true);
             grid.setDataProvider(dataProvider);
-            grid.setWidth("700px");
 
             deleteDialog = new ConfirmationDialog("365px");
             deleteDialog.setTitle("Delete attribute");
@@ -96,14 +99,10 @@ public class AttributesView extends Div {
                 }
             });
 
-            Button createBtn = new Button("Create", event -> {
-                getCreationDialog().clear();
-                getCreationDialog().setOpened(true);
-            });
+            Button createBtn = new Button("Create", event -> getCreationDialog().startCreation());
             Button editBtn = new Button("Edit", event -> {
                 T bean = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
                 if (Objects.nonNull(bean)) {
-                    getEditDialog().setOpened(true);
                     getEditDialog().edit(bean);
                 }
             });
@@ -123,13 +122,20 @@ public class AttributesView extends Div {
                 deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
             });
 
+            TextField search = new TextField(event -> {
+                filter.setSearchText(event.getValue());
+                grid.getDataProvider().refreshAll();
+            });
+            search.setValueChangeMode(ValueChangeMode.EAGER);
+            search.setPlaceholder("Search...");
+
             HorizontalLayout horizontalLayout = new HorizontalLayout();
             horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
             horizontalLayout.add(new H3(getGridTitle()));
             horizontalLayout.add(createBtn);
             horizontalLayout.add(editBtn);
             horizontalLayout.add(deleteBtn);
-
+            horizontalLayout.add(search);
             add(horizontalLayout);
             add(grid);
         }
@@ -138,9 +144,9 @@ public class AttributesView extends Div {
 
         abstract Class<T> getClazz();
 
-        abstract Page<T> pageAttributes(Pageable pageable);
+        abstract Page<T> pageAttributes(AttributeFilter filter, Pageable pageable);
 
-        abstract long countAttributes();
+        abstract long countAttributes(AttributeFilter filter);
 
         abstract void deleteAttribute(T attributeDto);
 
@@ -174,18 +180,18 @@ public class AttributesView extends Div {
         }
 
         @Override
-        Page<AuthenticationAttributeDto> pageAttributes(Pageable pageable) {
-            return attributeService.pageAuthenticationAttributeRecords(pageable);
+        Page<AuthenticationAttributeDto> pageAttributes(AttributeFilter filter, Pageable pageable) {
+            return service.pageAuthenticationAttributeRecords(filter, pageable);
         }
 
         @Override
-        long countAttributes() {
-            return attributeService.countAuthenticationAttributeRecords();
+        long countAttributes(AttributeFilter filter) {
+            return service.countAuthenticationAttributeRecords(filter);
         }
 
         @Override
         void deleteAttribute(AuthenticationAttributeDto attributeDto) {
-            attributeService.deleteAuthenticationAttribute(attributeDto);
+            service.deleteAuthenticationAttribute(attributeDto);
         }
 
         @Override
@@ -224,18 +230,18 @@ public class AttributesView extends Div {
         }
 
         @Override
-        Page<AuthorizationAttributeDto> pageAttributes(Pageable pageable) {
-            return attributeService.pageAuthorizationAttributeRecords(pageable);
+        Page<AuthorizationAttributeDto> pageAttributes(AttributeFilter filter, Pageable pageable) {
+            return service.pageAuthorizationAttributeRecords(filter, pageable);
         }
 
         @Override
-        long countAttributes() {
-            return attributeService.countAuthorizationAttributeRecords();
+        long countAttributes(AttributeFilter filter) {
+            return service.countAuthorizationAttributeRecords(filter);
         }
 
         @Override
         void deleteAttribute(AuthorizationAttributeDto attributeDto) {
-            attributeService.deleteAuthorizationAttribute(attributeDto);
+            service.deleteAuthorizationAttribute(attributeDto);
         }
 
         @Override
@@ -316,7 +322,8 @@ public class AttributesView extends Div {
 
         abstract T getNewBeanInstance();
 
-        void clear() {
+        void startCreation() {
+            setOpened(true);
             binder.readBean(getNewBeanInstance());
         }
 
@@ -403,7 +410,8 @@ public class AttributesView extends Div {
 
             Button cancelBtn = new Button("Cancel", event -> setOpened(false));
             Button saveBtn = new Button("Save", event -> {
-                if (binder.isValid()) {
+                BinderValidationStatus<T> validationStatus = binder.validate();
+                if (validationStatus.isOk()) {
                     try {
                         T attributeDto = binder.getBean();
                         attributeDto = save(attributeDto);
@@ -438,8 +446,8 @@ public class AttributesView extends Div {
         abstract T save(T attributeDto);
 
         void edit(T attributeDto) {
+            setOpened(true);
             binder.setBean(attributeDto);
-            System.out.println();
         }
 
     }

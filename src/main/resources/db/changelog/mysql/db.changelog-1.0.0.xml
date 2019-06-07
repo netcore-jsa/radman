@@ -21,7 +21,6 @@
             </column>
             <column name="password" 
                     type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="password_length"
                     type="INT">
@@ -33,6 +32,10 @@
             </column>
             <column name="last_login_time" 
                     type="BIGINT"/>
+            <column name="auth_provider"
+                    type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 

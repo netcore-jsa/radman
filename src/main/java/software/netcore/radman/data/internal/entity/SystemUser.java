@@ -39,4 +39,8 @@ public class SystemUser {
     @Column(name = "last_login_time")
     private Long lastLoginTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", length = 32, nullable = false)
+    private AuthProvider authProvider;
+
 }

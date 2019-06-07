@@ -1,5 +1,7 @@
 package software.netcore.radman.data.radius.entity;
 
+import com.querydsl.core.annotations.QueryEntity;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +14,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@QueryEntity
 @Table(name = "nas")
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public class Nas {
 

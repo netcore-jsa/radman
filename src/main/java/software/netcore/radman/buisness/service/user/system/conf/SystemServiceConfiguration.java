@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import software.netcore.radman.buisness.service.user.system.SystemUserService;
 import software.netcore.radman.buisness.service.user.system.converter.DtoToSystemUserConverter;
@@ -19,12 +18,15 @@ import software.netcore.radman.data.internal.repo.SystemUserRepo;
 public class SystemServiceConfiguration {
 
     private final SystemUserRepo systemUserRepo;
+    private final PasswordEncoder passwordEncoder;
     private final ConversionService conversionService;
 
     @Autowired
     public SystemServiceConfiguration(SystemUserRepo systemUserRepo,
+                                      PasswordEncoder passwordEncoder,
                                       DefaultConversionService conversionService) {
         this.systemUserRepo = systemUserRepo;
+        this.passwordEncoder = passwordEncoder;
         this.conversionService = conversionService;
 
         conversionService.addConverter(new SystemUserToDtoConverter());
@@ -33,12 +35,7 @@ public class SystemServiceConfiguration {
 
     @Bean
     SystemUserService systemUserService() {
-        return new SystemUserService(systemUserRepo, conversionService, passwordEncoder());
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new SystemUserService(systemUserRepo, conversionService, passwordEncoder);
     }
 
 }

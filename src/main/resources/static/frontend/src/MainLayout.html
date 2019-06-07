@@ -1,5 +1,8 @@
 <!-- Dependency resources -->
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/vaadin-button/vaadin-button.html">
+<link rel="import" href="../bower_components/vaadin-icons/vaadin-icons.html">
 
 <dom-module id="main-layout">
     <template>
@@ -7,23 +10,30 @@
             .main-layout {
                 width: 100%;
                 height: 100%;
+                display: flex;
+                overflow: hidden;
+                flex-direction: column;
             }
 
             .page-view-container {
+                flex: 1;
                 width: 100%;
+                display: flex;
+                overflow-y: auto;
             }
 
             .page-view-container > div {
+                flex: 1;
+                margin: 0 auto;
                 max-width: 1600px;
-                margin: 20px auto 0;
-                padding: 10px;
             }
 
             #page-nav {
-                width: 100%;
-                background: #000;
-                position: sticky;
                 top: 0;
+                width: 100%;
+                height: 3em;
+                z-index: 100;
+                background: #24292e;
             }
 
             /* Hide Hamburger */
@@ -33,40 +43,70 @@
 
             /* Menu Items */
             #page-nav ul {
-                list-style-type: none;
                 margin: 0;
                 padding: 0;
+                color: #e6e6e6;
+                list-style-type: none;
+                background-color: #24292e;
             }
 
             #page-nav ul li {
                 display: inline-block;
-                padding: 10px;
                 box-sizing: border-box;
+                transition: all 0.2s ease;
+            }
+
+            #page-nav ul li.selected,
+            #page-nav ul li:hover {
+                background-color: #333e48;
             }
 
             #page-nav ul li a {
-                color: #fff;
+                padding: 10px;
+                color: inherit;
+                display: block;
+                font-size: 13pt;
+                font-weight: 500;
                 text-decoration: none;
+                -moz-osx-font-smoothing: auto;
+                -webkit-font-smoothing: antialiased;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            #page-nav > .account-nav {
+                height: 3em;
+                float: right;
+                display: flex;
+                align-items: center;
+            }
+
+            .logout {
+                color: #e6e6e6;
             }
 
             /* [ON SMALL SCREENS] */
             @media screen and (max-width: 768px) {
                 /* Show Hamburger */
                 #page-nav label {
-                    display: inline-block;
                     color: #fff;
-                    background: #a02620;
+                    line-height: 2em;
+                    font-size: 1.5em;
+                    margin-left: 5px;
                     font-style: normal;
-                    font-size: 1.2em;
-                    padding: 10px;
+                    background: #24292e;
+                    display: inline-block;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
                 }
 
                 /* Break down menu items into vertical */
                 #page-nav ul li {
                     display: block;
-                }
-
-                #page-nav ul li {
                     border-top: 1px solid #333;
                 }
 
@@ -83,6 +123,12 @@
 
         <div class="main-layout">
             <nav id="page-nav">
+                <div class="account-nav">
+                    <vaadin-button class="logout" theme="tertiary" on-click="logout">
+                        <iron-icon icon="vaadin:sign-out" slot="prefix"></iron-icon>
+                        Logout
+                    </vaadin-button>
+                </div>
                 <label for="hamburger">&#9776;</label>
                 <input type="checkbox" id="hamburger"/>
                 <ul id="page-nav-links"></ul>

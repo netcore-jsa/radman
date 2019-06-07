@@ -36,7 +36,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: NAS groups")
+@PageTitle("RadMan: NAS groups")
 @Route(value = "nas_groups", layout = MainTemplate.class)
 public class NasGroupsView extends VerticalLayout {
 

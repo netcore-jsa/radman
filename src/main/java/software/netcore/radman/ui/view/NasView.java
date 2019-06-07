@@ -41,7 +41,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: NAS")
+@PageTitle("RadMan: NAS")
 @Route(value = "", layout = MainTemplate.class)
 public class NasView extends VerticalLayout {
 

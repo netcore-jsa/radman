@@ -44,7 +44,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: System users")
+@PageTitle("RadMan: System users")
 @Route(value = "system_users", layout = MainTemplate.class)
 public class SystemUsersView extends VerticalLayout {
 

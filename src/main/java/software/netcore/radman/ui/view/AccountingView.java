@@ -24,7 +24,7 @@ import software.netcore.radman.ui.support.Filter;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: Accounting")
+@PageTitle("RadMan: Accounting")
 @Route(value = "tutorial", layout = MainTemplate.class)
 public class AccountingView extends VerticalLayout {
 

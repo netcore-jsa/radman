@@ -57,7 +57,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: Auth (AA)")
+@PageTitle("RadMan: Auth (AA)")
 @Route(value = "auth", layout = MainTemplate.class)
 public class AuthView extends VerticalLayout {
 

@@ -44,7 +44,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: Attributes")
+@PageTitle("RadMan: Attributes")
 @Route(value = "attributes", layout = MainTemplate.class)
 public class AttributesView extends VerticalLayout {
 

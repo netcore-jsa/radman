@@ -35,7 +35,7 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Slf4j
-@PageTitle("Radman: User groups")
+@PageTitle("RadMan: User groups")
 @Route(value = "user_groups", layout = MainTemplate.class)
 public class UserGroupsView extends VerticalLayout {
 

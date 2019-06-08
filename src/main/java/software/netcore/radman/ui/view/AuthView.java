@@ -8,6 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -74,6 +75,8 @@ public class AuthView extends VerticalLayout {
     }
 
     private void buildView() {
+        setSpacing(false);
+        add(new H4("From Radius DB"));
         add(new AuthenticationGrid(authService, userService, attributeService));
         add(new AuthorizationGrid(authService, userService, attributeService));
     }

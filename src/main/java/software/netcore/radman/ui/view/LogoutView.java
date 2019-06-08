@@ -9,7 +9,4 @@ import lombok.RequiredArgsConstructor;
 @Route(value = "logout")
 @RequiredArgsConstructor
 public class LogoutView extends VerticalLayout {
-
-
-
 }

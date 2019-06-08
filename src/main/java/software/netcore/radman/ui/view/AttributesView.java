@@ -7,6 +7,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -57,6 +58,8 @@ public class AttributesView extends VerticalLayout {
     }
 
     private void buildView() {
+        setSpacing(false);
+        add(new H4("From RadMan DB"));
         add(new AuthenticationAttributeGrid(attributeService));
         add(new AuthorizationAttributeGrid(attributeService));
     }

@@ -3,6 +3,7 @@ package software.netcore.radman.ui.view;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -60,6 +61,7 @@ public class AccountingView extends VerticalLayout {
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
 
+        add(new H4("From Radius DB"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Accounting"));

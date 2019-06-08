@@ -5,6 +5,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -126,6 +127,7 @@ public class NasView extends VerticalLayout {
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
 
+        add(new H4("From Radius DB"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("NAS"));

@@ -21,9 +21,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
+import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -42,9 +44,11 @@ public class UserGroupsView extends VerticalLayout {
 
     private final RadiusGroupFilter filter = new RadiusGroupFilter();
     private final RadiusUserService service;
+    private final SecurityService securityService;
 
-    public UserGroupsView(RadiusUserService service) {
+    public UserGroupsView(RadiusUserService service, SecurityService securityService) {
         this.service = service;
+        this.securityService = securityService;
         buildView();
     }
 
@@ -52,6 +56,7 @@ public class UserGroupsView extends VerticalLayout {
         setHeightFull();
         setSpacing(false);
 
+        RoleDto role = securityService.getLoggedUserRole();
         Grid<RadiusGroupDto> grid = new Grid<>(RadiusGroupDto.class, false);
         grid.addColumns("name", "description");
         DataProvider<RadiusGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -88,6 +93,7 @@ public class UserGroupsView extends VerticalLayout {
         });
 
         Button createBtn = new Button("Create", event -> creationDialog.startCreation());
+        createBtn.setEnabled(role == RoleDto.ADMIN);
         Button editBtn = new Button("Edit", event -> {
             RadiusGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
@@ -102,10 +108,11 @@ public class UserGroupsView extends VerticalLayout {
             service.loadRadiusGroupsFromRadiusDB();
             grid.getDataProvider().refreshAll();
         });
+        loadUserGroups.setEnabled(role == RoleDto.ADMIN);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            editBtn.setEnabled(Objects.nonNull(event.getValue()));
-            deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+            editBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
+            deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
         });
 
         TextField search = new TextField(event -> {

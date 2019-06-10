@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.data.internal.entity.AuthProvider;
 import software.netcore.radman.data.internal.entity.Role;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
@@ -25,15 +26,15 @@ public class SecurityService {
     private final SingleUserDetailsManager userDetailsManager;
     private final SystemUserRepo systemUserRepo;
 
-    public Role getLoogedUserRole() {
+    public RoleDto getLoggedUserRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Iterator<? extends GrantedAuthority> iterator = authentication.getAuthorities().iterator();
         if (iterator.hasNext()) {
             GrantedAuthority authority = iterator.next();
-            return Role.valueOf(authority.getAuthority());
+            return RoleDto.valueOf(authority.getAuthority());
         }
-        log.error("Logged in user has no role assigned! Returning '{}'", Role.READ_ONLY);
-        return Role.READ_ONLY;
+        log.error("Logged in user has no role assigned! Returning '{}'", RoleDto.READ_ONLY);
+        return RoleDto.READ_ONLY;
     }
 
     public void initiateFallbackUser() {

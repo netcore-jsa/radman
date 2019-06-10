@@ -22,9 +22,11 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
+import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserFilter;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -43,10 +45,12 @@ public class UsersView extends VerticalLayout {
 
     private final RadiusUserFilter filter = new RadiusUserFilter(true, true);
     private final RadiusUserService service;
+    private final SecurityService securityService;
 
     @Autowired
-    public UsersView(RadiusUserService service) {
+    public UsersView(RadiusUserService service, SecurityService securityService) {
         this.service = service;
+        this.securityService = securityService;
         buildView();
     }
 
@@ -54,6 +58,7 @@ public class UsersView extends VerticalLayout {
         setHeightFull();
         setSpacing(false);
 
+        RoleDto role = securityService.getLoggedUserRole();
         Grid<RadiusUserDto> grid = new Grid<>(RadiusUserDto.class, false);
         grid.addColumns("username", "description");
         DataProvider<RadiusUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -90,6 +95,7 @@ public class UsersView extends VerticalLayout {
         });
 
         Button createBtn = new Button("Create", event -> creationDialog.startCreation());
+        createBtn.setEnabled(role == RoleDto.ADMIN);
         Button editBtn = new Button("Edit", event -> {
             RadiusUserDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
@@ -104,10 +110,11 @@ public class UsersView extends VerticalLayout {
             service.loadRadiusUsersFromRadiusDB();
             grid.getDataProvider().refreshAll();
         });
+        loadUsers.setEnabled(role == RoleDto.ADMIN);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            editBtn.setEnabled(Objects.nonNull(event.getValue()));
-            deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+            editBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
+            deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
         });
 
         TextField search = new TextField(event -> {

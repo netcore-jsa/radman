@@ -29,7 +29,7 @@ import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.security.SecurityService;
-import software.netcore.radman.data.internal.entity.Role;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -63,6 +63,7 @@ public class NasView extends VerticalLayout {
         setHeightFull();
         setSpacing(false);
 
+        RoleDto role = securityService.getLoggedUserRole();
         Grid<NasDto> grid = new Grid<>(NasDto.class, false);
         grid.addColumns("nasName", "shortName", "description");
         grid.addColumn((ValueProvider<NasDto, String>) nasDto
@@ -97,13 +98,13 @@ public class NasView extends VerticalLayout {
             nasDeleteDialog.setOpened(false);
         });
 
-        Role role = securityService.getLoogedUserRole();
-        NasEditDialog nasEditDialog = new NasEditDialog(nasService, role,
+        NasEditDialog nasEditDialog = new NasEditDialog(nasService,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
-        NasCreateDialog nasCreateDialog = new NasCreateDialog(nasService, role,
+        NasCreateDialog nasCreateDialog = new NasCreateDialog(nasService,
                 (source, bean) -> grid.getDataProvider().refreshAll());
 
         Button createBtn = new Button("Create", event -> nasCreateDialog.startNasCreation());
+        createBtn.setEnabled(role == RoleDto.ADMIN);
         Button editBtn = new Button("Edit", event -> {
             NasDto nasDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(nasDto)) {
@@ -121,8 +122,8 @@ public class NasView extends VerticalLayout {
         deleteBtn.setEnabled(false);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            editBtn.setEnabled(Objects.nonNull(event.getValue()));
-            deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+            editBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
+            deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
         });
 
         TextField search = new TextField(event -> {
@@ -148,9 +149,9 @@ public class NasView extends VerticalLayout {
 
         private final CreationListener<NasDto> creationListener;
 
-        NasCreateDialog(NasService nasService, Role role,
+        NasCreateDialog(NasService nasService,
                         CreationListener<NasDto> creationListener) {
-            super(nasService, role);
+            super(nasService);
             this.creationListener = creationListener;
         }
 
@@ -190,9 +191,9 @@ public class NasView extends VerticalLayout {
         private ConfirmationDialog confirmationDialog;
         private String originNasName;
 
-        NasEditDialog(NasService nasService, Role role,
+        NasEditDialog(NasService nasService,
                       UpdateListener<NasDto> updateListener) {
-            super(nasService, role);
+            super(nasService);
             this.updateListener = updateListener;
 
             confirmationDialog = new ConfirmationDialog();
@@ -252,7 +253,7 @@ public class NasView extends VerticalLayout {
         final NasService nasService;
         final Binder<NasDto> binder;
 
-        NasFormDialog(NasService nasService, Role role) {
+        NasFormDialog(NasService nasService) {
             this.nasService = nasService;
 
             TextField name = new TextField("Name");
@@ -303,11 +304,6 @@ public class NasView extends VerticalLayout {
             binder.bind(server, "server");
             binder.bind(community, "community");
             binder.bind(description, "description");
-
-            if (role == Role.READ_ONLY) {
-                secret.setRevealButtonVisible(false);
-                binder.setReadOnly(true);
-            }
         }
 
         abstract String getDialogTitle();

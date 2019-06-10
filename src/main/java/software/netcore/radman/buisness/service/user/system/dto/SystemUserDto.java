@@ -38,10 +38,10 @@ public class SystemUserDto {
     private int passwordLength;
 
     @NotNull(message = "Role is required")
-    private Role role;
+    private RoleDto role;
 
     @NotNull(message = "Authentication provider is required")
-    private AuthProvider authProvider;
+    private AuthProviderDto authProvider;
 
     private Long lastLoginTime;
 

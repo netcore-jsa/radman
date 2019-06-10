@@ -3,9 +3,9 @@ package software.netcore.radman.buisness.service.user.system.dto;
 /**
  * @since v. 1.0.0
  */
-public enum AuthProvider {
+public enum RoleDto {
 
-    LOCAL,
-    LDAP
+    ADMIN,
+    READ_ONLY
 
 }

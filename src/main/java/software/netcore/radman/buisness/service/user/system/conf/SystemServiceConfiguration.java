@@ -7,8 +7,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import software.netcore.radman.buisness.service.user.system.SystemUserService;
-import software.netcore.radman.buisness.service.user.system.converter.DtoToSystemUserConverter;
-import software.netcore.radman.buisness.service.user.system.converter.SystemUserToDtoConverter;
+import software.netcore.radman.buisness.service.user.system.converter.*;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
 
 /**
@@ -29,8 +28,12 @@ public class SystemServiceConfiguration {
         this.passwordEncoder = passwordEncoder;
         this.conversionService = conversionService;
 
-        conversionService.addConverter(new SystemUserToDtoConverter());
-        conversionService.addConverter(new DtoToSystemUserConverter());
+        conversionService.addConverter(new SystemUserToDtoConverter(conversionService));
+        conversionService.addConverter(new DtoToSystemUserConverter(conversionService));
+        conversionService.addConverter(new AuthProviderToDtoConverter());
+        conversionService.addConverter(new DtoToAuthProviderConverter());
+        conversionService.addConverter(new RoleToDtoConverter());
+        conversionService.addConverter(new DtoToRoleConverter());
     }
 
     @Bean

@@ -37,11 +37,13 @@ import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttr
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
 import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.auth.dto.*;
+import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserFilter;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.converter.AttributeDtoToNameConverter;
@@ -65,33 +67,37 @@ public class AuthView extends VerticalLayout {
     private final AuthService authService;
     private final RadiusUserService userService;
     private final AttributeService attributeService;
+    private final SecurityService securityService;
 
     @Autowired
-    public AuthView(AuthService authService, RadiusUserService userService, AttributeService attributeService) {
+    public AuthView(AuthService authService, RadiusUserService userService,
+                    AttributeService attributeService, SecurityService securityService) {
         this.authService = authService;
         this.userService = userService;
         this.attributeService = attributeService;
+        this.securityService = securityService;
         buildView();
     }
 
     private void buildView() {
         setSpacing(false);
         add(new H4("From Radius DB"));
-        add(new AuthenticationGrid(authService, userService, attributeService));
-        add(new AuthorizationGrid(authService, userService, attributeService));
+        add(new AuthenticationGrid(authService, userService, attributeService, securityService));
+        add(new AuthorizationGrid(authService, userService, attributeService, securityService));
     }
 
     private abstract static class AuthGrid<T extends AuthsDto, U extends AuthDto> extends Div {
 
         private final Filter filter = new Filter();
         private final ConfirmationDialog deleteDialog;
-        final AuthService service;
+        final AuthService authService;
         final Grid<Map<String, String>> grid;
 
-        AuthGrid(AuthService service) {
-            this.service = service;
+        AuthGrid(AuthService authService, SecurityService securityService) {
+            this.authService = authService;
             setWidth("100%");
 
+            RoleDto role = securityService.getLoggedUserRole();
             grid = new Grid<>();
             deleteDialog = new ConfirmationDialog();
             deleteDialog.setTitle("Delete assigned attributes");
@@ -114,10 +120,12 @@ public class AuthView extends VerticalLayout {
             });
 
             Button assignBtn = new Button("Assign attribute", event -> getAssigmentDialog().startAssigment());
+            assignBtn.setEnabled(role == RoleDto.ADMIN);
             Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
+            deleteBtn.setEnabled(false);
 
             grid.asSingleSelect().addValueChangeListener(event ->
-                    deleteBtn.setEnabled(Objects.nonNull(event.getValue())));
+                    deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN));
 
             TextField search = new TextField(event -> {
                 filter.setSearchText(event.getValue());
@@ -163,8 +171,9 @@ public class AuthView extends VerticalLayout {
 
         private final AuthenticationAttributeAssigmentDialog assigmentDialog;
 
-        AuthenticationGrid(AuthService authService, RadiusUserService userService, AttributeService attributeService) {
-            super(authService);
+        AuthenticationGrid(AuthService authService, RadiusUserService userService,
+                           AttributeService attributeService, SecurityService securityService) {
+            super(authService, securityService);
             assigmentDialog = new AuthenticationAttributeAssigmentDialog(authService, userService,
                     attributeService, (source, bean) -> refreshGrid());
         }
@@ -176,7 +185,7 @@ public class AuthView extends VerticalLayout {
 
         @Override
         AuthenticationsDto getAuthsDto(Filter filter) {
-            return service.getAuthentications(filter);
+            return authService.getAuthentications(filter);
         }
 
         @Override
@@ -186,7 +195,7 @@ public class AuthView extends VerticalLayout {
 
         @Override
         void deleteAssigment(String name, String type) {
-            service.deleteAuthentication(name, type);
+            authService.deleteAuthentication(name, type);
         }
 
     }
@@ -195,8 +204,9 @@ public class AuthView extends VerticalLayout {
 
         private final AuthorizationAttributeAssigmentDialog assigmentDialog;
 
-        AuthorizationGrid(AuthService authService, RadiusUserService userService, AttributeService attributeService) {
-            super(authService);
+        AuthorizationGrid(AuthService authService, RadiusUserService userService,
+                          AttributeService attributeService, SecurityService securityService) {
+            super(authService, securityService);
             assigmentDialog = new AuthorizationAttributeAssigmentDialog(authService, userService,
                     attributeService, (source, bean) -> refreshGrid());
         }
@@ -208,7 +218,7 @@ public class AuthView extends VerticalLayout {
 
         @Override
         AuthorizationsDto getAuthsDto(Filter filter) {
-            return service.getAuthorizations(filter);
+            return authService.getAuthorizations(filter);
         }
 
         @Override
@@ -218,7 +228,7 @@ public class AuthView extends VerticalLayout {
 
         @Override
         void deleteAssigment(String name, String type) {
-            service.deleteAuthorization(name, type);
+            authService.deleteAuthorization(name, type);
         }
 
     }

@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
+import software.netcore.radman.buisness.service.security.SecurityService;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -43,10 +45,12 @@ public class NasGroupsView extends VerticalLayout {
 
     private final Filter filter = new Filter();
     private final NasService nasService;
+    private final SecurityService securityService;
 
     @Autowired
-    public NasGroupsView(NasService nasService) {
+    public NasGroupsView(NasService nasService, SecurityService securityService) {
         this.nasService = nasService;
+        this.securityService = securityService;
         buildView();
     }
 
@@ -54,6 +58,7 @@ public class NasGroupsView extends VerticalLayout {
         setHeightFull();
         setSpacing(false);
 
+        RoleDto role = securityService.getLoggedUserRole();
         Grid<NasGroupDto> grid = new Grid<>(NasGroupDto.class, false);
         grid.setColumns("groupName", "nasIpAddress", "nasPortId");
         DataProvider<NasGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -91,6 +96,7 @@ public class NasGroupsView extends VerticalLayout {
         });
 
         Button createBtn = new Button("Create", event -> createDialog.startNasGroupCreation());
+        createBtn.setEnabled(role == RoleDto.ADMIN);
         Button editBtn = new Button("Edit", event -> {
             NasGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
@@ -102,8 +108,8 @@ public class NasGroupsView extends VerticalLayout {
         deleteBtn.setEnabled(false);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            editBtn.setEnabled(Objects.nonNull(event.getValue()));
-            deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+            editBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
+            deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
         });
 
         TextField search = new TextField(event -> {

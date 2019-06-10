@@ -5,6 +5,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @since v. 1.0.0
+ */
 @PageTitle("Logout")
 @Route(value = "logout")
 @RequiredArgsConstructor

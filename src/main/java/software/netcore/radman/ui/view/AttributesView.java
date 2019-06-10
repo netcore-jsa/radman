@@ -33,6 +33,8 @@ import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
+import software.netcore.radman.buisness.service.security.SecurityService;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -50,18 +52,20 @@ import java.util.Objects;
 public class AttributesView extends VerticalLayout {
 
     private final AttributeService attributeService;
+    private final SecurityService securityService;
 
     @Autowired
-    public AttributesView(AttributeService attributeService) {
+    public AttributesView(AttributeService attributeService, SecurityService securityService) {
         this.attributeService = attributeService;
+        this.securityService = securityService;
         buildView();
     }
 
     private void buildView() {
         setSpacing(false);
         add(new H4("From RadMan DB"));
-        add(new AuthenticationAttributeGrid(attributeService));
-        add(new AuthorizationAttributeGrid(attributeService));
+        add(new AuthenticationAttributeGrid(attributeService, securityService));
+        add(new AuthorizationAttributeGrid(attributeService, securityService));
     }
 
     private abstract static class AttributeGrid<T extends AttributeDto> extends Div {
@@ -71,10 +75,11 @@ public class AttributesView extends VerticalLayout {
         final AttributeService service;
         final Grid<T> grid;
 
-        AttributeGrid(AttributeService service) {
+        AttributeGrid(AttributeService service, SecurityService securityService) {
             this.service = service;
             setWidth("100%");
 
+            RoleDto role = securityService.getLoggedUserRole();
             grid = new Grid<>(getClazz(), false);
             grid.setColumns("name", "description", "sensitiveData");
             DataProvider<T, Object> dataProvider = new SpringDataProviderBuilder<>(
@@ -103,6 +108,7 @@ public class AttributesView extends VerticalLayout {
             });
 
             Button createBtn = new Button("Create", event -> getCreationDialog().startCreation());
+            createBtn.setEnabled(role == RoleDto.ADMIN);
             Button editBtn = new Button("Edit", event -> {
                 T bean = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
                 if (Objects.nonNull(bean)) {
@@ -123,10 +129,11 @@ public class AttributesView extends VerticalLayout {
                 loadAttributesFromRadius();
                 grid.getDataProvider().refreshAll();
             });
+            loadAttributes.setEnabled(role == RoleDto.ADMIN);
 
             grid.asSingleSelect().addValueChangeListener(event -> {
-                editBtn.setEnabled(Objects.nonNull(event.getValue()));
-                deleteBtn.setEnabled(Objects.nonNull(event.getValue()));
+                editBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
+                deleteBtn.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN);
             });
 
             TextField search = new TextField(event -> {
@@ -171,8 +178,8 @@ public class AttributesView extends VerticalLayout {
         private final AttributeCreationDialog<AuthenticationAttributeDto> creationDialog;
         private final AttributeEditDialog<AuthenticationAttributeDto> editDialog;
 
-        AuthenticationAttributeGrid(AttributeService attributeService) {
-            super(attributeService);
+        AuthenticationAttributeGrid(AttributeService attributeService, SecurityService securityService) {
+            super(attributeService, securityService);
             creationDialog = new AuthenticationAttributeCreationDialog(attributeService,
                     (source, bean) -> grid.getDataProvider().refreshAll());
             editDialog = new AuthenticationAttributeEditDialog(attributeService,
@@ -226,8 +233,8 @@ public class AttributesView extends VerticalLayout {
         private final AttributeCreationDialog<AuthorizationAttributeDto> creationDialog;
         private final AttributeEditDialog<AuthorizationAttributeDto> editDialog;
 
-        AuthorizationAttributeGrid(AttributeService attributeService) {
-            super(attributeService);
+        AuthorizationAttributeGrid(AttributeService attributeService, SecurityService securityService) {
+            super(attributeService, securityService);
             creationDialog = new AuthorizationAttributeCreationDialog(attributeService,
                     (source, bean) -> grid.getDataProvider().refreshAll());
             editDialog = new AuthorizationAttributeEditDialog(attributeService,

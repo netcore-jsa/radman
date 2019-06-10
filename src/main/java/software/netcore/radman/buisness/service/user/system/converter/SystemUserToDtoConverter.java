@@ -1,15 +1,21 @@
 package software.netcore.radman.buisness.service.user.system.converter;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import software.netcore.radman.buisness.conversion.DtoConverter;
+import software.netcore.radman.buisness.service.user.system.dto.AuthProviderDto;
+import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.data.internal.entity.AuthProvider;
-import software.netcore.radman.data.internal.entity.Role;
 import software.netcore.radman.data.internal.entity.SystemUser;
 
 /**
  * @since v. 1.0.0
  */
+@RequiredArgsConstructor
 public class SystemUserToDtoConverter implements DtoConverter<SystemUser, SystemUserDto> {
+
+    private final ConversionService conversionService;
 
     @Override
     public SystemUserDto convert(SystemUser source) {
@@ -21,12 +27,8 @@ public class SystemUserToDtoConverter implements DtoConverter<SystemUser, System
             target.setPasswordLength(source.getPasswordLength());
         }
         target.setLastLoginTime(source.getLastLoginTime());
-        target.setRole(source.getRole() == Role.ADMIN ?
-                software.netcore.radman.buisness.service.user.system.dto.Role.ADMIN :
-                software.netcore.radman.buisness.service.user.system.dto.Role.READ_ONLY);
-        target.setAuthProvider(source.getAuthProvider() == AuthProvider.LOCAL ?
-                software.netcore.radman.buisness.service.user.system.dto.AuthProvider.LOCAL :
-                software.netcore.radman.buisness.service.user.system.dto.AuthProvider.LDAP);
+        target.setRole(conversionService.convert(source.getRole(), RoleDto.class));
+        target.setAuthProvider(conversionService.convert(source.getAuthProvider(), AuthProviderDto.class));
         return target;
     }
 

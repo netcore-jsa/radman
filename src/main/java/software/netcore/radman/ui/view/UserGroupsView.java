@@ -98,6 +98,10 @@ public class UserGroupsView extends VerticalLayout {
         editBtn.setEnabled(false);
         Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
         deleteBtn.setEnabled(false);
+        Button loadUserGroups = new Button("Load from Radius", event -> {
+            service.loadRadiusGroupsFromRadiusDB();
+            grid.getDataProvider().refreshAll();
+        });
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             editBtn.setEnabled(Objects.nonNull(event.getValue()));
@@ -118,6 +122,7 @@ public class UserGroupsView extends VerticalLayout {
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
+        horizontalLayout.add(loadUserGroups);
         horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);

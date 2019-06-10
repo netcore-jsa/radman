@@ -19,9 +19,11 @@ import software.netcore.radman.data.internal.entity.RadiusGroup;
 import software.netcore.radman.data.internal.entity.RadiusUser;
 import software.netcore.radman.data.internal.repo.RadiusGroupRepo;
 import software.netcore.radman.data.internal.repo.RadiusUserRepo;
-import software.netcore.radman.data.radius.repo.RadUserGroupRepo;
+import software.netcore.radman.data.radius.repo.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +35,12 @@ public class RadiusUserService {
     private final RadiusUserRepo radiusUserRepo;
     private final RadiusGroupRepo radiusGroupRepo;
     private final RadUserGroupRepo radUserGroupRepo;
+
+    private final RadCheckRepo radCheckRepo;
+    private final RadReplyRepo radReplyRepo;
+    private final RadGroupCheckRepo radGroupCheckRepo;
+    private final RadGroupReplyRepo radGroupReplyRepo;
+
     private final ConversionService conversionService;
 
     public RadiusUserDto createRadiusUser(@NonNull RadiusUserDto radiusUserDto) {
@@ -51,6 +59,26 @@ public class RadiusUserService {
 
     public void deleteRadiusUser(@NonNull RadiusUserDto radiusUserDto) {
         radiusUserRepo.deleteById(radiusUserDto.getId());
+    }
+
+    public void loadRadiusUsersFromRadiusDB() {
+        Set<String> radCheckUsernames = radCheckRepo.getUsernames();
+        Set<String> radReplyUsernames = radReplyRepo.getUsernames();
+
+        Set<String> usernames = new HashSet<>();
+        usernames.addAll(radCheckUsernames);
+        usernames.addAll(radReplyUsernames);
+
+        usernames.forEach(username -> {
+            try {
+                if (!radiusUserRepo.exists(QRadiusUser.radiusUser.username.like(username))) {
+                    RadiusUser radiusUser = new RadiusUser();
+                    radiusUser.setUsername(username);
+                    radiusUserRepo.save(radiusUser);
+                }
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     public long countRadiusUsers(@NonNull RadiusUserFilter filter) {
@@ -82,6 +110,21 @@ public class RadiusUserService {
 
     public void deleteRadiusUsersGroup(@NonNull RadiusGroupDto radiusGroup) {
         radiusGroupRepo.deleteById(radiusGroup.getId());
+    }
+
+    public void loadRadiusGroupsFromRadiusDB() {
+        Set<String> radCheckGroupNames = radGroupCheckRepo.getGroupNames();
+        Set<String> radReplyGroupName = radGroupReplyRepo.getGroupNames();
+
+        Set<String> groupNames = new HashSet<>();
+        groupNames.addAll(radCheckGroupNames);
+        groupNames.addAll(radReplyGroupName);
+
+        groupNames.forEach(name -> {
+            RadiusGroup radiusGroup = new RadiusGroup();
+            radiusGroup.setName(name);
+            radiusGroupRepo.save(radiusGroup);
+        });
     }
 
     public long countRadiusUsersGroup(@NonNull RadiusGroupFilter filter) {

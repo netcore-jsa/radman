@@ -12,7 +12,7 @@ import software.netcore.radman.buisness.service.user.radius.converter.RadiusGrou
 import software.netcore.radman.buisness.service.user.radius.converter.RadiusUserToDtoConverter;
 import software.netcore.radman.data.internal.repo.RadiusGroupRepo;
 import software.netcore.radman.data.internal.repo.RadiusUserRepo;
-import software.netcore.radman.data.radius.repo.RadUserGroupRepo;
+import software.netcore.radman.data.radius.repo.*;
 
 /**
  * @since v. 1.0.0
@@ -23,16 +23,30 @@ public class RadiusUserServiceConfiguration {
     private final RadiusUserRepo radiusUserRepo;
     private final RadiusGroupRepo radiusGroupRepo;
     private final RadUserGroupRepo radUserGroupRepo;
+
+    private final RadCheckRepo radCheckRepo;
+    private final RadReplyRepo radReplyRepo;
+    private final RadGroupCheckRepo radGroupCheckRepo;
+    private final RadGroupReplyRepo radGroupReplyRepo;
+
     private final ConversionService conversionService;
 
     @Autowired
     public RadiusUserServiceConfiguration(RadiusUserRepo radiusUserRepo,
                                           RadiusGroupRepo radiusGroupRepo,
                                           RadUserGroupRepo radUserGroupRepo,
+                                          RadCheckRepo radCheckRepo,
+                                          RadReplyRepo radReplyRepo,
+                                          RadGroupCheckRepo radGroupCheckRepo,
+                                          RadGroupReplyRepo radGroupReplyRepo,
                                           DefaultConversionService conversionService) {
         this.radiusUserRepo = radiusUserRepo;
         this.radiusGroupRepo = radiusGroupRepo;
         this.radUserGroupRepo = radUserGroupRepo;
+        this.radCheckRepo = radCheckRepo;
+        this.radReplyRepo = radReplyRepo;
+        this.radGroupCheckRepo = radGroupCheckRepo;
+        this.radGroupReplyRepo = radGroupReplyRepo;
         this.conversionService = conversionService;
 
         conversionService.addConverter(new RadiusUserToDtoConverter());
@@ -43,7 +57,8 @@ public class RadiusUserServiceConfiguration {
 
     @Bean
     RadiusUserService radiusUserService() {
-        return new RadiusUserService(radiusUserRepo, radiusGroupRepo, radUserGroupRepo, conversionService);
+        return new RadiusUserService(radiusUserRepo, radiusGroupRepo, radUserGroupRepo, radCheckRepo,
+                radReplyRepo, radGroupCheckRepo, radGroupReplyRepo, conversionService);
     }
 
 }

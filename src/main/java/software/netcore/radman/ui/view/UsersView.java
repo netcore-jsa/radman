@@ -100,6 +100,10 @@ public class UsersView extends VerticalLayout {
         editBtn.setEnabled(false);
         Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
         deleteBtn.setEnabled(false);
+        Button loadUsers = new Button("Load from Radius", event -> {
+            service.loadRadiusUsersFromRadiusDB();
+            grid.getDataProvider().refreshAll();
+        });
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             editBtn.setEnabled(Objects.nonNull(event.getValue()));
@@ -120,6 +124,7 @@ public class UsersView extends VerticalLayout {
         horizontalLayout.add(createBtn);
         horizontalLayout.add(editBtn);
         horizontalLayout.add(deleteBtn);
+        horizontalLayout.add(loadUsers);
         horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);

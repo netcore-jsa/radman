@@ -21,7 +21,6 @@ import software.netcore.radman.data.radius.repo.NasRepo;
 import software.netcore.radman.data.radius.repo.RadHuntGroupRepo;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,7 @@ public class NasService {
         return conversionService.convert(radHuntGroup, NasGroupDto.class);
     }
 
-    public boolean existsNasGroupWithIpAddress(String ipAddress){
+    public boolean existsNasGroupWithIpAddress(String ipAddress) {
         return radHuntGroupRepo.existsByNasIpAddress(ipAddress);
     }
 
@@ -125,38 +124,6 @@ public class NasService {
             booleanBuilder.or(QRadHuntGroup.radHuntGroup.nasPortId.contains(searchText));
         }
         return booleanBuilder;
-    }
-
-    // -------------------  DEV STAFF - will be removed  --------------------------------------------------
-
-    @PostConstruct
-    void init() {
-        generate();
-    }
-
-    private void generate() {
-        if (nasRepo.count() == 0) {
-            for (int i = 0; i < 1000; i++) {
-                Nas nas = new Nas();
-                nas.setId(i);
-                nas.setNasName("name" + i);
-                nas.setCommunity("community" + i);
-                nas.setDescription("description");
-                nas.setPorts(5);
-                nas.setSecret("secret" + i);
-                nas.setShortName("short" + i);
-                nas.setType("type" + i);
-                nas.setServer("server" + i);
-                nasRepo.save(nas);
-
-                RadHuntGroup group = new RadHuntGroup();
-                group.setId(i);
-                group.setGroupName("groupName" + i);
-                group.setNasIpAddress("nasIpAddress" + i);
-                group.setNasPortId("nasPortId" + i);
-                radHuntGroupRepo.save(group);
-            }
-        }
     }
 
 }

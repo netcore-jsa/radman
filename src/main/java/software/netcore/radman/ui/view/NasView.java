@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
+import software.netcore.radman.buisness.service.security.SecurityService;
+import software.netcore.radman.data.internal.entity.Role;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
@@ -48,10 +50,12 @@ public class NasView extends VerticalLayout {
 
     private final Filter filter = new Filter();
     private final NasService nasService;
+    private final SecurityService securityService;
 
     @Autowired
-    public NasView(NasService nasService) {
+    public NasView(NasService nasService, SecurityService securityService) {
         this.nasService = nasService;
+        this.securityService = securityService;
         buildView();
     }
 
@@ -93,9 +97,10 @@ public class NasView extends VerticalLayout {
             nasDeleteDialog.setOpened(false);
         });
 
-        NasEditDialog nasEditDialog = new NasEditDialog(nasService,
+        Role role = securityService.getLoogedUserRole();
+        NasEditDialog nasEditDialog = new NasEditDialog(nasService, role,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
-        NasCreateDialog nasCreateDialog = new NasCreateDialog(nasService,
+        NasCreateDialog nasCreateDialog = new NasCreateDialog(nasService, role,
                 (source, bean) -> grid.getDataProvider().refreshAll());
 
         Button createBtn = new Button("Create", event -> nasCreateDialog.startNasCreation());
@@ -143,9 +148,9 @@ public class NasView extends VerticalLayout {
 
         private final CreationListener<NasDto> creationListener;
 
-        NasCreateDialog(NasService nasService,
+        NasCreateDialog(NasService nasService, Role role,
                         CreationListener<NasDto> creationListener) {
-            super(nasService);
+            super(nasService, role);
             this.creationListener = creationListener;
         }
 
@@ -185,9 +190,9 @@ public class NasView extends VerticalLayout {
         private ConfirmationDialog confirmationDialog;
         private String originNasName;
 
-        NasEditDialog(NasService nasService,
+        NasEditDialog(NasService nasService, Role role,
                       UpdateListener<NasDto> updateListener) {
-            super(nasService);
+            super(nasService, role);
             this.updateListener = updateListener;
 
             confirmationDialog = new ConfirmationDialog();
@@ -247,7 +252,7 @@ public class NasView extends VerticalLayout {
         final NasService nasService;
         final Binder<NasDto> binder;
 
-        NasFormDialog(NasService nasService) {
+        NasFormDialog(NasService nasService, Role role) {
             this.nasService = nasService;
 
             TextField name = new TextField("Name");
@@ -298,6 +303,11 @@ public class NasView extends VerticalLayout {
             binder.bind(server, "server");
             binder.bind(community, "community");
             binder.bind(description, "description");
+
+            if (role == Role.READ_ONLY) {
+                secret.setRevealButtonVisible(false);
+                binder.setReadOnly(true);
+            }
         }
 
         abstract String getDialogTitle();

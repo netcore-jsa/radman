@@ -63,7 +63,7 @@ public class AttributesView extends VerticalLayout {
 
     private void buildView() {
         setSpacing(false);
-        add(new H4("From RadMan DB"));
+        add(new H4("Data from RadMan DB"));
         add(new AuthenticationAttributeGrid(attributeService, securityService));
         add(new AuthorizationAttributeGrid(attributeService, securityService));
     }

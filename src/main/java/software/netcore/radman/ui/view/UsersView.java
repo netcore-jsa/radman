@@ -124,7 +124,7 @@ public class UsersView extends VerticalLayout {
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
 
-        add(new H4("From RadMan DB"));
+        add(new H4("Data from RadMan DB"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Users"));

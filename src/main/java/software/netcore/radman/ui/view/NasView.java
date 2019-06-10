@@ -133,7 +133,7 @@ public class NasView extends VerticalLayout {
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
 
-        add(new H4("From Radius DB"));
+        add(new H4("Data from Radius DB"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("NAS"));

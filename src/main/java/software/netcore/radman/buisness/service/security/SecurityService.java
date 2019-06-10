@@ -3,12 +3,17 @@ package software.netcore.radman.buisness.service.security;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import software.netcore.radman.data.internal.entity.AuthProvider;
 import software.netcore.radman.data.internal.entity.Role;
 import software.netcore.radman.data.internal.repo.SystemUserRepo;
 import software.netcore.radman.security.RoleAuthority;
 import software.netcore.radman.security.fallback.SingleUserDetailsManager;
+
+import java.util.Iterator;
 
 /**
  * @since v. 1.0.0
@@ -19,6 +24,17 @@ public class SecurityService {
 
     private final SingleUserDetailsManager userDetailsManager;
     private final SystemUserRepo systemUserRepo;
+
+    public Role getLoogedUserRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Iterator<? extends GrantedAuthority> iterator = authentication.getAuthorities().iterator();
+        if (iterator.hasNext()) {
+            GrantedAuthority authority = iterator.next();
+            return Role.valueOf(authority.getAuthority());
+        }
+        log.error("Logged in user has no role assigned! Returning '{}'", Role.READ_ONLY);
+        return Role.READ_ONLY;
+    }
 
     public void initiateFallbackUser() {
         if (systemUserRepo.countByRoleAndAuthProvider(Role.ADMIN, AuthProvider.LOCAL) == 0) {

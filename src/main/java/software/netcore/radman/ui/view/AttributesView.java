@@ -119,6 +119,10 @@ public class AttributesView extends VerticalLayout {
                 }
             });
             deleteBtn.setEnabled(false);
+            Button loadAttributes = new Button("Load from Radius", event -> {
+                loadAttributesFromRadius();
+                grid.getDataProvider().refreshAll();
+            });
 
             grid.asSingleSelect().addValueChangeListener(event -> {
                 editBtn.setEnabled(Objects.nonNull(event.getValue()));
@@ -138,6 +142,7 @@ public class AttributesView extends VerticalLayout {
             horizontalLayout.add(createBtn);
             horizontalLayout.add(editBtn);
             horizontalLayout.add(deleteBtn);
+            horizontalLayout.add(loadAttributes);
             horizontalLayout.add(search);
             add(horizontalLayout);
             add(grid);
@@ -152,6 +157,8 @@ public class AttributesView extends VerticalLayout {
         abstract long countAttributes(AttributeFilter filter);
 
         abstract void deleteAttribute(T attributeDto);
+
+        abstract void loadAttributesFromRadius();
 
         abstract AttributeCreationDialog<T> getCreationDialog();
 
@@ -195,6 +202,11 @@ public class AttributesView extends VerticalLayout {
         @Override
         void deleteAttribute(AuthenticationAttributeDto attributeDto) {
             service.deleteAuthenticationAttribute(attributeDto);
+        }
+
+        @Override
+        void loadAttributesFromRadius() {
+            service.loadAuthenticationAttributesFromRadiusDB();
         }
 
         @Override
@@ -245,6 +257,11 @@ public class AttributesView extends VerticalLayout {
         @Override
         void deleteAttribute(AuthorizationAttributeDto attributeDto) {
             service.deleteAuthorizationAttribute(attributeDto);
+        }
+
+        @Override
+        void loadAttributesFromRadius() {
+            service.loadAuthorizationAttributesFromRadiusDB();
         }
 
         @Override

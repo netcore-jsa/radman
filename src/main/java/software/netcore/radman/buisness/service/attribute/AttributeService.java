@@ -8,18 +8,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
-import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.data.internal.entity.QRadCheckAttribute;
 import software.netcore.radman.data.internal.entity.QRadReplyAttribute;
 import software.netcore.radman.data.internal.entity.RadCheckAttribute;
 import software.netcore.radman.data.internal.entity.RadReplyAttribute;
 import software.netcore.radman.data.internal.repo.RadCheckAttributeRepo;
 import software.netcore.radman.data.internal.repo.RadReplyAttributeRepo;
+import software.netcore.radman.data.radius.repo.RadCheckRepo;
+import software.netcore.radman.data.radius.repo.RadGroupCheckRepo;
+import software.netcore.radman.data.radius.repo.RadGroupReplyRepo;
+import software.netcore.radman.data.radius.repo.RadReplyRepo;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,13 +35,27 @@ public class AttributeService {
 
     private final RadCheckAttributeRepo checkAttributeRepo;
     private final RadReplyAttributeRepo replyAttributeRepo;
+
+    private final RadCheckRepo radCheckRepo;
+    private final RadReplyRepo radReplyRepo;
+    private final RadGroupCheckRepo radGroupCheckRepo;
+    private final RadGroupReplyRepo radGroupReplyRepo;
+
     private final ConversionService conversionService;
 
     public AttributeService(RadCheckAttributeRepo checkAttributeRepo,
                             RadReplyAttributeRepo replyAttributeRepo,
+                            RadCheckRepo radCheckRepo,
+                            RadReplyRepo radReplyRepo,
+                            RadGroupCheckRepo radGroupCheckRepo,
+                            RadGroupReplyRepo radGroupReplyRepo,
                             ConversionService conversionService) {
         this.checkAttributeRepo = checkAttributeRepo;
         this.replyAttributeRepo = replyAttributeRepo;
+        this.radCheckRepo = radCheckRepo;
+        this.radReplyRepo = radReplyRepo;
+        this.radGroupCheckRepo = radGroupCheckRepo;
+        this.radGroupReplyRepo = radGroupReplyRepo;
         this.conversionService = conversionService;
     }
 
@@ -97,6 +117,49 @@ public class AttributeService {
                 .map(attribute -> conversionService.convert(attribute, AuthorizationAttributeDto.class))
                 .collect(Collectors.toList());
         return new PageImpl<>(attributeDtos, pageable, attributeDtos.size());
+    }
+
+
+    public void loadAuthorizationAttributesFromRadiusDB() {
+        Set<String> radReplyAttr = radReplyRepo.getAttributes();
+        Set<String> radGroupReplyAttr = radGroupReplyRepo.getAttributes();
+
+        Set<String> attributes = new HashSet<>();
+        attributes.addAll(radReplyAttr);
+        attributes.addAll(radGroupReplyAttr);
+
+        attributes.forEach(attribute -> {
+            try {
+                if (!replyAttributeRepo.exists(QRadReplyAttribute.radReplyAttribute.name.like(attribute))) {
+                    RadReplyAttribute radReplyAttribute = new RadReplyAttribute();
+                    radReplyAttribute.setSensitiveData(false);
+                    radReplyAttribute.setName(attribute);
+                    replyAttributeRepo.save(radReplyAttribute);
+                }
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    public void loadAuthenticationAttributesFromRadiusDB() {
+        Set<String> radCheckAttr = radCheckRepo.getAttributes();
+        Set<String> radGroupCheckAttr = radGroupCheckRepo.getAttributes();
+
+        Set<String> attributes = new HashSet<>();
+        attributes.addAll(radCheckAttr);
+        attributes.addAll(radGroupCheckAttr);
+
+        attributes.forEach(attribute -> {
+            try {
+                if (!checkAttributeRepo.exists(QRadCheckAttribute.radCheckAttribute.name.like(attribute))) {
+                    RadCheckAttribute radCheckAttribute = new RadCheckAttribute();
+                    radCheckAttribute.setSensitiveData(false);
+                    radCheckAttribute.setName(attribute);
+                    checkAttributeRepo.save(radCheckAttribute);
+                }
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     private Predicate buildAuthenticationAttributeSearchPredicate(AttributeFilter filter) {

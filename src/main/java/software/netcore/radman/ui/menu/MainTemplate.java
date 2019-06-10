@@ -4,6 +4,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.page.BodySize;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
@@ -36,13 +38,18 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
     private Element linksContainer;
 
     public MainTemplate() {
-        addNavigation(NasView.class, "NAS");
-        addNavigation(NasGroupsView.class, "NAS groups");
+        addCategoryName("RadMan");
         addNavigation(UsersView.class, "Users");
         addNavigation(UserGroupsView.class, "User groups");
+        addNavigation(AttributesView.class, "Attributes");
+        addSeparator();
+        addCategoryName("Radius");
+        addNavigation(NasView.class, "NAS");
+        addNavigation(NasGroupsView.class, "NAS groups");
         addNavigation(AuthView.class, "Auth (AA)");
         addNavigation(AccountingView.class, "Accounting");
-        addNavigation(AttributesView.class, "Attributes");
+        addSeparator();
+        addCategoryName("System");
         addNavigation(SystemUsersView.class, "System users");
     }
 
@@ -54,11 +61,27 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
         routerLink.setHighlightCondition((r, event) -> Objects.equals(r.getHref(), event.getLocation().getPath()));
         routerLink.setHighlightAction((r, highlight) -> {
             if (highlight) {
-                li.getClassList().add(SELECTED_CLASS_NAME);
+                routerLink.getElement().getClassList().add(SELECTED_CLASS_NAME);
             } else {
-                li.getClassList().remove(SELECTED_CLASS_NAME);
+                routerLink.getElement().getClassList().remove(SELECTED_CLASS_NAME);
             }
         });
+    }
+
+    private void addCategoryName(String name) {
+        Element li = ElementFactory.createListItem();
+        Element span = new Span(name).getElement();
+        span.getClassList().add("category");
+        li.appendChild(span);
+        linksContainer.appendChild(li);
+    }
+
+    private void addSeparator() {
+        Element li = ElementFactory.createListItem();
+        Div div = new Div();
+        div.getClassNames().add("separator");
+        li.appendChild(div.getElement());
+        linksContainer.appendChild(li);
     }
 
     @EventHandler

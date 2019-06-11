@@ -26,14 +26,38 @@
                 width: 100%;
             }
 
+            #authenticationMessage {
+                padding: 0 20px;
+                height: 100%;
+                max-height: 0;
+                color: #ffffff;
+                font-weight: bold;
+                border-radius: 2px;
+                background-color: #ff5353;
+                -moz-transition: all 0.25s ease-in;
+                -webkit-transition: all 0.25s ease-in;
+                -o-transition: all 0.25s ease-in;
+                transition: all 0.25s ease-in;
+            }
+
+            #authenticationMessage.visible {
+                max-height: 100px;
+                padding: 10px 20px;
+                margin-bottom: 10px;
+            }
+
         </style>
         <div class="container">
+            <iron-a11y-keys target="form" keys="enter" on-keys-pressed="login"></iron-a11y-keys>
             <iron-form class="login" id="form" allow-redirect>
                 <form method="post" action="login">
                     <vaadin-vertical-layout>
-                        <h2>RadMan</h2>
-                        <vaadin-text-field id="username" name="username" autofocus required></vaadin-text-field>
-                        <vaadin-password-field id="password" name="password" required></vaadin-password-field>
+                        <h1>RadMan</h1>
+                        <vaadin-label id="authenticationMessage">Incorrect username or password</vaadin-label>
+                        <vaadin-text-field id="username" name="username" on-value-changed="onValueChange" autofocus
+                                           required></vaadin-text-field>
+                        <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"
+                                               required type=""submit"></vaadin-password-field>
                         <vaadin-button on-tap="login" theme="primary">
                             Login
                         </vaadin-button>
@@ -54,8 +78,13 @@
                     this.$.form.submit();
                 }
             }
+
+            onValueChange(event) {
+                this.$.authenticationMessage.classList.remove("visible");
+            }
         }
 
         window.customElements.define(LoginView.is, LoginView);
+
     </script>
 </dom-module>

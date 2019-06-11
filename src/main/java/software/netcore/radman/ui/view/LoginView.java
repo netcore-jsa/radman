@@ -2,7 +2,9 @@ package software.netcore.radman.ui.view;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -20,9 +22,15 @@ public class LoginView extends PolymerTemplate<TemplateModel> implements BeforeE
 
     private final SecurityService securityService;
 
+    @Id("authenticationMessage")
+    private Element messageLabel;
+
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         securityService.initiateFallbackUser();
+        if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
+            messageLabel.getClassList().add("visible");
+        }
     }
 
 }

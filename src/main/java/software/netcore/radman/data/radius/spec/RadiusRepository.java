@@ -6,7 +6,6 @@ import software.netcore.radman.data.spec.BaseRepository;
 
 /**
  * @param <T>
- * @param <ID>
  * @since v. 1.0.0
  */
 @NoRepositoryBean

@@ -47,9 +47,7 @@ public class NasService {
         return conversionService.convert(radHuntGroup, NasGroupDto.class);
     }
 
-    @Transactional
     public NasDto updateNas(@NonNull NasDto nasDto) {
-        assert nasDto.getId() != null;
         Nas nasUpdate = conversionService.convert(nasDto, Nas.class);
         nasUpdate = nasRepo.save(nasUpdate);
         return conversionService.convert(nasUpdate, NasDto.class);
@@ -60,7 +58,6 @@ public class NasService {
     }
 
     public NasGroupDto updateNasGroup(@NonNull NasGroupDto nasGroupDto) {
-        assert nasGroupDto.getId() != null;
         RadHuntGroup radHuntGroup = conversionService.convert(nasGroupDto, RadHuntGroup.class);
         radHuntGroup = radHuntGroupRepo.save(radHuntGroup);
         return conversionService.convert(radHuntGroup, NasGroupDto.class);

@@ -9,4 +9,8 @@ public class DuplicityException extends Exception {
         super(message, cause);
     }
 
+    public DuplicityException(String message) {
+        super(message);
+    }
+
 }

@@ -6,10 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
-import software.netcore.radman.buisness.service.user.radius.converter.DtoToRadiusGroupConverter;
-import software.netcore.radman.buisness.service.user.radius.converter.DtoToRadiusUserConverter;
-import software.netcore.radman.buisness.service.user.radius.converter.RadiusGroupToDtoConverter;
-import software.netcore.radman.buisness.service.user.radius.converter.RadiusUserToDtoConverter;
+import software.netcore.radman.buisness.service.user.radius.converter.*;
 import software.netcore.radman.data.internal.repo.RadiusGroupRepo;
 import software.netcore.radman.data.internal.repo.RadiusUserRepo;
 import software.netcore.radman.data.radius.repo.*;
@@ -53,6 +50,8 @@ public class RadiusUserServiceConfiguration {
         conversionService.addConverter(new DtoToRadiusUserConverter());
         conversionService.addConverter(new RadiusGroupToDtoConverter());
         conversionService.addConverter(new DtoToRadiusGroupConverter());
+        conversionService.addConverter(new RadUserGroupToDtoConverter());
+        conversionService.addConverter(new DtoToRadUserGroupConverter());
     }
 
     @Bean

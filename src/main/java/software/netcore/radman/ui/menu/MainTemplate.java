@@ -48,6 +48,7 @@ public class MainTemplate extends PolymerTemplate<TemplateModel> implements Rout
         addNavigation(NasGroupsView.class, "NAS groups");
         addNavigation(AuthView.class, "Auth (AA)");
         addNavigation(AccountingView.class, "Accounting");
+        addNavigation(UserToGroupView.class, "User/Group");
         addSeparator();
         addCategoryName("System");
         addNavigation(SystemUsersView.class, "System users");

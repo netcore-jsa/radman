@@ -55,9 +55,9 @@
                         <h1>RadMan</h1>
                         <vaadin-label id="authenticationMessage">Incorrect username or password</vaadin-label>
                         <vaadin-text-field id="username" name="username" on-value-changed="onValueChange" autofocus
-                                           required></vaadin-text-field>
+                                           required="true"></vaadin-text-field>
                         <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"
-                                               required type=""submit"></vaadin-password-field>
+                                               required></vaadin-password-field>
                         <vaadin-button on-tap="login" theme="primary">
                             Login
                         </vaadin-button>

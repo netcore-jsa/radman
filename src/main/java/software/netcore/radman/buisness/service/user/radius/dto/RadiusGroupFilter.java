@@ -22,9 +22,4 @@ public class RadiusGroupFilter extends Filter {
         this.searchByDescription = searchByDescription;
     }
 
-    public RadiusGroupFilter(boolean searchByGroupName, boolean searchByDescription) {
-        this.searchByGroupName = searchByGroupName;
-        this.searchByDescription = searchByDescription;
-    }
-
 }

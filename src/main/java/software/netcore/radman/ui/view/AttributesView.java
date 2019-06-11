@@ -33,6 +33,7 @@ import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.attribute.dto.AuthenticationAttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AuthorizationAttributeDto;
+import software.netcore.radman.buisness.service.dto.LoadingResult;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
@@ -40,6 +41,7 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.notification.LoadingResultNotification;
 
 import java.util.Objects;
 
@@ -213,7 +215,8 @@ public class AttributesView extends VerticalLayout {
 
         @Override
         void loadAttributesFromRadius() {
-            service.loadAuthenticationAttributesFromRadiusDB();
+            LoadingResult result = service.loadAuthenticationAttributesFromRadiusDB();
+            LoadingResultNotification.show("Authentication attributes load result", result);
         }
 
         @Override
@@ -268,7 +271,8 @@ public class AttributesView extends VerticalLayout {
 
         @Override
         void loadAttributesFromRadius() {
-            service.loadAuthorizationAttributesFromRadiusDB();
+            LoadingResult result = service.loadAuthorizationAttributesFromRadiusDB();
+            LoadingResultNotification.show("Authorization attributes load result", result);
         }
 
         @Override

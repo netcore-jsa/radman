@@ -66,7 +66,6 @@ public class SystemUsersView extends VerticalLayout {
     private void buildView() {
         setHeightFull();
         setSpacing(false);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
         RoleDto role = securityService.getLoggedUserRole();
         if (role == RoleDto.READ_ONLY) {

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+import software.netcore.radman.buisness.service.dto.LoadingResult;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
@@ -61,7 +62,7 @@ public class RadiusUserService {
         radiusUserRepo.deleteById(radiusUserDto.getId());
     }
 
-    public void loadRadiusUsersFromRadiusDB() {
+    public LoadingResult loadRadiusUsersFromRadiusDB() {
         Set<String> radCheckUsernames = radCheckRepo.getUsernames();
         Set<String> radReplyUsernames = radReplyRepo.getUsernames();
 
@@ -69,16 +70,22 @@ public class RadiusUserService {
         usernames.addAll(radCheckUsernames);
         usernames.addAll(radReplyUsernames);
 
+        LoadingResult result = new LoadingResult();
         usernames.forEach(username -> {
             try {
                 if (!radiusUserRepo.exists(QRadiusUser.radiusUser.username.like(username))) {
                     RadiusUser radiusUser = new RadiusUser();
                     radiusUser.setUsername(username);
                     radiusUserRepo.save(radiusUser);
+                    result.incrementLoaded();
+                } else {
+                    result.incrementDuplicate();
                 }
             } catch (Exception ignored) {
+                result.incrementErrored();
             }
         });
+        return result;
     }
 
     public long countRadiusUsers(@NonNull RadiusUserFilter filter) {
@@ -112,7 +119,7 @@ public class RadiusUserService {
         radiusGroupRepo.deleteById(radiusGroup.getId());
     }
 
-    public void loadRadiusGroupsFromRadiusDB() {
+    public LoadingResult loadRadiusGroupsFromRadiusDB() {
         Set<String> radCheckGroupNames = radGroupCheckRepo.getGroupNames();
         Set<String> radReplyGroupName = radGroupReplyRepo.getGroupNames();
 
@@ -120,11 +127,22 @@ public class RadiusUserService {
         groupNames.addAll(radCheckGroupNames);
         groupNames.addAll(radReplyGroupName);
 
+        LoadingResult result = new LoadingResult();
         groupNames.forEach(name -> {
-            RadiusGroup radiusGroup = new RadiusGroup();
-            radiusGroup.setName(name);
-            radiusGroupRepo.save(radiusGroup);
+            try {
+                if (!radiusGroupRepo.exists(QRadiusGroup.radiusGroup.name.like(name))) {
+                    RadiusGroup radiusGroup = new RadiusGroup();
+                    radiusGroup.setName(name);
+                    radiusGroupRepo.save(radiusGroup);
+                    result.incrementLoaded();
+                } else {
+                    result.incrementDuplicate();
+                }
+            } catch (Exception ex) {
+                result.incrementErrored();
+            }
         });
+        return result;
     }
 
     public long countRadiusUsersGroup(@NonNull RadiusGroupFilter filter) {

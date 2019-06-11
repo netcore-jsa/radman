@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
+import software.netcore.radman.buisness.service.dto.LoadingResult;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
@@ -32,6 +33,7 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.notification.LoadingResultNotification;
 
 import java.util.Objects;
 
@@ -44,12 +46,12 @@ import java.util.Objects;
 public class UsersView extends VerticalLayout {
 
     private final RadiusUserFilter filter = new RadiusUserFilter(true, true);
-    private final RadiusUserService service;
+    private final RadiusUserService userService;
     private final SecurityService securityService;
 
     @Autowired
-    public UsersView(RadiusUserService service, SecurityService securityService) {
-        this.service = service;
+    public UsersView(RadiusUserService userService, SecurityService securityService) {
+        this.userService = userService;
         this.securityService = securityService;
         buildView();
     }
@@ -62,8 +64,8 @@ public class UsersView extends VerticalLayout {
         Grid<RadiusUserDto> grid = new Grid<>(RadiusUserDto.class, false);
         grid.addColumns("username", "description");
         DataProvider<RadiusUserDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                (pageable, o) -> service.pageRadiusUsers(filter, pageable),
-                value -> service.countRadiusUsers(filter))
+                (pageable, o) -> userService.pageRadiusUsers(filter, pageable),
+                value -> userService.countRadiusUsers(filter))
                 .withDefaultSort("id", SortDirection.ASCENDING)
                 .build();
         grid.getColumns().forEach(column -> column.setResizable(true));
@@ -71,9 +73,9 @@ public class UsersView extends VerticalLayout {
         grid.setMinHeight("500px");
         grid.setHeight("100%");
 
-        UserCreationDialog creationDialog = new UserCreationDialog(service,
+        UserCreationDialog creationDialog = new UserCreationDialog(userService,
                 (source, bean) -> grid.getDataProvider().refreshAll());
-        UserEditDialog editDialog = new UserEditDialog(service,
+        UserEditDialog editDialog = new UserEditDialog(userService,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
         ConfirmationDialog deleteDialog = new ConfirmationDialog("250px");
         deleteDialog.setTitle("Delete Radius user");
@@ -83,7 +85,7 @@ public class UsersView extends VerticalLayout {
             RadiusUserDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(dto)) {
                 try {
-                    service.deleteRadiusUser(dto);
+                    userService.deleteRadiusUser(dto);
                     grid.getDataProvider().refreshAll();
                 } catch (Exception e) {
                     log.warn("Failed to delete user. Reason = '{}'", e.getMessage());
@@ -107,7 +109,8 @@ public class UsersView extends VerticalLayout {
         Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
         deleteBtn.setEnabled(false);
         Button loadUsers = new Button("Load from Radius", event -> {
-            service.loadRadiusUsersFromRadiusDB();
+            LoadingResult result = userService.loadRadiusUsersFromRadiusDB();
+            LoadingResultNotification.show("Users load result", result);
             grid.getDataProvider().refreshAll();
         });
         loadUsers.setEnabled(role == RoleDto.ADMIN);
@@ -142,8 +145,8 @@ public class UsersView extends VerticalLayout {
         final RadiusUserService service;
         final Binder<RadiusUserDto> binder;
 
-        UserFormDialog(RadiusUserService service) {
-            this.service = service;
+        UserFormDialog(RadiusUserService userService) {
+            this.service = userService;
 
             TextField username = new TextField("Username");
             username.setValueChangeMode(ValueChangeMode.EAGER);
@@ -176,9 +179,9 @@ public class UsersView extends VerticalLayout {
 
         private final CreationListener<RadiusUserDto> creationListener;
 
-        UserCreationDialog(RadiusUserService radiusUserService,
+        UserCreationDialog(RadiusUserService userService,
                            CreationListener<RadiusUserDto> creationListener) {
-            super(radiusUserService);
+            super(userService);
             this.creationListener = creationListener;
         }
 
@@ -216,9 +219,9 @@ public class UsersView extends VerticalLayout {
 
         private final UpdateListener<RadiusUserDto> updateListener;
 
-        UserEditDialog(RadiusUserService radiusUserService,
+        UserEditDialog(RadiusUserService userService,
                        UpdateListener<RadiusUserDto> updateListener) {
-            super(radiusUserService);
+            super(userService);
             this.updateListener = updateListener;
         }
 

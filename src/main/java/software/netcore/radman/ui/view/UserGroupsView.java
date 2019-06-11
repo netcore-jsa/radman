@@ -21,6 +21,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
+import software.netcore.radman.buisness.service.dto.LoadingResult;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
@@ -31,6 +32,7 @@ import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MainTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
+import software.netcore.radman.ui.notification.LoadingResultNotification;
 
 import java.util.Objects;
 
@@ -105,7 +107,8 @@ public class UserGroupsView extends VerticalLayout {
         Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
         deleteBtn.setEnabled(false);
         Button loadUserGroups = new Button("Load from Radius", event -> {
-            service.loadRadiusGroupsFromRadiusDB();
+            LoadingResult result = service.loadRadiusGroupsFromRadiusDB();
+            LoadingResultNotification.show("Groups load result", result);
             grid.getDataProvider().refreshAll();
         });
         loadUserGroups.setEnabled(role == RoleDto.ADMIN);

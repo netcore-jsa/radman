@@ -1,0 +1,1 @@
+-Xms256M -Xmx768M -Djava.security.egd=file:/dev/./urandom

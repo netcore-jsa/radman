@@ -1,0 +1,15 @@
+[Unit]
+Description=RadMan
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/radman
+ExecStart=bash -c 'java $(cat /etc/default/radman 2> /dev/null) 
+ExecStart=/bin/bash -c '/usr/bin/java $(/bin/cat /etc/default/radman 2> /dev/null) -Dspring.config.location=file:/etc/radman/radman.properties -jar /opt/radman/RadMan.jar'
+SuccessExitStatus=143
+StandardOutput=file:/var/log/radman
+StandardError=file:/var/log/radman
+
+[Install]
+WantedBy=multi-user.target

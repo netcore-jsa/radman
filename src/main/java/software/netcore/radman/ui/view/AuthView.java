@@ -55,6 +55,7 @@ import software.netcore.radman.ui.support.Filter;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @since v. 1.0.0
@@ -99,12 +100,11 @@ public class AuthView extends VerticalLayout {
 
             RoleDto role = securityService.getLoggedUserRole();
             grid = new Grid<>();
-            deleteDialog = new ConfirmationDialog();
+            deleteDialog = new ConfirmationDialog("400px");
             deleteDialog.setTitle("Delete assigned attributes");
-            deleteDialog.setDescription("Are you sure?");
             deleteDialog.setConfirmListener(() -> {
-                Map<String, String> row = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-                if (Objects.nonNull(row)) {
+                Optional<Map<String, String>> optional = grid.getSelectionModel().getFirstSelectedItem();
+                optional.ifPresent(row -> {
                     String name = row.get("name");
                     String type = row.get("type");
                     try {
@@ -116,12 +116,19 @@ public class AuthView extends VerticalLayout {
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
                     }
-                }
+                });
             });
 
             Button assignBtn = new Button("Assign attribute", event -> getAssigmentDialog().startAssigment());
             assignBtn.setEnabled(role == RoleDto.ADMIN);
-            Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
+            Button deleteBtn = new Button("Delete", event -> {
+                Optional<Map<String, String>> optional = grid.getSelectionModel().getFirstSelectedItem();
+                optional.ifPresent(row -> {
+                    deleteDialog.setDescription("Are you sure you want to delete '" +
+                            row.get("name") + "' user and its attributes?");
+                    deleteDialog.setOpened(true);
+                });
+            });
             deleteBtn.setEnabled(false);
 
             grid.asSingleSelect().addValueChangeListener(event ->

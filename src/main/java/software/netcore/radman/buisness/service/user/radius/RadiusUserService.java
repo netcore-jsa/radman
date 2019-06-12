@@ -8,6 +8,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import software.netcore.radman.buisness.exception.DuplicityException;
 import software.netcore.radman.buisness.service.dto.LoadingResult;
@@ -59,8 +60,14 @@ public class RadiusUserService {
         return conversionService.convert(radiusUser, RadiusUserDto.class);
     }
 
-    public void deleteRadiusUser(@NonNull RadiusUserDto radiusUserDto) {
+    @Transactional
+    public void deleteRadiusUser(@NonNull RadiusUserDto radiusUserDto, boolean removeFromRadius) {
         radiusUserRepo.deleteById(radiusUserDto.getId());
+        if (removeFromRadius) {
+            radCheckRepo.deleteAllByUsername(radiusUserDto.getUsername());
+            radReplyRepo.deleteAllByUsername(radiusUserDto.getUsername());
+            radUserGroupRepo.deleteAllByUsername(radiusUserDto.getUsername());
+        }
     }
 
     public LoadingResult loadRadiusUsersFromRadiusDB() {
@@ -116,8 +123,13 @@ public class RadiusUserService {
         return conversionService.convert(radiusGroup, RadiusGroupDto.class);
     }
 
-    public void deleteRadiusUsersGroup(@NonNull RadiusGroupDto radiusGroup) {
-        radiusGroupRepo.deleteById(radiusGroup.getId());
+    public void deleteRadiusUsersGroup(@NonNull RadiusGroupDto radiusGroupDto, boolean removeFromRadius) {
+        radiusGroupRepo.deleteById(radiusGroupDto.getId());
+        if (removeFromRadius) {
+            radGroupCheckRepo.deleteAllByGroupName(radiusGroupDto.getName());
+            radGroupReplyRepo.deleteAllByGroupName(radiusGroupDto.getName());
+            radUserGroupRepo.deleteAllByGroupName(radiusGroupDto.getName());
+        }
     }
 
     public LoadingResult loadRadiusGroupsFromRadiusDB() {

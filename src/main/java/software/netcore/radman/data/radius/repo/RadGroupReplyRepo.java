@@ -18,6 +18,8 @@ public interface RadGroupReplyRepo extends RadiusRepository<RadGroupReply> {
 
     void deleteAllByGroupNameAndAttribute(String name, String attribute);
 
+    void deleteAllByAttribute(String attribute);
+
     @Query("SELECT r.groupName FROM RadGroupReply r ORDER BY r.groupName")
     Set<String> getGroupNames();
 

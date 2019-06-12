@@ -19,6 +19,8 @@ public interface RadGroupCheckRepo extends RadiusRepository<RadGroupCheck> {
 
     void deleteAllByGroupNameAndAttribute(String name, String attribute);
 
+    void deleteAllByAttribute(String attribute);
+
     @Query("SELECT r.groupName FROM RadGroupCheck r ORDER BY r.groupName")
     Set<String> getGroupNames();
 

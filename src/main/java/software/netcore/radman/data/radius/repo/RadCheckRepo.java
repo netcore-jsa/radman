@@ -18,6 +18,8 @@ public interface RadCheckRepo extends RadiusRepository<RadCheck> {
 
     void deleteByUsernameAndAttribute(String name, String attribute);
 
+    void deleteAllByAttribute(String attribute);
+
     @Query("SELECT r.username FROM RadCheck r ORDER BY r.username")
     Set<String> getUsernames();
 

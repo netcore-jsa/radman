@@ -18,6 +18,8 @@ public interface RadReplyRepo extends RadiusRepository<RadReply> {
 
     void deleteByUsernameAndAttribute(String name, String attribute);
 
+    void deleteAllByAttribute(String attribute);
+
     @Query("SELECT r.username FROM RadReply r ORDER BY r.username")
     Set<String> getUsernames();
 

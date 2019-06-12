@@ -1,12 +1,14 @@
 package software.netcore.radman.ui.view;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -35,6 +37,7 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @since v. 1.0.0
@@ -75,22 +78,29 @@ public class UserGroupsView extends VerticalLayout {
                 (source, bean) -> grid.getDataProvider().refreshAll());
         UserGroupEditDialog editDialog = new UserGroupEditDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
-        ConfirmationDialog deleteDialog = new ConfirmationDialog("250px");
+
+        Checkbox removeFromRadius = new Checkbox("Remove from Radius");
+        ConfirmationDialog deleteDialog = new ConfirmationDialog("400px");
         deleteDialog.setTitle("Delete Radius group");
-        deleteDialog.setDescription("Are you sure?");
+        deleteDialog.setContent(removeFromRadius, new Label("Are you sure?"));
         deleteDialog.setConfirmButtonCaption("Delete");
         deleteDialog.setConfirmListener(() -> {
-            RadiusGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-            if (Objects.nonNull(dto)) {
+            Optional<RadiusGroupDto> optional = grid.getSelectionModel().getFirstSelectedItem();
+            optional.ifPresent(radiusGroupDto -> {
                 try {
-                    service.deleteRadiusUsersGroup(dto);
+                    service.deleteRadiusUsersGroup(radiusGroupDto, removeFromRadius.getValue());
                     grid.getDataProvider().refreshAll();
                 } catch (Exception e) {
                     log.warn("Failed to delete users group. Reason = '{}'", e.getMessage());
                     ErrorNotification.show("Error",
                             "Ooops, something went wrong, try again please");
                 }
-                deleteDialog.setOpened(false);
+            });
+            deleteDialog.setOpened(false);
+        });
+        deleteDialog.addOpenedChangeListener(event -> {
+            if (event.isOpened()) {
+                removeFromRadius.setValue(false);
             }
         });
 
@@ -104,7 +114,14 @@ public class UserGroupsView extends VerticalLayout {
             }
         });
         editBtn.setEnabled(false);
-        Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
+        Button deleteBtn = new Button("Delete", event -> {
+            Optional<RadiusGroupDto> optional = grid.getSelectionModel().getFirstSelectedItem();
+            optional.ifPresent(radiusGroupDto -> {
+                deleteDialog.setContent(removeFromRadius, new Label("Are you sure you want to delete '" +
+                        radiusGroupDto.getName() + "' user group?"));
+                deleteDialog.setOpened(true);
+            });
+        });
         deleteBtn.setEnabled(false);
         Button loadUserGroups = new Button("Load from Radius", event -> {
             LoadingResult result = service.loadRadiusGroupsFromRadiusDB();

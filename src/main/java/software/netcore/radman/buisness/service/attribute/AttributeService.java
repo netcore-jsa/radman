@@ -84,12 +84,22 @@ public class AttributeService {
         return conversionService.convert(attribute, AuthorizationAttributeDto.class);
     }
 
-    public void deleteAuthenticationAttribute(@NonNull AuthenticationAttributeDto attributeDto) {
+    public void deleteAuthenticationAttribute(@NonNull AuthenticationAttributeDto attributeDto,
+                                              boolean removeFromRadius) {
         checkAttributeRepo.deleteById(attributeDto.getId());
+        if (removeFromRadius) {
+            radCheckRepo.deleteAllByAttribute(attributeDto.getName());
+            radGroupCheckRepo.deleteAllByAttribute(attributeDto.getName());
+        }
     }
 
-    public void deleteAuthorizationAttribute(@NonNull AuthorizationAttributeDto attributeDto) {
+    public void deleteAuthorizationAttribute(@NonNull AuthorizationAttributeDto attributeDto,
+                                             boolean removeFromRadius) {
         replyAttributeRepo.deleteById(attributeDto.getId());
+        if (removeFromRadius) {
+            radReplyRepo.deleteAllByAttribute(attributeDto.getName());
+            radGroupReplyRepo.deleteAllByAttribute(attributeDto.getName());
+        }
     }
 
     public long countAuthenticationAttributeRecords(@NonNull AttributeFilter filter) {

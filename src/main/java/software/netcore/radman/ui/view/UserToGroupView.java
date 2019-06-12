@@ -89,8 +89,14 @@ public class UserToGroupView extends VerticalLayout {
         deleteDialog.setConfirmButtonCaption("Delete");
         deleteDialog.setConfirmListener(() -> {
             Optional<RadiusUserToGroupDto> optional = grid.getSelectionModel().getFirstSelectedItem();
-            optional.ifPresent(userService::removeRadiusUserFromGroup);
-            grid.getDataProvider().refreshAll();
+            try {
+                optional.ifPresent(userService::removeRadiusUserFromGroup);
+                grid.getDataProvider().refreshAll();
+            } catch (Exception e) {
+                log.warn("Failed to delete user to group mapping. Reason = '{}'", e.getMessage());
+                ErrorNotification.show("Error",
+                        "Ooops, something went wrong, try again please");
+            }
             deleteDialog.setOpened(false);
         });
         Button removeUserFromGroup = new Button("Remove user from group", event -> deleteDialog.setOpened(true));

@@ -80,7 +80,7 @@ public class NasView extends VerticalLayout {
         grid.setMinHeight("500px");
         grid.setHeight("100%");
 
-        ConfirmationDialog nasDeleteDialog = new ConfirmationDialog("340px");
+        ConfirmationDialog nasDeleteDialog = new ConfirmationDialog("400px");
         nasDeleteDialog.setTitle("Delete NAS");
         nasDeleteDialog.setConfirmButtonCaption("Delete");
         nasDeleteDialog.setConfirmListener(() -> {
@@ -115,7 +115,7 @@ public class NasView extends VerticalLayout {
         Button deleteBtn = new Button("Delete", event -> {
             NasDto nasDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
             if (Objects.nonNull(nasDto)) {
-                nasDeleteDialog.setDescription("Are you sure you want to remove '" + nasDto.getNasName() + "' NAS?");
+                nasDeleteDialog.setDescription("Are you sure you want to delete '" + nasDto.getNasName() + "' NAS?");
                 nasDeleteDialog.setOpened(true);
             }
         });

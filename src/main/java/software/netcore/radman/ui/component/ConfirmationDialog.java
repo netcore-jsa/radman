@@ -1,5 +1,6 @@
 package software.netcore.radman.ui.component;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -8,6 +9,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Setter;
 import software.netcore.radman.ui.CancelListener;
 
@@ -27,6 +29,7 @@ public class ConfirmationDialog extends Dialog {
 
     private final H3 title = new H3();
     private final Label description = new Label();
+    private final VerticalLayout contentLayout = new VerticalLayout();
     private final Button confirmBtn = new Button("Confirm");
     private final Button cancelBtn = new Button("Cancel");
 
@@ -40,6 +43,8 @@ public class ConfirmationDialog extends Dialog {
     }
 
     public ConfirmationDialog(String maxWidth) {
+        contentLayout.setMargin(false);
+        contentLayout.setPadding(false);
         HorizontalLayout controlsLayout = new HorizontalLayout();
         controlsLayout.setWidthFull();
         controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -49,7 +54,7 @@ public class ConfirmationDialog extends Dialog {
         FormLayout layout = new FormLayout();
         layout.setMaxWidth(maxWidth == null ? "500px" : maxWidth);
         layout.add(title);
-        layout.add(description);
+        layout.add(contentLayout);
         layout.add(new Hr());
         layout.add(controlsLayout);
         add(layout);
@@ -73,7 +78,14 @@ public class ConfirmationDialog extends Dialog {
     }
 
     public void setDescription(String description) {
+        contentLayout.removeAll();
+        contentLayout.add(description);
         this.description.setText(description);
+    }
+
+    public void setContent(Component... components) {
+        contentLayout.removeAll();
+        contentLayout.add(components);
     }
 
     public void setConfirmButtonCaption(String caption) {

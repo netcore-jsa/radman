@@ -34,6 +34,7 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @since v. 1.0.0
@@ -78,13 +79,12 @@ public class NasGroupsView extends VerticalLayout {
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
         ConfirmationDialog deleteDialog = new ConfirmationDialog("400px");
         deleteDialog.setTitle("Delete NAS group");
-        deleteDialog.setDescription("Are you sure?");
         deleteDialog.setConfirmButtonCaption("Delete");
         deleteDialog.setConfirmListener(() -> {
-            NasGroupDto dto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-            if (Objects.nonNull(dto)) {
+            Optional<NasGroupDto> optional = grid.getSelectionModel().getFirstSelectedItem();
+            optional.ifPresent(nasGroupDto -> {
                 try {
-                    nasService.deleteNasGroup(dto);
+                    nasService.deleteNasGroup(nasGroupDto);
                     grid.getDataProvider().refreshAll();
                 } catch (Exception e) {
                     log.warn("Failed to delete NAS group. Reason = '{}'", e.getMessage());
@@ -92,7 +92,7 @@ public class NasGroupsView extends VerticalLayout {
                             "Ooops, something went wrong, try again please");
                 }
                 deleteDialog.setOpened(false);
-            }
+            });
         });
 
         Button createBtn = new Button("Create", event -> createDialog.startNasGroupCreation());
@@ -104,7 +104,14 @@ public class NasGroupsView extends VerticalLayout {
             }
         });
         editBtn.setEnabled(false);
-        Button deleteBtn = new Button("Delete", event -> deleteDialog.setOpened(true));
+        Button deleteBtn = new Button("Delete", event -> {
+            Optional<NasGroupDto> optional = grid.getSelectionModel().getFirstSelectedItem();
+            optional.ifPresent(nasGroupDto -> {
+                deleteDialog.setDescription("Are you sure you want to delete '" +
+                        nasGroupDto.getGroupName() + "' NAS group?");
+                deleteDialog.setOpened(true);
+            });
+        });
         deleteBtn.setEnabled(false);
 
         grid.asSingleSelect().addValueChangeListener(event -> {

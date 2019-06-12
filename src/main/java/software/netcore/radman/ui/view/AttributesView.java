@@ -5,10 +5,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -44,6 +41,7 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @since v. 1.0.0
@@ -93,19 +91,26 @@ public class AttributesView extends VerticalLayout {
             grid.setColumnReorderingAllowed(true);
             grid.setDataProvider(dataProvider);
 
-            deleteDialog = new ConfirmationDialog("365px");
+            Checkbox removeFromRadius = new Checkbox("Remove from Radius");
+            deleteDialog = new ConfirmationDialog("400px");
             deleteDialog.setTitle("Delete attribute");
             deleteDialog.setConfirmListener(() -> {
-                try {
-                    T attributeDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-                    deleteAttribute(attributeDto);
-                    grid.getDataProvider().refreshAll();
-                } catch (Exception e) {
-                    log.warn("Failed to create attribute. Reason = '{}'", e.getMessage());
-                    ErrorNotification.show("Error",
-                            "Ooops, something went wrong, try again please");
-                } finally {
-                    deleteDialog.setOpened(false);
+                Optional<T> optional = grid.getSelectionModel().getFirstSelectedItem();
+                optional.ifPresent(attributeDto -> {
+                    try {
+                        deleteAttribute(attributeDto, removeFromRadius.getValue());
+                        grid.getDataProvider().refreshAll();
+                    } catch (Exception e) {
+                        log.warn("Failed to create attribute. Reason = '{}'", e.getMessage());
+                        ErrorNotification.show("Error",
+                                "Ooops, something went wrong, try again please");
+                    }
+                });
+                deleteDialog.setOpened(false);
+            });
+            deleteDialog.addOpenedChangeListener(event -> {
+                if (event.isOpened()) {
+                    removeFromRadius.setValue(false);
                 }
             });
 
@@ -119,12 +124,12 @@ public class AttributesView extends VerticalLayout {
             });
             editBtn.setEnabled(false);
             Button deleteBtn = new Button("Delete", event -> {
-                T attributeDto = grid.getSelectionModel().getFirstSelectedItem().orElse(null);
-                if (Objects.nonNull(attributeDto)) {
-                    deleteDialog.setDescription("Are you sure you want to delete '"
-                            + attributeDto.getName() + "' attribute?");
+                Optional<T> optional = grid.getSelectionModel().getFirstSelectedItem();
+                optional.ifPresent(attributeDto -> {
+                    deleteDialog.setContent(removeFromRadius, new Label("Are you sure you want to delete '"
+                            + attributeDto.getName() + "' attribute?"));
                     deleteDialog.setOpened(true);
-                }
+                });
             });
             deleteBtn.setEnabled(false);
             Button loadAttributes = new Button("Load from Radius", event -> {
@@ -165,7 +170,7 @@ public class AttributesView extends VerticalLayout {
 
         abstract long countAttributes(AttributeFilter filter);
 
-        abstract void deleteAttribute(T attributeDto);
+        abstract void deleteAttribute(T attributeDto, boolean removeFromRadius);
 
         abstract void loadAttributesFromRadius();
 
@@ -209,8 +214,8 @@ public class AttributesView extends VerticalLayout {
         }
 
         @Override
-        void deleteAttribute(AuthenticationAttributeDto attributeDto) {
-            service.deleteAuthenticationAttribute(attributeDto);
+        void deleteAttribute(AuthenticationAttributeDto attributeDto, boolean removeFromRadius) {
+            service.deleteAuthenticationAttribute(attributeDto, removeFromRadius);
         }
 
         @Override
@@ -265,8 +270,8 @@ public class AttributesView extends VerticalLayout {
         }
 
         @Override
-        void deleteAttribute(AuthorizationAttributeDto attributeDto) {
-            service.deleteAuthorizationAttribute(attributeDto);
+        void deleteAttribute(AuthorizationAttributeDto attributeDto, boolean removeFromRadius) {
+            service.deleteAuthorizationAttribute(attributeDto, removeFromRadius);
         }
 
         @Override

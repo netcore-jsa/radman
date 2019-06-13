@@ -2,6 +2,8 @@
 RadMan is a FreeRadius DB Manager - an easy to use FreeRadius Management GUI.  
 Brought to you free and open-source by NetCore j.s.a., the company behind [Unimus](https://unimus.net/).
 
+![](https://github.com/netcore-jsa/radman/raw/master/RadMan-small.png)
+
 # Table of Contents
 - [What is RadMan](#what-is-radman)
 - [How does RadMan work](#how-does-radman-work)

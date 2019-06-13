@@ -35,6 +35,7 @@ ldap.base-dn=[base-search-dn-here]
 ldap.user-dn-pattern=uid={0}
 
 # logging
+logging.file=/var/log/radman
 logging.level.root=WARN
 logging.level.org.springframework.boot=INFO
 logging.level.software.netcore.radman=INFO

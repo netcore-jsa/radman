@@ -24,7 +24,7 @@ RadMan aims to be simple to use, super fast to deploy and easy to maintain.
 RadMan works by inserting / updating / removing records from the FreeRadius database tables.  
 RadMan also requires a database itself, for storing it's own data.
 
-RadMan therefore iniciates 2 DB connections:
+RadMan therefore initiates 2 DB connections:
 - to the Radius database
 - to it's own database
 
@@ -68,7 +68,7 @@ Please note that User / Group deletions will **not** delete records from the Acc
 
 # How to deploy RadMan
 Before you deploy RadMan, you will need a Java Runtime Environment.  
-You can install `openjdk-8-jre` or `openjdk-11-jre` - whichever is availabe for your Linux distribution.  
+You can install `openjdk-8-jre` or `openjdk-11-jre` - whichever is available for your Linux distribution.  
 Use `apt-get install ...` or `yum install ...` or whatever is appropriate for your environment.
 
 Before you proceed further, please make sure that `java -version` works, and returns the expected Java version.

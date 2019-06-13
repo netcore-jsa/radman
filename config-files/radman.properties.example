@@ -39,5 +39,6 @@ logging.level.root=WARN
 logging.level.org.springframework.boot=INFO
 logging.level.software.netcore.radman=INFO
 
-# turn off Vaadin debug for production usage
-vaadin.servlet.production-mode=true
+# component settings
+vaadin.productionMode=true
+spring.jpa.open-in-view=false

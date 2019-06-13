@@ -96,6 +96,7 @@ vim /etc/radman/radman.properties
 
 After the config file is properly setup, start RadMan:
 ```
+systemctl enable radman
 systemctl start radman
 ```
 

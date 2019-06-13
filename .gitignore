@@ -1,8 +1,12 @@
 HELP.md
 /target/
+/node_modules/
 .mvn*
 mvnw
 mvnw.cmd
+package.json
+package-lock.json
+webpack.config.js
 
 # Compiled class file
 *.class

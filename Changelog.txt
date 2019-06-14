@@ -1,6 +1,10 @@
 = Version 1.0.1 =
 Features:
   Changed DB connection handling to automatically close idle DB sessions and reconnect them when needed
+  Added table names into "Data from Radius DB" label on all Radius views (#15)
+
+Tickets closed by this release:
+  #15
 
 
 

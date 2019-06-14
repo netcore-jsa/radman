@@ -2,26 +2,22 @@
 server.port=8089
 
 # radius database
-database.radius.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC
+database.radius.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC&autoReconnect=true
 database.radius.datasource.username=[db-user-here]
 database.radius.datasource.password=[db-password-here]
 database.radius.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-database.radius.datasource.tomcat.test-while-idle=true
-database.radius.datasource.tomcat.validation-query=SELECT 1 FROM account WHERE 1=0
+database.radius.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 database.radius.jpa.show-sql=false
 database.radius.jpa.hibernate.ddl-auto=validate
-database.radius.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 
 # internal database
-database.radman.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC
+database.radman.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC&autoReconnect=true
 database.radman.datasource.username=[db-user-here]
 database.radman.datasource.password=[db-password-here]
 database.radman.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-database.radman.datasource.tomcat.test-while-idle=true
-database.radman.datasource.tomcat.validation-query=SELECT 1 FROM account WHERE 1=0
+database.radman.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 database.radman.jpa.show-sql=false
 database.radman.jpa.hibernate.ddl-auto=validate
-database.radman.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 
 # liquibase
 database.radman.liquibase.enabled=true

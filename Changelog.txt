@@ -1,0 +1,8 @@
+= Version 1.0.1 =
+Features:
+  Changed DB connection handling to automatically close idle DB sessions and reconnect them when needed
+
+
+
+= Version 1.0.0 =
+  Initial release of RadMan

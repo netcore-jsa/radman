@@ -61,7 +61,7 @@ public class AccountingView extends VerticalLayout {
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
 
-        add(new H4("Data from Radius DB"));
+        add(new H4("Data from Radius DB - \"radacct\" table"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Accounting"));

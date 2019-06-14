@@ -82,7 +82,7 @@ public class AuthView extends VerticalLayout {
 
     private void buildView() {
         setSpacing(false);
-        add(new H4("Data from Radius DB"));
+        add(new H4("Data from Radius DB - \"radcheck\", \"radgroupcheck\", \"radreply\", \"radgroupreply\" tables"));
         add(new AuthenticationGrid(authService, userService, attributeService, securityService));
         add(new AuthorizationGrid(authService, userService, attributeService, securityService));
     }

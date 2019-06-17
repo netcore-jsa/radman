@@ -15,7 +15,7 @@
 
     <groupId>software.netcore</groupId>
     <artifactId>radman</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <!--general java configuration-->

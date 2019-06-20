@@ -10,6 +10,7 @@ Brought to you free and open-source by NetCore j.s.a., the company behind [Unimu
 - [How to deploy RadMan](#how-to-deploy-radman)
 - [How to upgrade RadMan](#how-to-upgrade-radman)
 - [RadMan config file](#radman-config-file)
+- [Common startup issues](#common-startup-issues)
 
 # What is RadMan
 Simply, RadMan is a FreeRadius Management GUI.  
@@ -138,3 +139,20 @@ The `internal database` section should point to a database that RadMan itself wi
 
 RadMan also allows user auth into RadMan itself using LDAP.  
 You should configure the appropriate settings in the `ldap` section if you wish to use this.
+
+# Common startup issues
+Most RadMan startup issues will occur because of FreeRadius database incompatibilities.  
+RadMan expects the FreeRadius DB schema to conform to the latest official FreeRadius v3 schema.
+
+Here is the schema that RadMan expects to find in the FreeRadius DB:  
+https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/mods-config/sql/main/mysql/schema.sql
+
+RadMan also expects to find a `radhuntgroup` table, as described here:  
+https://wiki.freeradius.org/guide/SQL-Huntgroup-HOWTO#using-unlang-to-emulate-huntgroup-behaviour-in-sql_building-the-table
+
+RadMan can fail to start with errors such as:
+```
+SchemaManagementException: Schema-validation: missing column [xxx] in table [xxx]
+```
+This simply means you need to fix your FreeRadius DB schema as per the latest official FreeRadius v3 schema linked above.  
+You should just be able to add the missing columns to existing tables, and RadMan should start working.

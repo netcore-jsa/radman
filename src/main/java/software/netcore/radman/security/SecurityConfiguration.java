@@ -97,11 +97,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         if (ldapProperties().isEnabled()) {
             //@formatter:off
             auth.ldapAuthentication()
-                    .userDnPatterns(ldapProperties().getUserDnPattern())
+                    .userSearchFilter(ldapProperties().getUserSearchFilter())
+                    .userSearchBase(ldapProperties().getSearchBaseDn())
                     .contextSource()
                         .managerDn(ldapProperties().getManagerDn())
                         .managerPassword(ldapProperties().getManagerPassword())
-                        .url(ldapProperties().getUrls() + ldapProperties().getBaseDn())
+                        .url(ldapProperties().getUrls())
                     .and()
                         .ldapAuthoritiesPopulator(ldapAuthoritiesPopulator())
                         .rolePrefix("");

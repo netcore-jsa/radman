@@ -14,7 +14,7 @@ public class LdapProperties {
     private String urls;
     private String managerDn;
     private String managerPassword;
-    private String baseDn;
-    private String userDnPattern;
+    private String searchBaseDn;
+    private String userSearchFilter;
 
 }

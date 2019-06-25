@@ -99,6 +99,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             auth.ldapAuthentication()
                     .userDnPatterns(ldapProperties().getUserDnPattern())
                     .contextSource()
+                        .managerDn(ldapProperties().getManagerDn())
+                        .managerPassword(ldapProperties().getManagerPassword())
                         .url(ldapProperties().getUrls() + ldapProperties().getBaseDn())
                     .and()
                         .ldapAuthoritiesPopulator(ldapAuthoritiesPopulator())

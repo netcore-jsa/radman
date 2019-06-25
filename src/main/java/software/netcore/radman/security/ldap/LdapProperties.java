@@ -12,6 +12,8 @@ public class LdapProperties {
 
     private boolean enabled;
     private String urls;
+    private String managerDn;
+    private String managerPassword;
     private String baseDn;
     private String userDnPattern;
 

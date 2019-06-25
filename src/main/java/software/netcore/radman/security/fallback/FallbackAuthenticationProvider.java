@@ -1,6 +1,7 @@
 package software.netcore.radman.security.fallback;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import java.util.Objects;
 /**
  * @since v. 1.0.0
  */
+@Slf4j
 @RequiredArgsConstructor
 public class FallbackAuthenticationProvider implements AuthenticationProvider {
 
@@ -22,14 +24,19 @@ public class FallbackAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(authentication.getPrincipal()));
-        if (Objects.nonNull(userDetails)) {
+        log.debug("Authenticating user = '{}', password length = '{}' character(s)",
+                authentication.getPrincipal(), String.valueOf(authentication.getCredentials()).length());
+        try {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(authentication.getPrincipal()));
             if (Objects.equals(userDetails.getUsername(), authentication.getPrincipal())
                     && Objects.equals(userDetails.getPassword(), authentication.getCredentials())) {
+                log.debug("User '{}' authenticated successfully", authentication.getPrincipal());
                 return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(),
                         userDetails.getAuthorities());
             }
+        } catch (UsernameNotFoundException ignored) {
         }
+        log.debug("Authentication failed. User '{}' not found", authentication.getPrincipal());
         throw new UsernameNotFoundException(Constants.AUTHENTICATION_FAILURE_MESSAGE);
     }
 

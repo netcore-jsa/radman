@@ -53,7 +53,7 @@ public class SecurityService {
     }
 
     private String generatePassword() {
-        return "P" + RandomStringUtils.randomAlphabetic(6, 10);
+        return "P" + RandomStringUtils.randomAlphabetic(8, 10);
     }
 
 }

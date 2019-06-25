@@ -101,7 +101,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .contextSource()
                         .url(ldapProperties().getUrls() + ldapProperties().getBaseDn())
                     .and()
-                        .ldapAuthoritiesPopulator(ldapAuthoritiesPopulator());
+                        .ldapAuthoritiesPopulator(ldapAuthoritiesPopulator())
+                        .rolePrefix("");
             //@formatter:on
         }
     }

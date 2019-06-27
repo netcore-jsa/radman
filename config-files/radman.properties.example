@@ -27,8 +27,10 @@ database.radman.liquibase.check-change-log-location=true
 # ldap
 ldap.enabled=false
 ldap.urls=ldap://[server-address-here]:389/
-ldap.base-dn=[base-search-dn-here]
-ldap.user-dn-pattern=uid={0}
+ldap.managerDn=[dn-for-manager-account-here]
+ldap.managerPassword=[password-for-manager-account-here]
+ldap.search-base-dn=[base-search-dn-here]
+ldap.user-search-filter=(uid={0})
 
 # logging
 logging.file=/var/log/radman

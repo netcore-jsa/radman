@@ -1,5 +1,6 @@
 package software.netcore.radman.ui.view;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -32,5 +33,4 @@ public class LoginView extends PolymerTemplate<TemplateModel> implements BeforeE
             messageLabel.getClassList().add("visible");
         }
     }
-
 }

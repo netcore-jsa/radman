@@ -48,16 +48,15 @@
 
         </style>
         <div class="container">
-            <iron-a11y-keys target="form" keys="enter" on-keys-pressed="login"></iron-a11y-keys>
+<!--            on-keys-pressed="login"-->
+<!--            <iron-a11y-keys target="form" keys="enter" on-keys-pressed="login"></iron-a11y-keys>-->
             <iron-form class="login" id="form" allow-redirect>
-                <form method="post" action="login">
+                <form method="post" action="login" on-keypress="onKeyPressed">
                     <vaadin-vertical-layout>
                         <h1>RadMan</h1>
                         <vaadin-label id="authenticationMessage">Incorrect username or password</vaadin-label>
-                        <vaadin-text-field id="username" name="username" on-value-changed="onValueChange" autofocus
-                                           required="true"></vaadin-text-field>
-                        <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"
-                                               required></vaadin-password-field>
+                        <vaadin-text-field id="username" name="username" on-value-changed="onValueChange" autofocus></vaadin-text-field>
+                        <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"></vaadin-password-field>
                         <vaadin-button on-tap="login" theme="primary">
                             Login
                         </vaadin-button>
@@ -68,9 +67,16 @@
     </template>
 
     <script>
+
         class LoginView extends Polymer.GestureEventListeners(Polymer.Element) {
             static get is() {
                 return 'login-view';
+            }
+
+            onKeyPressed(event) {
+                if(event.keyCode === 13) {
+                    this.login();
+                }
             }
 
             login() {

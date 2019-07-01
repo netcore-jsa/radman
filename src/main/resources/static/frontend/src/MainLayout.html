@@ -32,6 +32,7 @@
                 top: 0;
                 width: 100%;
                 z-index: 100;
+                color: #e6e6e6;
                 background: #24292e;
             }
 
@@ -44,7 +45,6 @@
             #page-nav ul {
                 margin: 0;
                 padding: 0;
-                color: #e6e6e6;
                 line-height: 3em;
                 list-style-type: none;
                 background-color: #24292e;
@@ -98,7 +98,12 @@
             }
 
             .logout {
+                margin-top: 0;
                 color: #e6e6e6;
+            }
+
+            .account-nav > div {
+                padding: 0 10px;
             }
 
             /* [ON SMALL SCREENS] */
@@ -145,12 +150,17 @@
 
         <div class="main-layout">
             <nav id="page-nav">
-                <div class="account-nav">
-                    <vaadin-button class="logout" theme="tertiary" on-click="logout">
-                        <iron-icon icon="vaadin:sign-out" slot="prefix"></iron-icon>
-                        Logout
-                    </vaadin-button>
-                </div>
+                <vaadin-horizontal-layout class="account-nav">
+                    <div>
+                        <vaadin-label>[[version]]</vaadin-label>
+                    </div>
+                    <div>
+                        <vaadin-button class="logout" theme="tertiary" on-click="logout">
+                            <iron-icon icon="vaadin:sign-out" slot="prefix"></iron-icon>
+                            Logout
+                        </vaadin-button>
+                    </div>
+                </vaadin-horizontal-layout>
                 <label for="hamburger">&#9776;</label>
                 <input type="checkbox" id="hamburger"/>
                 <ul id="page-nav-links"></ul>

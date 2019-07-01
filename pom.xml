@@ -165,6 +165,13 @@
                     <excludeDevtools>true</excludeDevtools>
                     <finalName>${project.artifactId}.product</finalName>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

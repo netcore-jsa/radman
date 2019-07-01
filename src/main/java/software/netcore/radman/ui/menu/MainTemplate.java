@@ -17,6 +17,7 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.templatemodel.TemplateModel;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
 import software.netcore.radman.ui.view.*;
 
@@ -30,14 +31,22 @@ import java.util.Objects;
 @HtmlImport("src/MainLayout.html")
 @BodySize(height = "100vh", width = "100vw")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-public class MainTemplate extends PolymerTemplate<TemplateModel> implements RouterLayout {
+public class MainTemplate extends PolymerTemplate<MainTemplate.MenuTemplateModel> implements RouterLayout {
 
     private final static String SELECTED_CLASS_NAME = "selected";
+
+    public interface MenuTemplateModel extends TemplateModel {
+
+        void setVersion(String version);
+
+    }
 
     @Id("page-nav-links")
     private Element linksContainer;
 
-    public MainTemplate() {
+    public MainTemplate(BuildProperties buildProperties) {
+        getModel().setVersion(buildProperties.getVersion());
+
         addCategoryName("RadMan");
         addNavigation(UsersView.class, "Users");
         addNavigation(UserGroupsView.class, "User groups");

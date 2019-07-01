@@ -1,7 +1,6 @@
 package software.netcore.radman.ui.view;
 
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -42,7 +41,12 @@ public class AccountingView extends VerticalLayout {
         setHeightFull();
         setSpacing(false);
 
-        Grid<AccountingDto> grid = new Grid<>(AccountingDto.class, true);
+        Grid<AccountingDto> grid = new Grid<>(AccountingDto.class, false);
+        grid.addColumns("username", "callingStationId", "nasIpAddress", "serviceType", "acctStartTime",
+                "acctStopTime", "acctTerminateCause", "framedIpAddress", "framedProtocol");
+        grid.addColumns("acctAuthentic", "acctInputOctets", "acctInterval", "acctOutputOctets",
+                "acctSessionId", "acctSessionTime", "acctUniqueId", "acctUpdateTime", "calledStationId",
+                "connectInfoStart", "connectInfoStop", "nasPortId", "nasPortType", "radAcctId", "realm");
         DataProvider<AccountingDto, Object> dataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> accountingService.pageAccountingRecords(filter, pageable),
                 value -> accountingService.countAccountingRecords(filter))

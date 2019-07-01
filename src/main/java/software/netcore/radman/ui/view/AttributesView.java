@@ -294,6 +294,13 @@ public class AttributesView extends VerticalLayout {
 
     private abstract static class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
 
+        private static final String SENSITIVE_DATA_WARNING_MESSAGE = "" +
+                "WARNING: " +
+                "Creating an attribute as \"Sensitive\" - " +
+                "this can not be changed later. " +
+                "If you want to see the attribute value, " +
+                "you will have to delete and re-create this attribute.";
+
         final AttributeService attributeService;
         private final Binder<T> binder;
 
@@ -311,6 +318,13 @@ public class AttributesView extends VerticalLayout {
             description.setWidthFull();
             Checkbox sensitive = new Checkbox("Sensitive");
             sensitive.setWidthFull();
+            Span sensitiveDataWarningMessage = new Span(SENSITIVE_DATA_WARNING_MESSAGE);
+            sensitiveDataWarningMessage.getElement().getStyle().set("font-weight", "500");
+            sensitiveDataWarningMessage.getElement().getStyle().set("word-break", "break-word");
+            Div sensitiveDataWarningContainer = new Div();
+            sensitiveDataWarningContainer.setWidthFull();
+            sensitiveDataWarningContainer.add(new Hr());
+            sensitiveDataWarningContainer.add(sensitiveDataWarningMessage);
 
             binder = new BeanValidationBinder<>(getClazz());
             binder.bind(name, "name");
@@ -332,6 +346,14 @@ public class AttributesView extends VerticalLayout {
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
                     }
+                }
+            });
+
+            sensitive.addValueChangeListener(event -> {
+                if (event.getValue()) {
+                    formLayout.addComponentAtIndex(4, sensitiveDataWarningContainer);
+                } else {
+                    formLayout.remove(sensitiveDataWarningContainer);
                 }
             });
 
@@ -437,12 +459,9 @@ public class AttributesView extends VerticalLayout {
             TextArea description = new TextArea("Description");
             description.setValueChangeMode(ValueChangeMode.EAGER);
             description.setWidthFull();
-            Checkbox sensitive = new Checkbox("Sensitive");
-            sensitive.setWidthFull();
 
             binder = new Binder<>(getClazz());
             binder.forField(description).bind(AttributeDto::getDescription, AttributeDto::setDescription);
-            binder.forField(sensitive).bind(AttributeDto::isSensitiveData, AttributeDto::setSensitiveData);
 
             Button cancelBtn = new Button("Cancel", event -> setOpened(false));
             Button saveBtn = new Button("Save", event -> {
@@ -468,7 +487,6 @@ public class AttributesView extends VerticalLayout {
             controlsLayout.add(saveBtn);
 
             formLayout.add(description);
-            formLayout.add(sensitive);
             formLayout.add(new Hr());
             formLayout.add(controlsLayout);
             formLayout.setMaxWidth("500px");
@@ -510,10 +528,6 @@ public class AttributesView extends VerticalLayout {
             return attributeService.updateAuthorizationAttribute(attributeDto);
         }
 
-        @Override
-        void edit(AuthorizationAttributeDto attributeDto) {
-            binder.setBean(attributeDto);
-        }
     }
 
     private static class AuthenticationAttributeEditDialog extends AttributeEditDialog<AuthenticationAttributeDto> {

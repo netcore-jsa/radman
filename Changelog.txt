@@ -2,9 +2,10 @@
 Features:
   Changed DB connection handling to automatically close idle DB sessions and reconnect them when needed
   Added table names into "Data from Radius DB" label on all Radius views (#15)
+  Attributes "Sensitive" are not reversible (#23)
 
 Tickets closed by this release:
-  #15
+  #15, #23
 
 
 

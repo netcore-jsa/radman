@@ -49,15 +49,15 @@
 
         </style>
         <div class="container">
-<!--            on-keys-pressed="login"-->
-<!--            <iron-a11y-keys target="form" keys="enter" on-keys-pressed="login"></iron-a11y-keys>-->
             <iron-form class="login" id="form" allow-redirect>
-                <form method="post" action="login" on-keypress="onKeyPressed">
+                <form method="post" action="login">
                     <vaadin-vertical-layout>
                         <h1>RadMan</h1>
                         <vaadin-label id="authenticationMessage">Incorrect username or password</vaadin-label>
-                        <vaadin-text-field id="username" name="username" on-value-changed="onValueChange" autofocus></vaadin-text-field>
-                        <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"></vaadin-password-field>
+                        <vaadin-text-field id="username" name="username" on-value-changed="onValueChange"
+                                           on-keypress="onKeyPressed" autofocus></vaadin-text-field>
+                        <vaadin-password-field id="password" name="password" on-value-changed="onValueChange"
+                                               on-keypress="onKeyPressed"></vaadin-password-field>
                         <vaadin-button on-tap="login" theme="primary">
                             Login
                         </vaadin-button>
@@ -75,7 +75,8 @@
             }
 
             onKeyPressed(event) {
-                if(event.keyCode === 13) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
                     this.login();
                 }
             }

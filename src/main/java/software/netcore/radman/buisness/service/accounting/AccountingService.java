@@ -8,13 +8,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+import software.netcore.radman.buisness.exception.NotFoundException;
 import software.netcore.radman.buisness.service.accounting.dto.AccountingDto;
 import software.netcore.radman.data.radius.entity.QRadAcct;
 import software.netcore.radman.data.radius.entity.RadAcct;
 import software.netcore.radman.data.radius.repo.RadAcctRepo;
 import software.netcore.radman.ui.support.Filter;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +28,16 @@ public class AccountingService {
 
     private final RadAcctRepo radAcctRepo;
     private final ConversionService conversionService;
+
+    public AccountingDto setAcctStopTime(AccountingDto accountingDto, Date acctStopTime) throws NotFoundException {
+        Optional<RadAcct> optional = radAcctRepo.findById(accountingDto.getRadAcctId());
+        if (!optional.isPresent()) {
+            throw new NotFoundException("Accounting record not found");
+        }
+        RadAcct radAcct = optional.get();
+        radAcct.setAcctStopTime(acctStopTime);
+        return conversionService.convert(radAcctRepo.save(radAcct), AccountingDto.class);
+    }
 
     public long countAccountingRecords(Filter filter) {
         return radAcctRepo.count(buildAccountingSearchPredicate(filter));

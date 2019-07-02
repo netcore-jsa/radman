@@ -1,5 +1,6 @@
 package software.netcore.radman.buisness.service.accounting.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(of = "radAcctId")
 public class AccountingDto {
 
     private Long radAcctId;

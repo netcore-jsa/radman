@@ -35,7 +35,16 @@ public class AccountingService {
             throw new NotFoundException("Accounting record not found");
         }
         RadAcct radAcct = optional.get();
+
+        if (acctStopTime.toInstant().getEpochSecond() >= radAcct.getAcctStartTime().toInstant().getEpochSecond()) {
+            int acctSessionTime = (int) (acctStopTime.toInstant().getEpochSecond() - radAcct.getAcctStartTime().toInstant().getEpochSecond());
+            radAcct.setAcctSessionTime(acctSessionTime);
+        } else {
+            radAcct.setAcctSessionTime(0);
+        }
+
         radAcct.setAcctStopTime(acctStopTime);
+        radAcct.setAcctUpdateTime(acctStopTime);
         return conversionService.convert(radAcctRepo.save(radAcct), AccountingDto.class);
     }
 

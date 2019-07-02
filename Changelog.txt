@@ -3,12 +3,16 @@ Features:
   Changed DB connection handling to automatically close idle DB sessions and reconnect them when needed
   Added table names into "Data from Radius DB" label on all Radius views (#15)
   Attributes "Sensitive" are not reversible (#23)
+  Login screen confirmation shortcut by enter key when focused on username or password field(#22)
+  Current RadMan version displayed left from the 'Logout' button in the navigation bar(#17)
+  Accounting view's table columns reordered(#12)
 
 Fixes:
   Redirect from / to /login does not ignore HTTP protocol type anymore(#21)
+  Fixed 'Incorrect username or password' warning message overflowing input fields when it should be hidden(#20)
 
 Tickets closed by this release:
-  #15,#21,#23
+  #12,#15,#17,#20,#21,#22,#23
 
 
 

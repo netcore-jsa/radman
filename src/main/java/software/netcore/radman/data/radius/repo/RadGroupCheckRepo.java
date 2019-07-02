@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * @since v. 1.0.0
  */
-public interface RadGroupCheckRepo extends RadiusRepository<RadGroupCheck> {
+public interface RadGroupCheckRepo extends RadiusRepository<RadGroupCheck, Integer> {
 
     List<RadGroupCheck> findAll();
 

@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @since v. 1.0.0
  */
-public interface RadCheckRepo extends RadiusRepository<RadCheck> {
+public interface RadCheckRepo extends RadiusRepository<RadCheck, Integer> {
 
     List<RadCheck> findAll();
 

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @since v. 1.0.0
  */
-public interface RadHuntGroupRepo extends RadiusRepository<RadHuntGroup> {
+public interface RadHuntGroupRepo extends RadiusRepository<RadHuntGroup, Integer> {
 
     boolean existsByNasIpAddress(String ipAddress);
 

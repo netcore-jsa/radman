@@ -10,5 +10,5 @@ import software.netcore.radman.data.spec.BaseRepository;
  */
 @NoRepositoryBean
 @Transactional(transactionManager = "txRadius")
-public interface RadiusRepository<T> extends BaseRepository<T, Integer> {
+public interface RadiusRepository<T, ID> extends BaseRepository<T, ID> {
 }

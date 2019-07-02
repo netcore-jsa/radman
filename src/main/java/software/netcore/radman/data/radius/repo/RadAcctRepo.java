@@ -6,5 +6,5 @@ import software.netcore.radman.data.radius.spec.RadiusRepository;
 /**
  * @since v. 1.0.0
  */
-public interface RadAcctRepo extends RadiusRepository<RadAcct> {
+public interface RadAcctRepo extends RadiusRepository<RadAcct, Long> {
 }

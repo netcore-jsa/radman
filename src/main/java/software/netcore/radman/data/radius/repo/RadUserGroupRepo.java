@@ -6,7 +6,7 @@ import software.netcore.radman.data.radius.spec.RadiusRepository;
 /**
  * @since v. 1.0.0
  */
-public interface RadUserGroupRepo extends RadiusRepository<RadUserGroup> {
+public interface RadUserGroupRepo extends RadiusRepository<RadUserGroup, Integer> {
 
     void deleteAllByGroupName(String groupName);
 

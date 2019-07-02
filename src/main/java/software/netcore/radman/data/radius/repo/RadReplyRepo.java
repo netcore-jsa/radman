@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @since v. 1.0.0
  */
-public interface RadReplyRepo extends RadiusRepository<RadReply> {
+public interface RadReplyRepo extends RadiusRepository<RadReply, Integer> {
 
     List<RadReply> findAll();
 

@@ -4,8 +4,11 @@ Features:
   Added table names into "Data from Radius DB" label on all Radius views (#15)
   Attributes "Sensitive" are not reversible (#23)
 
+Fixes:
+  Redirect from / to /login does not ignore HTTP protocol type anymore(#21)
+
 Tickets closed by this release:
-  #15, #23
+  #15,#21,#23
 
 
 

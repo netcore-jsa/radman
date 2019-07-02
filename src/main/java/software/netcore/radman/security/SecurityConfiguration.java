@@ -2,9 +2,11 @@ package software.netcore.radman.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -29,12 +31,11 @@ import software.netcore.radman.security.local.LocalAuthenticationProvider;
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private static final String LOGIN_PROCESSING_URL = "/login";
     private static final String LOGIN_FAILURE_URL = "/login?error";
     private static final String LOGIN_URL = "/login";
     private static final String LOGOUT_SUCCESS_URL = "/login";
 
-    private final SystemUserRepo systemUserService;
+    private final SystemUserRepo systemUserRepo;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -59,9 +60,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 					.formLogin()
 					.loginPage(LOGIN_URL)
 					.permitAll()
-					.loginProcessingUrl(LOGIN_PROCESSING_URL)
+                    .successHandler(loginSuccessHandler())
 					.failureUrl(LOGIN_FAILURE_URL)
-				    .defaultSuccessUrl("/")
 				// Configure logout
 				.and()
 					.logout()
@@ -111,8 +111,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler(systemUserRepo);
+    }
+
+    @Bean
     AuthenticationProvider localAuthenticationProvider() {
-        return new LocalAuthenticationProvider(systemUserService, passwordEncoder());
+        return new LocalAuthenticationProvider(systemUserRepo, passwordEncoder());
     }
 
     @Bean
@@ -127,7 +132,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     LdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
-        return new LocalLdapAuthoritiesPopulator(systemUserService);
+        return new LocalLdapAuthoritiesPopulator(systemUserRepo);
     }
 
     @Bean

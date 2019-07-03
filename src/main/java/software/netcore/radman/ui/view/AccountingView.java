@@ -27,7 +27,7 @@ import software.netcore.radman.buisness.service.accounting.AccountingService;
 import software.netcore.radman.buisness.service.accounting.dto.AccountingDto;
 import software.netcore.radman.buisness.service.accounting.dto.AccountingFilter;
 import software.netcore.radman.ui.UpdateListener;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ import java.util.TimeZone;
  */
 @Slf4j
 @PageTitle("RadMan: Accounting")
-@Route(value = "tutorial", layout = MainTemplate.class)
+@Route(value = "tutorial", layout = MenuTemplate.class)
 public class AccountingView extends VerticalLayout {
 
     private final AccountingFilter filter = new AccountingFilter();

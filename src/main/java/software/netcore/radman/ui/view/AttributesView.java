@@ -36,7 +36,7 @@ import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
 
@@ -48,7 +48,7 @@ import java.util.Optional;
  */
 @Slf4j
 @PageTitle("RadMan: Attributes")
-@Route(value = "attributes", layout = MainTemplate.class)
+@Route(value = "attributes", layout = MenuTemplate.class)
 public class AttributesView extends VerticalLayout {
 
     private final AttributeService attributeService;

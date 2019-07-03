@@ -34,7 +34,7 @@ import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.converter.DoubleToIntegerConverter;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
@@ -45,7 +45,7 @@ import java.util.Objects;
  */
 @Slf4j
 @PageTitle("RadMan: NAS")
-@Route(value = "", layout = MainTemplate.class)
+@Route(value = "", layout = MenuTemplate.class)
 public class NasView extends VerticalLayout {
 
     private final Filter filter = new Filter();

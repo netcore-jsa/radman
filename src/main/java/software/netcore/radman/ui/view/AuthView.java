@@ -49,7 +49,7 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.converter.AttributeDtoToNameConverter;
 import software.netcore.radman.ui.converter.RadiusGroupDtoToNameConverter;
 import software.netcore.radman.ui.converter.RadiusUserDtoToNameConverter;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
@@ -62,7 +62,7 @@ import java.util.Optional;
  */
 @Slf4j
 @PageTitle("RadMan: Auth (AA)")
-@Route(value = "auth", layout = MainTemplate.class)
+@Route(value = "auth", layout = MenuTemplate.class)
 public class AuthView extends VerticalLayout {
 
     private final AuthService authService;

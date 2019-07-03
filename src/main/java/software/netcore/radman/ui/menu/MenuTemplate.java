@@ -27,11 +27,11 @@ import java.util.Objects;
  * @since v. 1.0.0
  */
 @Push
-@Tag("main-layout")
-@HtmlImport("src/MainLayout.html")
+@Tag("menu-layout")
+@HtmlImport("src/MenuLayout.html")
 @BodySize(height = "100vh", width = "100vw")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-public class MainTemplate extends PolymerTemplate<MainTemplate.MenuTemplateModel> implements RouterLayout {
+public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel> implements RouterLayout {
 
     private final static String SELECTED_CLASS_NAME = "selected";
 
@@ -44,7 +44,7 @@ public class MainTemplate extends PolymerTemplate<MainTemplate.MenuTemplateModel
     @Id("page-nav-links")
     private Element linksContainer;
 
-    public MainTemplate(BuildProperties buildProperties) {
+    public MenuTemplate(BuildProperties buildProperties) {
         getModel().setVersion(buildProperties.getVersion());
 
         addCategoryName("RadMan");

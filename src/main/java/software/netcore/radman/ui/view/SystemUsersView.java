@@ -33,7 +33,7 @@ import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
@@ -48,7 +48,7 @@ import java.util.Objects;
  */
 @Slf4j
 @PageTitle("RadMan: System users")
-@Route(value = "system_users", layout = MainTemplate.class)
+@Route(value = "system_users", layout = MenuTemplate.class)
 public class SystemUsersView extends VerticalLayout {
 
     private final Filter filter = new Filter();

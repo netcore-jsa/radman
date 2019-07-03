@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/vaadin-button/vaadin-button.html">
 <link rel="import" href="../bower_components/vaadin-icons/vaadin-icons.html">
 
-<dom-module id="main-layout">
+<dom-module id="menu-layout">
     <template>
         <style>
             .main-layout {
@@ -174,12 +174,12 @@
     </template>
 
     <script>
-        class MainLayout extends Polymer.Element {
+        class MenuLayout extends Polymer.Element {
             static get is() {
-                return 'main-layout'
+                return 'menu-layout'
             }
         }
 
-        customElements.define(MainLayout.is, MainLayout);
+        customElements.define(MenuLayout.is, MenuLayout);
     </script>
 </dom-module>

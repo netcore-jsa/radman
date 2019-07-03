@@ -29,7 +29,7 @@ import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
 
@@ -41,7 +41,7 @@ import java.util.Optional;
  */
 @Slf4j
 @PageTitle("RadMan: NAS groups")
-@Route(value = "nas_groups", layout = MainTemplate.class)
+@Route(value = "nas_groups", layout = MenuTemplate.class)
 public class NasGroupsView extends VerticalLayout {
 
     private final Filter filter = new Filter();

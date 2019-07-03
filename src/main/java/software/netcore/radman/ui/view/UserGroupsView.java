@@ -32,7 +32,7 @@ import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.ConfirmationDialog;
-import software.netcore.radman.ui.menu.MainTemplate;
+import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
 
@@ -44,7 +44,7 @@ import java.util.Optional;
  */
 @Slf4j
 @PageTitle("RadMan: User groups")
-@Route(value = "user_groups", layout = MainTemplate.class)
+@Route(value = "user_groups", layout = MenuTemplate.class)
 public class UserGroupsView extends VerticalLayout {
 
     private final RadiusGroupFilter filter = new RadiusGroupFilter();

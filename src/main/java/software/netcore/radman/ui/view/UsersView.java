@@ -76,9 +76,9 @@ public class UsersView extends VerticalLayout {
         grid.setMinHeight("500px");
         grid.setHeight("100%");
 
-        UserCreationDialog creationDialog = new UserCreationDialog(userService,
+        UserCreationDialog creationDialog = new UserCreationDialog(
                 (source, bean) -> grid.getDataProvider().refreshAll());
-        UserEditDialog editDialog = new UserEditDialog(userService,
+        UserEditDialog editDialog = new UserEditDialog(
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
 
         Checkbox removeFromRadius = new Checkbox("Remove from Radius");
@@ -156,14 +156,11 @@ public class UsersView extends VerticalLayout {
         add(grid);
     }
 
-    static abstract class UserFormDialog extends Dialog {
+    private abstract class UserFormDialog extends Dialog {
 
-        final RadiusUserService service;
         final Binder<RadiusUserDto> binder;
 
-        UserFormDialog(RadiusUserService userService) {
-            this.service = userService;
-
+        UserFormDialog() {
             TextField username = new TextField("Username");
             username.setValueChangeMode(ValueChangeMode.EAGER);
             TextField description = new TextField("Description");
@@ -191,13 +188,11 @@ public class UsersView extends VerticalLayout {
 
     }
 
-    static class UserCreationDialog extends UserFormDialog {
+    private class UserCreationDialog extends UserFormDialog {
 
         private final CreationListener<RadiusUserDto> creationListener;
 
-        UserCreationDialog(RadiusUserService userService,
-                           CreationListener<RadiusUserDto> creationListener) {
-            super(userService);
+        UserCreationDialog(CreationListener<RadiusUserDto> creationListener) {
             this.creationListener = creationListener;
         }
 
@@ -212,7 +207,7 @@ public class UsersView extends VerticalLayout {
                 RadiusUserDto dto = new RadiusUserDto();
                 if (binder.writeBeanIfValid(dto)) {
                     try {
-                        dto = service.createRadiusUser(dto);
+                        dto = userService.createRadiusUser(dto);
                         creationListener.onCreated(this, dto);
                         setOpened(false);
                     } catch (Exception e) {
@@ -231,13 +226,11 @@ public class UsersView extends VerticalLayout {
 
     }
 
-    static class UserEditDialog extends UserFormDialog {
+    private class UserEditDialog extends UserFormDialog {
 
         private final UpdateListener<RadiusUserDto> updateListener;
 
-        UserEditDialog(RadiusUserService userService,
-                       UpdateListener<RadiusUserDto> updateListener) {
-            super(userService);
+        UserEditDialog(UpdateListener<RadiusUserDto> updateListener) {
             this.updateListener = updateListener;
         }
 
@@ -253,7 +246,7 @@ public class UsersView extends VerticalLayout {
                 if (validationStatus.isOk()) {
                     try {
                         RadiusUserDto dto = binder.getBean();
-                        dto = service.updateRadiusUser(dto);
+                        dto = userService.updateRadiusUser(dto);
                         updateListener.onUpdated(this, dto);
                         setOpened(false);
                     } catch (Exception e) {

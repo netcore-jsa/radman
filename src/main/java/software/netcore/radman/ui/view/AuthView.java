@@ -83,19 +83,17 @@ public class AuthView extends VerticalLayout {
     private void buildView() {
         setSpacing(false);
         add(new H4("Data from Radius DB - \"radcheck\", \"radgroupcheck\", \"radreply\", \"radgroupreply\" tables"));
-        add(new AuthenticationGrid(authService, userService, attributeService, securityService));
-        add(new AuthorizationGrid(authService, userService, attributeService, securityService));
+        add(new AuthenticationGrid());
+        add(new AuthorizationGrid());
     }
 
-    private abstract static class AuthGrid<T extends AuthsDto, U extends AuthDto> extends Div {
+    private abstract class AuthGrid<T extends AuthsDto, U extends AuthDto> extends Div {
 
         private final Filter filter = new Filter();
         private final ConfirmationDialog deleteDialog;
-        final AuthService authService;
         final Grid<Map<String, String>> grid;
 
-        AuthGrid(AuthService authService, SecurityService securityService) {
-            this.authService = authService;
+        AuthGrid() {
             setWidth("100%");
 
             RoleDto role = securityService.getLoggedUserRole();
@@ -174,15 +172,12 @@ public class AuthView extends VerticalLayout {
 
     }
 
-    private static class AuthenticationGrid extends AuthGrid<AuthenticationsDto, AuthenticationDto> {
+    private class AuthenticationGrid extends AuthGrid<AuthenticationsDto, AuthenticationDto> {
 
         private final AuthenticationAttributeAssigmentDialog assigmentDialog;
 
-        AuthenticationGrid(AuthService authService, RadiusUserService userService,
-                           AttributeService attributeService, SecurityService securityService) {
-            super(authService, securityService);
-            assigmentDialog = new AuthenticationAttributeAssigmentDialog(authService, userService,
-                    attributeService, (source, bean) -> refreshGrid());
+        AuthenticationGrid() {
+            assigmentDialog = new AuthenticationAttributeAssigmentDialog((source, bean) -> refreshGrid());
         }
 
         @Override
@@ -207,15 +202,12 @@ public class AuthView extends VerticalLayout {
 
     }
 
-    private static class AuthorizationGrid extends AuthGrid<AuthorizationsDto, AuthorizationDto> {
+    private class AuthorizationGrid extends AuthGrid<AuthorizationsDto, AuthorizationDto> {
 
         private final AuthorizationAttributeAssigmentDialog assigmentDialog;
 
-        AuthorizationGrid(AuthService authService, RadiusUserService userService,
-                          AttributeService attributeService, SecurityService securityService) {
-            super(authService, securityService);
-            assigmentDialog = new AuthorizationAttributeAssigmentDialog(authService, userService,
-                    attributeService, (source, bean) -> refreshGrid());
+        AuthorizationGrid() {
+            assigmentDialog = new AuthorizationAttributeAssigmentDialog((source, bean) -> refreshGrid());
         }
 
         @Override
@@ -240,11 +232,8 @@ public class AuthView extends VerticalLayout {
 
     }
 
-    private static abstract class AttributeAssignmentDialog<T extends AuthDto, U extends AttributeDto> extends Dialog {
+    private abstract class AttributeAssignmentDialog<T extends AuthDto, U extends AttributeDto> extends Dialog {
 
-        final AuthService authService;
-        final RadiusUserService userService;
-        final AttributeService attributeService;
         private final CreationListener<Void> creationListener;
 
         Binder<T> binder;
@@ -252,11 +241,7 @@ public class AuthView extends VerticalLayout {
         private ComboBox<RadiusGroupDto> groupName;
         private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> value;
 
-        AttributeAssignmentDialog(AuthService authService, RadiusUserService userService,
-                                  AttributeService attributeService, CreationListener<Void> creationListener) {
-            this.authService = authService;
-            this.userService = userService;
-            this.attributeService = attributeService;
+        AttributeAssignmentDialog(CreationListener<Void> creationListener) {
             this.creationListener = creationListener;
         }
 
@@ -417,13 +402,11 @@ public class AuthView extends VerticalLayout {
 
     }
 
-    private static class AuthenticationAttributeAssigmentDialog
+    private class AuthenticationAttributeAssigmentDialog
             extends AttributeAssignmentDialog<AuthenticationDto, AuthenticationAttributeDto> {
 
-        AuthenticationAttributeAssigmentDialog(AuthService authService, RadiusUserService userService,
-                                               AttributeService attributeService,
-                                               CreationListener<Void> creationListener) {
-            super(authService, userService, attributeService, creationListener);
+        AuthenticationAttributeAssigmentDialog(CreationListener<Void> creationListener) {
+            super(creationListener);
         }
 
         @Override
@@ -458,13 +441,11 @@ public class AuthView extends VerticalLayout {
 
     }
 
-    private static class AuthorizationAttributeAssigmentDialog
+    private class AuthorizationAttributeAssigmentDialog
             extends AttributeAssignmentDialog<AuthorizationDto, AuthorizationAttributeDto> {
 
-        AuthorizationAttributeAssigmentDialog(AuthService authService, RadiusUserService userService,
-                                              AttributeService attributeService,
-                                              CreationListener<Void> creationListener) {
-            super(authService, userService, attributeService, creationListener);
+        AuthorizationAttributeAssigmentDialog(CreationListener<Void> creationListener) {
+            super(creationListener);
         }
 
         @Override

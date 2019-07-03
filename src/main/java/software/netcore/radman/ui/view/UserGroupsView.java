@@ -74,9 +74,9 @@ public class UserGroupsView extends VerticalLayout {
         grid.setMinHeight("500px");
         grid.setHeight("100%");
 
-        UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(service,
+        UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(
                 (source, bean) -> grid.getDataProvider().refreshAll());
-        UserGroupEditDialog editDialog = new UserGroupEditDialog(service,
+        UserGroupEditDialog editDialog = new UserGroupEditDialog(
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
 
         Checkbox removeFromRadius = new Checkbox("Remove from Radius");
@@ -155,13 +155,11 @@ public class UserGroupsView extends VerticalLayout {
         add(grid);
     }
 
-    static abstract class UserGroupFormDialog extends Dialog {
+    private abstract class UserGroupFormDialog extends Dialog {
 
-        final RadiusUserService service;
         final Binder<RadiusGroupDto> binder;
 
-        UserGroupFormDialog(RadiusUserService service) {
-            this.service = service;
+        UserGroupFormDialog() {
 
             TextField username = new TextField("Name");
             username.setValueChangeMode(ValueChangeMode.EAGER);
@@ -190,13 +188,11 @@ public class UserGroupsView extends VerticalLayout {
 
     }
 
-    static class UserGroupCreationDialog extends UserGroupFormDialog {
+    private class UserGroupCreationDialog extends UserGroupFormDialog {
 
         private final CreationListener<RadiusGroupDto> creationListener;
 
-        UserGroupCreationDialog(RadiusUserService service,
-                                CreationListener<RadiusGroupDto> creationListener) {
-            super(service);
+        UserGroupCreationDialog(CreationListener<RadiusGroupDto> creationListener) {
             this.creationListener = creationListener;
         }
 
@@ -230,13 +226,11 @@ public class UserGroupsView extends VerticalLayout {
 
     }
 
-    static class UserGroupEditDialog extends UserGroupFormDialog {
+    private class UserGroupEditDialog extends UserGroupFormDialog {
 
         private final UpdateListener<RadiusGroupDto> updateListener;
 
-        UserGroupEditDialog(RadiusUserService service,
-                            UpdateListener<RadiusGroupDto> updateListener) {
-            super(service);
+        UserGroupEditDialog(UpdateListener<RadiusGroupDto> updateListener) {
             this.updateListener = updateListener;
         }
 

@@ -64,19 +64,17 @@ public class AttributesView extends VerticalLayout {
     private void buildView() {
         setSpacing(false);
         add(new H4("Data from RadMan DB"));
-        add(new AuthenticationAttributeGrid(attributeService, securityService));
-        add(new AuthorizationAttributeGrid(attributeService, securityService));
+        add(new AuthenticationAttributeGrid());
+        add(new AuthorizationAttributeGrid());
     }
 
-    private abstract static class AttributeGrid<T extends AttributeDto> extends Div {
+    private abstract class AttributeGrid<T extends AttributeDto> extends Div {
 
         private final AttributeFilter filter = new AttributeFilter(true, true);
         private final ConfirmationDialog deleteDialog;
-        final AttributeService service;
         final Grid<T> grid;
 
-        AttributeGrid(AttributeService service, SecurityService securityService) {
-            this.service = service;
+        AttributeGrid() {
             setWidth("100%");
 
             RoleDto role = securityService.getLoggedUserRole();
@@ -180,13 +178,12 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthenticationAttributeGrid extends AttributeGrid<AuthenticationAttributeDto> {
+    private class AuthenticationAttributeGrid extends AttributeGrid<AuthenticationAttributeDto> {
 
         private final AttributeCreationDialog<AuthenticationAttributeDto> creationDialog;
         private final AttributeEditDialog<AuthenticationAttributeDto> editDialog;
 
-        AuthenticationAttributeGrid(AttributeService attributeService, SecurityService securityService) {
-            super(attributeService, securityService);
+        AuthenticationAttributeGrid() {
             creationDialog = new AuthenticationAttributeCreationDialog(attributeService,
                     (source, bean) -> grid.getDataProvider().refreshAll());
             editDialog = new AuthenticationAttributeEditDialog(attributeService,
@@ -205,22 +202,22 @@ public class AttributesView extends VerticalLayout {
 
         @Override
         Page<AuthenticationAttributeDto> pageAttributes(AttributeFilter filter, Pageable pageable) {
-            return service.pageAuthenticationAttributeRecords(filter, pageable);
+            return attributeService.pageAuthenticationAttributeRecords(filter, pageable);
         }
 
         @Override
         long countAttributes(AttributeFilter filter) {
-            return service.countAuthenticationAttributeRecords(filter);
+            return attributeService.countAuthenticationAttributeRecords(filter);
         }
 
         @Override
         void deleteAttribute(AuthenticationAttributeDto attributeDto, boolean removeFromRadius) {
-            service.deleteAuthenticationAttribute(attributeDto, removeFromRadius);
+            attributeService.deleteAuthenticationAttribute(attributeDto, removeFromRadius);
         }
 
         @Override
         void loadAttributesFromRadius() {
-            LoadingResult result = service.loadAuthenticationAttributesFromRadiusDB();
+            LoadingResult result = attributeService.loadAuthenticationAttributesFromRadiusDB();
             LoadingResultNotification.show("Authentication attributes load result", result);
         }
 
@@ -236,13 +233,12 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthorizationAttributeGrid extends AttributeGrid<AuthorizationAttributeDto> {
+    private class AuthorizationAttributeGrid extends AttributeGrid<AuthorizationAttributeDto> {
 
         private final AttributeCreationDialog<AuthorizationAttributeDto> creationDialog;
         private final AttributeEditDialog<AuthorizationAttributeDto> editDialog;
 
-        AuthorizationAttributeGrid(AttributeService attributeService, SecurityService securityService) {
-            super(attributeService, securityService);
+        AuthorizationAttributeGrid() {
             creationDialog = new AuthorizationAttributeCreationDialog(attributeService,
                     (source, bean) -> grid.getDataProvider().refreshAll());
             editDialog = new AuthorizationAttributeEditDialog(attributeService,
@@ -261,22 +257,22 @@ public class AttributesView extends VerticalLayout {
 
         @Override
         Page<AuthorizationAttributeDto> pageAttributes(AttributeFilter filter, Pageable pageable) {
-            return service.pageAuthorizationAttributeRecords(filter, pageable);
+            return attributeService.pageAuthorizationAttributeRecords(filter, pageable);
         }
 
         @Override
         long countAttributes(AttributeFilter filter) {
-            return service.countAuthorizationAttributeRecords(filter);
+            return attributeService.countAuthorizationAttributeRecords(filter);
         }
 
         @Override
         void deleteAttribute(AuthorizationAttributeDto attributeDto, boolean removeFromRadius) {
-            service.deleteAuthorizationAttribute(attributeDto, removeFromRadius);
+            attributeService.deleteAuthorizationAttribute(attributeDto, removeFromRadius);
         }
 
         @Override
         void loadAttributesFromRadius() {
-            LoadingResult result = service.loadAuthorizationAttributesFromRadiusDB();
+            LoadingResult result = attributeService.loadAuthorizationAttributesFromRadiusDB();
             LoadingResultNotification.show("Authorization attributes load result", result);
         }
 
@@ -292,7 +288,7 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private abstract static class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
+    private abstract class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
 
         private static final String SENSITIVE_DATA_WARNING_MESSAGE = "" +
                 "WARNING: " +
@@ -387,7 +383,7 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthenticationAttributeCreationDialog extends AttributeCreationDialog<AuthenticationAttributeDto> {
+    private class AuthenticationAttributeCreationDialog extends AttributeCreationDialog<AuthenticationAttributeDto> {
 
         AuthenticationAttributeCreationDialog(AttributeService attributeService,
                                               CreationListener<AuthenticationAttributeDto> creationListener) {
@@ -416,7 +412,7 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthorizationAttributeCreationDialog extends AttributeCreationDialog<AuthorizationAttributeDto> {
+    private class AuthorizationAttributeCreationDialog extends AttributeCreationDialog<AuthorizationAttributeDto> {
 
         AuthorizationAttributeCreationDialog(AttributeService attributeService,
                                              CreationListener<AuthorizationAttributeDto> creationListener) {
@@ -446,7 +442,7 @@ public class AttributesView extends VerticalLayout {
     }
 
     @SuppressWarnings("Duplicates")
-    private abstract static class AttributeEditDialog<T extends AttributeDto> extends Dialog {
+    private abstract class AttributeEditDialog<T extends AttributeDto> extends Dialog {
 
         final AttributeService attributeService;
         final Binder<T> binder;
@@ -506,7 +502,7 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthorizationAttributeEditDialog extends AttributeEditDialog<AuthorizationAttributeDto> {
+    private class AuthorizationAttributeEditDialog extends AttributeEditDialog<AuthorizationAttributeDto> {
 
         AuthorizationAttributeEditDialog(AttributeService attributeService,
                                          UpdateListener<AuthorizationAttributeDto> updateListener) {
@@ -530,7 +526,7 @@ public class AttributesView extends VerticalLayout {
 
     }
 
-    private static class AuthenticationAttributeEditDialog extends AttributeEditDialog<AuthenticationAttributeDto> {
+    private class AuthenticationAttributeEditDialog extends AttributeEditDialog<AuthenticationAttributeDto> {
 
         AuthenticationAttributeEditDialog(AttributeService attributeService,
                                           UpdateListener<AuthenticationAttributeDto> updateListener) {

@@ -95,9 +95,9 @@ public class SystemUsersView extends VerticalLayout {
             grid.setMinHeight("500px");
             grid.setHeight("100%");
 
-            SystemUserCreationDialog createDialog = new SystemUserCreationDialog(service,
+            SystemUserCreationDialog createDialog = new SystemUserCreationDialog(
                     (source, bean) -> grid.getDataProvider().refreshAll());
-            SystemUserEditDialog editDialog = new SystemUserEditDialog(service,
+            SystemUserEditDialog editDialog = new SystemUserEditDialog(
                     (source, bean) -> grid.getDataProvider().refreshItem(bean));
             ConfirmationDialog deleteDialog = new ConfirmationDialog();
             deleteDialog.setTitle("Delete system user");
@@ -153,12 +153,11 @@ public class SystemUsersView extends VerticalLayout {
         }
     }
 
-    static class SystemUserCreationDialog extends Dialog {
+    private class SystemUserCreationDialog extends Dialog {
 
         private final Binder<SystemUserDto> binder;
 
-        SystemUserCreationDialog(SystemUserService service,
-                                 CreationListener<SystemUserDto> creationListener) {
+        SystemUserCreationDialog(CreationListener<SystemUserDto> creationListener) {
             binder = new BeanValidationBinder<>(SystemUserDto.class);
 
             FormLayout formLayout = new FormLayout();
@@ -232,12 +231,11 @@ public class SystemUsersView extends VerticalLayout {
 
     }
 
-    static class SystemUserEditDialog extends Dialog {
+    private class SystemUserEditDialog extends Dialog {
 
         private final Binder<SystemUserDto> binder;
 
-        SystemUserEditDialog(SystemUserService service,
-                             UpdateListener<SystemUserDto> updateListener) {
+        SystemUserEditDialog(UpdateListener<SystemUserDto> updateListener) {
             FormLayout formLayout = new FormLayout();
             formLayout.add(new H3("Edit system user"));
             ComboBox<RoleDto> role = new ComboBox<>("Role", RoleDto.values());

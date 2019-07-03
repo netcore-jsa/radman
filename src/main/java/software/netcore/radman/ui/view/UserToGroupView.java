@@ -77,7 +77,7 @@ public class UserToGroupView extends VerticalLayout {
         grid.setHeight("100%");
 
         Button addUserToGroup = new Button("Add user to group", event -> {
-            AddUserToGroupDialog addDialog = new AddUserToGroupDialog(userService,
+            AddUserToGroupDialog addDialog = new AddUserToGroupDialog(
                     (source, bean) -> grid.getDataProvider().refreshAll());
             addDialog.startAdding();
         });
@@ -123,12 +123,11 @@ public class UserToGroupView extends VerticalLayout {
         add(grid);
     }
 
-    public static class AddUserToGroupDialog extends Dialog {
+    private class AddUserToGroupDialog extends Dialog {
 
         private final Binder<RadiusUserToGroupDto> binder;
 
-        AddUserToGroupDialog(RadiusUserService userService,
-                             UpdateListener<RadiusUserToGroupDto> updateListener) {
+        AddUserToGroupDialog(UpdateListener<RadiusUserToGroupDto> updateListener) {
             add(new H3("Add user to group"));
 
             ComboBox<RadiusUserDto> username = new ComboBox<>("Username");

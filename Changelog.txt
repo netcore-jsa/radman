@@ -13,9 +13,10 @@ Fixes:
   Fixed 'Incorrect username or password' warning message overflowing input fields when it should be hidden (#20)
   Fixed system user last login time not updated (#13)
   Fixed broken UI under Microsoft Edge browser (#24)
+  Fixed DB session disconnected after long inactivity period (#25)
 
 Tickets closed by this release:
-  #12,#13,#14,#15,#17,#20,#21,#22,#23,#24
+  #12,#13,#14,#15,#17,#20,#21,#22,#23,#24,#25
 
 
 

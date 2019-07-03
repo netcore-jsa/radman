@@ -25,9 +25,9 @@ import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import software.netcore.radman.buisness.exception.NotFoundException;
 import software.netcore.radman.buisness.service.accounting.AccountingService;
 import software.netcore.radman.buisness.service.accounting.dto.AccountingDto;
+import software.netcore.radman.buisness.service.accounting.dto.AccountingFilter;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.menu.MainTemplate;
-import software.netcore.radman.ui.support.Filter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -44,7 +44,7 @@ import java.util.TimeZone;
 @Route(value = "tutorial", layout = MainTemplate.class)
 public class AccountingView extends VerticalLayout {
 
-    private final Filter filter = new Filter();
+    private final AccountingFilter filter = new AccountingFilter();
     private final AccountingService accountingService;
 
     @Autowired
@@ -58,26 +58,31 @@ public class AccountingView extends VerticalLayout {
         setSpacing(false);
 
         Grid<AccountingDto> grid = new Grid<>(AccountingDto.class, false);
-
         grid.addColumns("username", "callingStationId", "nasIpAddress", "serviceType");
-
         grid.addColumn(new LocalDateTimeRenderer<>((ValueProvider<AccountingDto, LocalDateTime>)
-                accountingDto -> LocalDateTime.ofInstant(accountingDto.getAcctStartTime().toInstant(),
-                        TimeZone.getDefault().toZoneId()))).setSortProperty("acctStartTime").setHeader("Acct Start Time");
-
+                accountingDto -> {
+                    if (Objects.isNull(accountingDto.getAcctStartTime())) {
+                        return null;
+                    }
+                    return LocalDateTime.ofInstant(accountingDto.getAcctStartTime().toInstant(),
+                            TimeZone.getDefault().toZoneId());
+                })).setSortProperty("acctStartTime").setHeader("Acct Start Time");
         grid.addColumn(new LocalDateTimeRenderer<>((ValueProvider<AccountingDto, LocalDateTime>)
-                accountingDto -> LocalDateTime.ofInstant(accountingDto.getAcctStopTime().toInstant(),
-                        TimeZone.getDefault().toZoneId()))).setSortProperty("acctStopTime").setHeader("Acct Stop Time");
+                accountingDto -> {
+                    if (Objects.isNull(accountingDto.getAcctStopTime())) {
+                        return null;
+                    }
+                    return LocalDateTime.ofInstant(accountingDto.getAcctStopTime().toInstant(),
+                            TimeZone.getDefault().toZoneId());
+                })).setSortProperty("acctStopTime").setHeader("Acct Stop Time");
         grid.addColumns("acctTerminateCause", "framedIpAddress", "framedProtocol");
-
         grid.addColumns("acctAuthentic", "acctInputOctets", "acctInterval", "acctOutputOctets",
                 "acctSessionId");
-        
         grid.addColumn(accountingDto -> DurationFormatUtils.formatDurationHMS(accountingDto.getAcctSessionTime()))
                 .setSortProperty("acctSessionTime").setHeader("Acct Session Time");
-
         grid.addColumns("acctUniqueId", "acctUpdateTime", "calledStationId",
                 "connectInfoStart", "connectInfoStop", "nasPortId", "nasPortType", "radAcctId", "realm");
+
         DataProvider<AccountingDto, Object> dataProvider = new SpringDataProviderBuilder<>(
                 (pageable, o) -> accountingService.pageAccountingRecords(filter, pageable),
                 value -> accountingService.countAccountingRecords(filter))
@@ -107,12 +112,19 @@ public class AccountingView extends VerticalLayout {
         grid.asSingleSelect().addValueChangeListener(event
                 -> setAcctStopTimeButton.setEnabled(Objects.nonNull(event.getValue())));
 
+        Checkbox onlyActiveSessions = new Checkbox("Filter only active sessions");
+        onlyActiveSessions.addValueChangeListener(event -> {
+            filter.setSearchOnlyActiveSessions(event.getValue());
+            grid.getDataProvider().refreshAll();
+        });
+
         add(new H4("Data from Radius DB - \"radacct\" table"));
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         horizontalLayout.add(new H3("Accounting"));
-        horizontalLayout.add(search);
         horizontalLayout.add(setAcctStopTimeButton);
+        horizontalLayout.add(search);
+        horizontalLayout.add(onlyActiveSessions);
         add(horizontalLayout);
         add(grid);
     }

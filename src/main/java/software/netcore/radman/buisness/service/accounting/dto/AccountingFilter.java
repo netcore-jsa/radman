@@ -13,6 +13,6 @@ import software.netcore.radman.ui.support.Filter;
 @NoArgsConstructor
 public class AccountingFilter extends Filter {
 
-   private boolean searchOnlyActiveSessions;
+   private boolean searchOnlyActiveSessions = true;
 
 }

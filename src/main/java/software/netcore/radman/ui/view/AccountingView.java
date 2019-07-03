@@ -113,6 +113,7 @@ public class AccountingView extends VerticalLayout {
                 -> setAcctStopTimeButton.setEnabled(Objects.nonNull(event.getValue())));
 
         Checkbox onlyActiveSessions = new Checkbox("Filter only active sessions");
+        onlyActiveSessions.setValue(filter.isSearchOnlyActiveSessions());
         onlyActiveSessions.addValueChangeListener(event -> {
             filter.setSearchOnlyActiveSessions(event.getValue());
             grid.getDataProvider().refreshAll();

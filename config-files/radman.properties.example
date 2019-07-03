@@ -2,18 +2,22 @@
 server.port=8089
 
 # radius database
-database.radius.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC&autoReconnect=true
+database.radius.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC
 database.radius.datasource.username=[db-user-here]
 database.radius.datasource.password=[db-password-here]
+database.radius.datasource.test-while-idle=true
+database.radius.datasource.validation-query=/* ping */
 database.radius.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 database.radius.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 database.radius.jpa.show-sql=false
 database.radius.jpa.hibernate.ddl-auto=validate
 
 # internal database
-database.radman.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC&autoReconnect=true
+database.radman.datasource.url=jdbc:mysql://[server-address-here]:3306/[db-name-here]?serverTimezone=UTC
 database.radman.datasource.username=[db-user-here]
 database.radman.datasource.password=[db-password-here]
+database.radman.datasource.test-while-idle=true
+database.radman.datasource.validation-query=/* ping */
 database.radman.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 database.radman.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 database.radman.jpa.show-sql=false

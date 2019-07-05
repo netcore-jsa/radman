@@ -1,5 +1,5 @@
 # RadMan
-RadMan is a FreeRadius DB Manager - an easy to use FreeRadius Management GUI.  
+RadMan (**Rad**ius **Man**ager) is a FreeRadius Manager - an easy to use FreeRadius Management GUI.  
 Brought to you free and open-source by NetCore j.s.a., the company behind [Unimus](https://unimus.net/).
 
 ![](https://github.com/netcore-jsa/radman/raw/master/RadMan-small.png)
@@ -126,6 +126,8 @@ systemctl stop radman
 mv RadMan-new.jar /opt/radman/RadMan.jar
 systemctl start radman
 ```
+
+Please make sure to read the Changelog, as some releases might have more specific migration instructions included.
 
 # RadMan config file
 The RadMan config file (`radman.properties`) should be fairly straight-forward to understand.

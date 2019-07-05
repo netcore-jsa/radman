@@ -16,7 +16,7 @@ Fixes:
   Fixed DB session disconnected after long inactivity period (#25)
 
 Tickets closed by this release:
-  #12,#13,#14,#15,#17,#20,#21,#22,#23,#24,#25
+  #12, #13, #14, #15, #17, #20, #21, #22, #23, #24, #25
 
 
 

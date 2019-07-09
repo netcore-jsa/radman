@@ -2,9 +2,10 @@
 Fixes:
   Fixed "Internal error" on the Accounting view (#26)
   Added missing serialVersionUID to serializable objects (internal code-fix) (#27)
+  Added default descending sorting for accounting records by acct start time (#28)
 
 Tickets closed by this release:
-  #26, #27
+  #26, #27, #28
 
 
 

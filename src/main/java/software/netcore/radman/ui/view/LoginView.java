@@ -20,6 +20,8 @@ import software.netcore.radman.buisness.service.security.SecurityService;
 @HtmlImport("src/LoginView.html")
 public class LoginView extends PolymerTemplate<TemplateModel> implements BeforeEnterObserver {
 
+    private static final long serialVersionUID = 8317537279357271016L;
+
     private final SecurityService securityService;
 
     @Id("authenticationMessage")

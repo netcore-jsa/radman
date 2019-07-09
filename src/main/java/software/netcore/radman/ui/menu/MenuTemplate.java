@@ -33,6 +33,8 @@ import java.util.Objects;
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel> implements RouterLayout {
 
+    private static final long serialVersionUID = 2660673607800096107L;
+
     private final static String SELECTED_CLASS_NAME = "selected";
 
     public interface MenuTemplateModel extends TemplateModel {

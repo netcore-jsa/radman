@@ -51,6 +51,8 @@ import java.util.Objects;
 @Route(value = "system_users", layout = MenuTemplate.class)
 public class SystemUsersView extends VerticalLayout {
 
+    private static final long serialVersionUID = 7080212781595068347L;
+
     private final Filter filter = new Filter();
     private final SystemUserService service;
     private final SecurityService securityService;

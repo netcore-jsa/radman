@@ -44,6 +44,8 @@ import java.util.TimeZone;
 @Route(value = "tutorial", layout = MenuTemplate.class)
 public class AccountingView extends VerticalLayout {
 
+    private static final long serialVersionUID = 3707074325227335832L;
+
     private final AccountingFilter filter = new AccountingFilter();
     private final AccountingService accountingService;
 

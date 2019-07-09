@@ -20,6 +20,8 @@ import java.util.Objects;
  */
 public class ConfirmationDialog extends Dialog {
 
+    private static final long serialVersionUID = -6200837322504194033L;
+
     @FunctionalInterface
     public interface ConfirmListener {
 

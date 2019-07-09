@@ -48,6 +48,8 @@ import java.util.Objects;
 @Route(value = "", layout = MenuTemplate.class)
 public class NasView extends VerticalLayout {
 
+    private static final long serialVersionUID = 1177928981515973375L;
+
     private final Filter filter = new Filter();
     private final NasService nasService;
     private final SecurityService securityService;

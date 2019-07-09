@@ -48,6 +48,8 @@ import java.util.Optional;
 @Route(value = "users", layout = MenuTemplate.class)
 public class UsersView extends VerticalLayout {
 
+    private static final long serialVersionUID = -6514992348061184693L;
+
     private final RadiusUserFilter filter = new RadiusUserFilter(true, true);
     private final RadiusUserService userService;
     private final SecurityService securityService;

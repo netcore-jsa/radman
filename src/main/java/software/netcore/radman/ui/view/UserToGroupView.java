@@ -48,6 +48,8 @@ import java.util.Optional;
 @Route(value = "user_to_group", layout = MenuTemplate.class)
 public class UserToGroupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -7023677674319412929L;
+
     private final Filter filter = new Filter();
     private final RadiusUserService userService;
     private final SecurityService securityService;

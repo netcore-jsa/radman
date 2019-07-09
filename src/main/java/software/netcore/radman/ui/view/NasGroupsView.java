@@ -44,6 +44,8 @@ import java.util.Optional;
 @Route(value = "nas_groups", layout = MenuTemplate.class)
 public class NasGroupsView extends VerticalLayout {
 
+    private static final long serialVersionUID = 7706669778443061367L;
+
     private final Filter filter = new Filter();
     private final NasService nasService;
     private final SecurityService securityService;

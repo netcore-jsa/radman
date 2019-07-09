@@ -51,6 +51,8 @@ import java.util.Optional;
 @Route(value = "attributes", layout = MenuTemplate.class)
 public class AttributesView extends VerticalLayout {
 
+    private static final long serialVersionUID = -267230010198091974L;
+
     private final AttributeService attributeService;
     private final SecurityService securityService;
 

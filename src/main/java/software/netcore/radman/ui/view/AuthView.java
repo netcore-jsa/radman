@@ -65,6 +65,8 @@ import java.util.Optional;
 @Route(value = "auth", layout = MenuTemplate.class)
 public class AuthView extends VerticalLayout {
 
+    private static final long serialVersionUID = 3514394536491785870L;
+
     private final AuthService authService;
     private final RadiusUserService userService;
     private final AttributeService attributeService;

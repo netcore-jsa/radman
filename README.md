@@ -4,8 +4,11 @@ Brought to you free and open-source by NetCore j.s.a., the company behind [Unimu
 
 ![](https://github.com/netcore-jsa/radman/raw/master/RadMan-small.png)
 
+If you want to see more of RadMan, check the [Screenshots](#screenshots) section.
+
 # Table of Contents
 - [What is RadMan](#what-is-radman)
+- [Screenshots](#screenshots)
 - [How does RadMan work](#how-does-radman-work)
 - [How to deploy RadMan](#how-to-deploy-radman)
 - [How to upgrade RadMan](#how-to-upgrade-radman)
@@ -20,6 +23,9 @@ RadMan does **not** manage FreeRadius itself (it does not touch the FreeRadius c
 What RadMan offers is an easy way to manage a FreeRadius DB in a web interface.
 
 RadMan aims to be simple to use, super fast to deploy and easy to maintain.
+
+# Screenshots
+Please check: https://github.com/netcore-jsa/radman/tree/master/screenshots
 
 # How does RadMan work
 RadMan works by inserting / updating / removing records from the FreeRadius database tables.  

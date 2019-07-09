@@ -80,8 +80,12 @@ public class AccountingView extends VerticalLayout {
         grid.addColumns("acctTerminateCause", "framedIpAddress", "framedProtocol");
         grid.addColumns("acctAuthentic", "acctInputOctets", "acctInterval", "acctOutputOctets",
                 "acctSessionId");
-        grid.addColumn(accountingDto -> DurationFormatUtils.formatDurationHMS(accountingDto.getAcctSessionTime()))
-                .setSortProperty("acctSessionTime").setHeader("Acct Session Time");
+        grid.addColumn(accountingDto -> {
+            if (Objects.isNull(accountingDto.getAcctSessionTime())) {
+                return null;
+            }
+            return DurationFormatUtils.formatDurationHMS(accountingDto.getAcctSessionTime());
+        }).setSortProperty("acctSessionTime").setHeader("Acct Session Time");
         grid.addColumns("acctUniqueId", "acctUpdateTime", "calledStationId",
                 "connectInfoStart", "connectInfoStop", "nasPortId", "nasPortType", "radAcctId", "realm");
 

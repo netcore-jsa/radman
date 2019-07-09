@@ -1,3 +1,13 @@
+= Version 1.0.2 =
+Fixes:
+  Fixed "Internal error" on the Accounting view (#26)
+  Added missing serialVersionUID to serializable objects (internal code-fix) (#27)
+
+Tickets closed by this release:
+  #26, #27
+
+
+
 = Version 1.0.1 =
 Features:
   Added table names into "Data from Radius DB" label on all Radius views (#15)

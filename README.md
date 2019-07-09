@@ -4,7 +4,7 @@ Brought to you free and open-source by NetCore j.s.a., the company behind [Unimu
 
 ![](https://github.com/netcore-jsa/radman/raw/master/RadMan-small.png)
 
-If you want to see more of RadMan, check the [Screenshots](#screenshots) section.
+If you want to see more of RadMan, check the [Screenshots](https://github.com/netcore-jsa/radman/tree/master/screenshots).
 
 # Table of Contents
 - [What is RadMan](#what-is-radman)

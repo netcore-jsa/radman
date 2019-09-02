@@ -1,7 +1,7 @@
 package software.netcore.radman.ui.view;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -17,7 +17,7 @@ import software.netcore.radman.buisness.service.security.SecurityService;
 @PageTitle("Login")
 @Route(value = "login")
 @RequiredArgsConstructor
-@HtmlImport("src/LoginView.html")
+@JsModule("./LoginView.js")
 public class LoginView extends PolymerTemplate<TemplateModel> implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 8317537279357271016L;

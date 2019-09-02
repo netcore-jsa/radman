@@ -1,0 +1,182 @@
+import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import '@polymer/iron-icon/iron-icon.js';
+import '@vaadin/vaadin-button/vaadin-button.js';
+import '@vaadin/vaadin-icons/vaadin-icons.js';
+
+class MenuLayout extends PolymerElement {
+
+    static get template() {
+        return html`
+            <style>
+            .main-layout {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    overflow: hidden;
+                    flex-direction: column;
+                }
+        
+            .page-view-container {
+                    flex: 1;
+                    width: 100%;
+                    display: flex;
+                    overflow-y: auto;
+                }
+        
+            .page-view-container > div {
+                    flex: 1;
+                    margin: 0 auto;
+                    max-width: 1600px;
+                }
+        
+                #page-nav {
+                    top: 0;
+                    width: 100%;
+                    z-index: 100;
+                    color: #e6e6e6;
+                    background: #24292e;
+                }
+        
+                /* Hide Hamburger */
+                #page-nav label, #hamburger {
+                    display: none;
+                }
+        
+                /* Menu Items */
+                #page-nav ul {
+                    margin: 0;
+                    padding: 0;
+                    line-height: 3em;
+                    list-style-type: none;
+                    background-color: #24292e;
+                }
+        
+                #page-nav ul li {
+                    display: inline-block;
+                    vertical-align: middle;
+                    box-sizing: border-box;
+                }
+        
+                #page-nav ul li .separator {
+                    width: 10px;
+                    border-right: 1px solid #616161;
+                    height: 2.3em;
+                }
+        
+                #page-nav ul li .category {
+                    color: #9c9c9c;
+                    font-size: 13pt;
+                    font-weight: bold;
+                    padding: 0 10px 0 10px;
+                }
+        
+                #page-nav ul li a {
+                    /*padding: 10px;*/
+                    color: inherit;
+                    display: block;
+                    font-size: 13pt;
+                    font-weight: 500;
+                    line-height: 3em;
+                    text-decoration: none;
+                    padding: 0 10px 0 10px;
+                    transition: all 0.2s ease;
+                    -moz-osx-font-smoothing: auto;
+                    -webkit-font-smoothing: antialiased;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
+                }
+        
+                #page-nav ul li a.selected,
+                #page-nav ul li a:hover {
+                    background-color: #333e48;
+                }
+        
+                #page-nav > .account-nav {
+                    float: right;
+                    line-height: 3em;
+                }
+        
+            .logout {
+                    margin-top: 0;
+                    color: #e6e6e6;
+                }
+        
+            .account-nav > div {
+                    padding: 0 10px;
+                }
+        
+                /* [ON SMALL SCREENS] */
+            @media screen and (max-width: 768px) {
+                    /* Show Hamburger */
+                    #page-nav label {
+                        color: #fff;
+                        line-height: 2em;
+                        font-size: 1.5em;
+                        margin-left: 5px;
+                        font-style: normal;
+                        background: #24292e;
+                        display: inline-block;
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                    }
+        
+                    /* Break down menu items into vertical */
+                    #page-nav ul li {
+                        display: block;
+                        border-top: 1px solid #333;
+                    }
+        
+                    #page-nav ul li .separator {
+                        display: none;
+                    }
+        
+                    #page-nav ul li a {
+                        padding-left: 2em;
+                    }
+        
+                    /* Toggle show/hide menu on checkbox click */
+                    #page-nav ul {
+                        display: none;
+                    }
+        
+                    #page-nav input:checked ~ ul {
+                        display: block;
+                    }
+                }
+        </style>
+
+        <div class="main-layout">
+            <nav id="page-nav">
+                <vaadin-horizontal-layout class="account-nav">
+                    <div>
+                        <vaadin-label>[[version]]</vaadin-label>
+                    </div>
+                    <div>
+                        <vaadin-button class="logout" theme="tertiary" on-click="logout">
+                        <iron-icon icon="vaadin:sign-out" slot="prefix"></iron-icon>
+                        Logout
+                        </vaadin-button>
+                    </div>
+                </vaadin-horizontal-layout>
+                <label for="hamburger">&#9776;</label>
+                <input type="checkbox" id="hamburger"/>
+                <ul id="page-nav-links"></ul>
+            </nav>
+            <div class="page-view-container">
+                <div>
+                    <slot>Nothing to display :(</slot>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    static get is() {
+        return 'menu-layout'
+    }
+}
+
+customElements.define(MenuLayout.is, MenuLayout);

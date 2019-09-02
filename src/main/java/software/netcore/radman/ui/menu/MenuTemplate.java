@@ -3,7 +3,7 @@ package software.netcore.radman.ui.menu;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.page.BodySize;
@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 @Push
 @Tag("menu-layout")
-@HtmlImport("src/MenuLayout.html")
+@JsModule("./MenuLayout.js")
 @BodySize(height = "100vh", width = "100vw")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel> implements RouterLayout {

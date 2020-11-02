@@ -19,6 +19,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
+import software.netcore.radman.ui.component.AdditionWizard;
 import software.netcore.radman.ui.view.*;
 
 import java.util.Objects;
@@ -49,6 +50,7 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
     public MenuTemplate(BuildProperties buildProperties) {
         getModel().setVersion(buildProperties.getVersion());
 
+        addSeparator();
         addCategoryName("RadMan");
         addNavigation(UsersView.class, "Users");
         addNavigation(UserGroupsView.class, "User groups");
@@ -103,6 +105,12 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
         ui.getSession().getSession().invalidate();
         ui.getSession().close();
         ui.getPage().reload();
+    }
+
+    @EventHandler
+    private void add() {
+        AdditionWizard additionWizard = new AdditionWizard();
+        additionWizard.open();
     }
 
 }

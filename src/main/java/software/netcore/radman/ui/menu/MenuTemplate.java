@@ -19,6 +19,11 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
+import software.netcore.radman.ui.component.wizard.Wizard;
+import software.netcore.radman.ui.component.wizard.demo.DemoDataStorage;
+import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
+import software.netcore.radman.ui.component.wizard.demo.Step2;
+import software.netcore.radman.ui.component.wizard.demo.Step3;
 import software.netcore.radman.ui.view.*;
 
 import java.util.Objects;
@@ -49,6 +54,7 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
     public MenuTemplate(BuildProperties buildProperties) {
         getModel().setVersion(buildProperties.getVersion());
 
+//        addSeparator();
         addCategoryName("RadMan");
         addNavigation(UsersView.class, "Users");
         addNavigation(UserGroupsView.class, "User groups");
@@ -103,6 +109,23 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
         ui.getSession().getSession().invalidate();
         ui.getSession().close();
         ui.getPage().reload();
+    }
+
+    @EventHandler
+    private void add() {
+        Wizard<DemoDataStorage> additionWizard = new Wizard<>(
+                Wizard.Configuration.<DemoDataStorage>builder()
+                        .title("Addition wizard")
+                        .maxWidth("500px")
+                        .step(new IntroductionStep())
+                        .step(new Step2())
+                        .step(new Step3())
+                        .build(),
+                dataStorage -> {
+                    //no-op for demo
+                },
+                new DemoDataStorage());
+        additionWizard.open();
     }
 
 }

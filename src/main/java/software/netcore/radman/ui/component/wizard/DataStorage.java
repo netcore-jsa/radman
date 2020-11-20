@@ -5,4 +5,5 @@ package software.netcore.radman.ui.component.wizard;
  * @since v. 1.0.3
  */
 public interface DataStorage {
+
 }

@@ -11,8 +11,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Singular;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,8 +29,6 @@ public final class Wizard<T extends DataStorage> extends Dialog {
         @NonNull
         private final String title;
         private final String maxWidth;
-        @Singular
-        private final List<WizardStep<T>> steps;
 
     }
 
@@ -38,6 +36,10 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     private final Button next = new Button();
     private final Button previous = new Button("Previous");
 
+    @Getter
+    private final List<WizardStep<? extends DataStorage>> steps = new LinkedList<>(); //TODO change to map
+
+    @Getter
     private final Configuration<T> configuration;
     private final WizardFinalizer<T> wizardFinalizer;
     private final T dataStorage;
@@ -50,9 +52,6 @@ public final class Wizard<T extends DataStorage> extends Dialog {
         this.wizardFinalizer = wizardFinalizer;
         this.dataStorage = dataStorage;
 
-        if (!configuration.getSteps().isEmpty()) {
-            contentHolder.add(configuration.getSteps().get(0).getContent()); // displays first step
-        }
         add(contentHolder);
 
         Button cancel = new Button("Cancel");
@@ -72,16 +71,22 @@ public final class Wizard<T extends DataStorage> extends Dialog {
         layout.add(new Hr());
         layout.add(controls);
         add(layout);
+    }
 
+    public void displayFirstStep() {
+        position = 0;
+        contentHolder.add(getSteps().get(position).getContent());
         updateNextButton();
         updatePreviousButton();
     }
 
     private void handleTransitionToNext() {
-        if (position + 1 < configuration.getSteps().size()) {
-            WizardStep<T> nextStepCandidate = configuration.getSteps().get(position + 1);
-            if (Objects.nonNull(nextStepCandidate)) {
-                if (nextStepCandidate.isValid()) {
+        if (position + 1 < getSteps().size()) {
+            if (getStep().isValid()) {
+                WizardStep<? extends DataStorage> nextStepCandidate = getSteps().get(position + 1);
+                if (Objects.nonNull(nextStepCandidate)) {
+
+                    nextStepCandidate.onTransition();
 
                     contentHolder.removeAll();
                     contentHolder.add(nextStepCandidate.getContent());
@@ -102,7 +107,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
                 Button backToWizard = new Button("Back to wizard");
                 backToWizard.addClickListener(buttonClickEvent -> {
                     contentHolder.removeAll();
-                    contentHolder.add(configuration.getSteps().get(position).getContent());
+                    contentHolder.add(getSteps().get(position).getContent());
                 });
                 contentHolder.add(backToWizard);
             }
@@ -111,7 +116,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
 
     private void handleTransitionToPrevious() {
         if (position > 0) {
-            WizardStep<T> nextStepCandidate = configuration.getSteps().get(position - 1);
+            WizardStep<? extends DataStorage> nextStepCandidate = getSteps().get(position - 1);
             if (Objects.nonNull(nextStepCandidate)) {
                 contentHolder.removeAll();
                 contentHolder.add(nextStepCandidate.getContent());
@@ -124,15 +129,15 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     }
 
     private void updateNextButton() {
-        next.setText(isLastStep() ? "Finish" : "Next");
+        next.setText(getStep().hasNextStep() ? "Next" : "Finish");
     }
 
     private void updatePreviousButton() {
-        previous.setEnabled(position != 0);
+        previous.setEnabled(getStep().hasPreviousStep());
     }
 
-    private boolean isLastStep() {
-        return configuration.getSteps().size() == position + 1;
+    private WizardStep<? extends DataStorage> getStep() {
+        return getSteps().get(position);
     }
 
 }

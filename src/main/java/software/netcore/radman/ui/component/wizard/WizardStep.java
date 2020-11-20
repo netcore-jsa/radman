@@ -4,8 +4,8 @@ import com.vaadin.flow.component.Component;
 import lombok.NonNull;
 
 /**
- * @since v. 1.0.3
  * @author daniel
+ * @since v. 1.0.3
  */
 public interface WizardStep<T extends DataStorage> {
 
@@ -14,5 +14,17 @@ public interface WizardStep<T extends DataStorage> {
     boolean isValid();
 
     void writeDataToStorage(@NonNull T dataStorage);
+
+    default void onTransition() {
+
+    }
+
+    default boolean hasNextStep() {
+        return true;
+    }
+
+    default boolean hasPreviousStep() {
+        return true;
+    }
 
 }

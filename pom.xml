@@ -29,6 +29,7 @@
         <!--vaadin dependencies-->
         <vaadin.version>13.0.8</vaadin.version>
         <iron-form.version>2.4.0</iron-form.version>
+        <viritin.version>0.3.2</viritin.version>
 
         <!--spring dependencies-->
         <vaadin-spring-data-provider.version>2.0.1</vaadin-spring-data-provider.version>
@@ -54,6 +55,11 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin</groupId>
+            <artifactId>flow-viritin</artifactId>
+            <version>${viritin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

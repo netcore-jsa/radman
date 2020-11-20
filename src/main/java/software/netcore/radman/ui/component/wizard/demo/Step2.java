@@ -33,4 +33,9 @@ public class Step2 implements WizardStep<DemoDataStorage> {
         //no-op
     }
 
+    @Override
+    public boolean hasNextStep() {
+        return false;
+    }
+
 }

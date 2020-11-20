@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import software.netcore.radman.buisness.validation.constrain.Cheap;
 import software.netcore.radman.buisness.validation.constrain.Expensive;
+import software.netcore.radman.ui.component.wizard.DataStorage;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotEmpty;
@@ -17,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @EqualsAndHashCode(of = "id")
 @GroupSequence(value = {Cheap.class, Expensive.class, NasGroupDto.class})
-public class NasGroupDto {
+public class NasGroupDto implements DataStorage {
 
     private Integer id;
 

@@ -22,9 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import software.netcore.radman.ui.component.wizard.Wizard;
 import software.netcore.radman.ui.component.wizard.demo.DemoDataStorage;
 import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
-import software.netcore.radman.ui.component.wizard.demo.Step2;
-import software.netcore.radman.ui.component.wizard.demo.Step3;
 import software.netcore.radman.ui.view.*;
+import software.netcore.radman.ui.view.nas.NasView;
 
 import java.util.Objects;
 
@@ -117,14 +116,18 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
                 Wizard.Configuration.<DemoDataStorage>builder()
                         .title("Addition wizard")
                         .maxWidth("500px")
-                        .step(new IntroductionStep())
-                        .step(new Step2())
-                        .step(new Step3())
                         .build(),
                 dataStorage -> {
                     //no-op for demo
                 },
                 new DemoDataStorage());
+
+        additionWizard.getSteps().add(new IntroductionStep(additionWizard.getSteps()));
+        additionWizard.displayFirstStep();
+
+//        additionWizard.getSteps().add(new Step2());
+//        additionWizard.getSteps().add(new Step3());
+
         additionWizard.open();
     }
 

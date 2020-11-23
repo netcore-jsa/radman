@@ -10,7 +10,7 @@ import software.netcore.radman.ui.component.wizard.WizardStep;
  * @author daniel
  * @since v. 1.0.3
  */
-public class Step2 implements WizardStep<DemoDataStorage> {
+public class Step2 implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VerticalLayout contentLayout = new VerticalLayout();
 
@@ -29,7 +29,7 @@ public class Step2 implements WizardStep<DemoDataStorage> {
     }
 
     @Override
-    public void writeDataToStorage(@NonNull DemoDataStorage dataStorage) {
+    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
         //no-op
     }
 

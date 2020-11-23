@@ -17,14 +17,17 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.templatemodel.TemplateModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
+import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.ui.component.wizard.Wizard;
-import software.netcore.radman.ui.component.wizard.demo.DemoDataStorage;
 import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
+import software.netcore.radman.ui.component.wizard.demo.NewEntityWizardDataStorage;
 import software.netcore.radman.ui.view.*;
 import software.netcore.radman.ui.view.nas.NasView;
 
+import javax.transaction.Transactional;
 import java.util.Objects;
 
 /**
@@ -41,6 +44,9 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
 
     private final static String SELECTED_CLASS_NAME = "selected";
 
+    @Autowired
+    private NasService nasService;
+
     public interface MenuTemplateModel extends TemplateModel {
 
         void setVersion(String version);
@@ -53,7 +59,7 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
     public MenuTemplate(BuildProperties buildProperties) {
         getModel().setVersion(buildProperties.getVersion());
 
-//        addSeparator();
+        addSeparator();
         addCategoryName("RadMan");
         addNavigation(UsersView.class, "Users");
         addNavigation(UserGroupsView.class, "User groups");
@@ -112,23 +118,31 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
 
     @EventHandler
     private void add() {
-        Wizard<DemoDataStorage> additionWizard = new Wizard<>(
-                Wizard.Configuration.<DemoDataStorage>builder()
+        Wizard<NewEntityWizardDataStorage> additionWizard = new Wizard<>(
+                Wizard.Configuration.<NewEntityWizardDataStorage>builder()
                         .title("Addition wizard")
                         .maxWidth("500px")
                         .build(),
-                dataStorage -> {
-                    //no-op for demo
-                },
-                new DemoDataStorage());
+                this::saveNewEntityWizardData,
+                new NewEntityWizardDataStorage());
 
-        additionWizard.getSteps().add(new IntroductionStep(additionWizard.getSteps()));
+        additionWizard.getSteps().add(
+                new IntroductionStep(additionWizard.getSteps(),
+                        nasService));
         additionWizard.displayFirstStep();
 
-//        additionWizard.getSteps().add(new Step2());
-//        additionWizard.getSteps().add(new Step3());
-
         additionWizard.open();
+    }
+
+    @Transactional
+    void saveNewEntityWizardData(NewEntityWizardDataStorage dataStorage) {
+        if (Objects.nonNull(dataStorage.getNasDto())) {
+            nasService.createNas(dataStorage.getNasDto());
+        }
+
+        if (Objects.nonNull(dataStorage.getNasGroupDto())) {
+            nasService.createNasGroup(dataStorage.getNasGroupDto());
+        }
     }
 
 }

@@ -17,11 +17,11 @@ import java.util.List;
  * @author daniel
  * @since v. 1.0.3
  */
-public class IntroductionStep implements WizardStep<DataStorage> {
+public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VVerticalLayout contentLayout = new VVerticalLayout();
 
-    private final List<WizardStep<? extends DataStorage>> steps;
+    private final List<WizardStep<NewEntityWizardDataStorage>> steps;
 
     private final RadioButtonGroup<String> radioGroup;
 
@@ -31,11 +31,11 @@ public class IntroductionStep implements WizardStep<DataStorage> {
     private static final String USER_GROUP = "User Group";
     private static final String ATTRIBUTE = "Attribute";
 
-    @Autowired
-    private NasService nasService;
+    private final NasService nasService;
 
-    public IntroductionStep(List<WizardStep<? extends DataStorage>> steps) {
+    public IntroductionStep(List<WizardStep<NewEntityWizardDataStorage>> steps, NasService nasService) {
         this.steps = steps;
+        this.nasService = nasService;
 
         radioGroup = new RadioButtonGroup<>();
         radioGroup.setItems(NAS, NAS_GROUP, USER, USER_GROUP, ATTRIBUTE);
@@ -61,7 +61,7 @@ public class IntroductionStep implements WizardStep<DataStorage> {
     }
 
     @Override
-    public void writeDataToStorage(@NonNull DataStorage dataStorage) {
+    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
         //no-op
     }
 

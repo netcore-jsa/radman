@@ -4,14 +4,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NonNull;
-import software.netcore.radman.ui.component.wizard.DataStorage;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 
 /**
  * @since v. 1.0.3
  * @author daniel
  */
-public class Step3 implements WizardStep<DemoDataStorage> {
+public class Step3 implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VerticalLayout contentLayout = new VerticalLayout();
 
@@ -30,7 +29,7 @@ public class Step3 implements WizardStep<DemoDataStorage> {
     }
 
     @Override
-    public void writeDataToStorage(@NonNull DemoDataStorage dataStorage) {
+    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
         //no-op
     }
 

@@ -13,7 +13,7 @@ import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 
-public class NasGroupStep implements WizardStep<NasGroupDto> {
+public class NasGroupStep implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VVerticalLayout contentLayout = new VVerticalLayout();
 
@@ -48,7 +48,7 @@ public class NasGroupStep implements WizardStep<NasGroupDto> {
     }
 
     @Override
-    public void writeDataToStorage(@NonNull NasGroupDto dataStorage) {
+    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
 
     }
 

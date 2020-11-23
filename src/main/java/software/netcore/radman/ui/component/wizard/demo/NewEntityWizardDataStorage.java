@@ -3,6 +3,7 @@ package software.netcore.radman.ui.component.wizard.demo;
 import lombok.Getter;
 import lombok.Setter;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
+import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.ui.component.wizard.DataStorage;
 
 /**
@@ -11,8 +12,10 @@ import software.netcore.radman.ui.component.wizard.DataStorage;
  */
 @Getter
 @Setter
-public class DemoDataStorage implements DataStorage {
+public class NewEntityWizardDataStorage implements DataStorage {
 
     private NasDto nasDto;
+
+    private NasGroupDto nasGroupDto;
 
 }

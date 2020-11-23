@@ -24,7 +24,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
 
     @Getter
     @Builder
-    public static class Configuration<T extends DataStorage> {
+    public static class Configuration {
 
         @NonNull
         private final String title;
@@ -37,15 +37,15 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     private final Button previous = new Button("Previous");
 
     @Getter
-    private final List<WizardStep<? extends DataStorage>> steps = new LinkedList<>(); //TODO change to map
+    private final List<WizardStep<T>> steps = new LinkedList<>(); //TODO change to map
 
     @Getter
-    private final Configuration<T> configuration;
+    private final Configuration configuration;
     private final WizardFinalizer<T> wizardFinalizer;
     private final T dataStorage;
     private int position = 0;
 
-    public Wizard(@NonNull Configuration<T> configuration,
+    public Wizard(@NonNull Configuration configuration,
                   @NonNull WizardFinalizer<T> wizardFinalizer,
                   @NonNull T dataStorage) {
         this.configuration = configuration;
@@ -81,12 +81,14 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     }
 
     private void handleTransitionToNext() {
-        if (position + 1 < getSteps().size()) {
+//        if (position + 1 < getSteps().size()) {
+        if (getStep().hasNextStep()) {
             if (getStep().isValid()) {
+                getStep().onTransition();
                 WizardStep<? extends DataStorage> nextStepCandidate = getSteps().get(position + 1);
                 if (Objects.nonNull(nextStepCandidate)) {
 
-                    nextStepCandidate.onTransition();
+//                    nextStepCandidate.onTransition();
 
                     contentHolder.removeAll();
                     contentHolder.add(nextStepCandidate.getContent());
@@ -98,6 +100,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
             }
         } else {
             try {
+                getSteps().forEach(step -> step.writeDataToStorage(dataStorage));
                 wizardFinalizer.finalizeWizard(dataStorage);
                 setOpened(false);
             } catch (WizardFinalizeException e) {
@@ -136,7 +139,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
         previous.setEnabled(getStep().hasPreviousStep());
     }
 
-    private WizardStep<? extends DataStorage> getStep() {
+    private WizardStep<T> getStep() {
         return getSteps().get(position);
     }
 

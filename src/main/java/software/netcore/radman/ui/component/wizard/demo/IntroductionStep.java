@@ -8,6 +8,8 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import software.netcore.radman.buisness.service.nas.NasService;
+import software.netcore.radman.buisness.service.security.SecurityService;
+import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.ui.component.wizard.DataStorage;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 
@@ -32,10 +34,17 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
     private static final String ATTRIBUTE = "Attribute";
 
     private final NasService nasService;
+    private final RadiusUserService radiusUserService;
+    private final SecurityService securityService;
 
-    public IntroductionStep(List<WizardStep<NewEntityWizardDataStorage>> steps, NasService nasService) {
-        this.steps = steps;
+    public IntroductionStep(NasService nasService,
+                            RadiusUserService radiusUserService,
+                            SecurityService securityService,
+                            List<WizardStep<NewEntityWizardDataStorage>> steps) {
         this.nasService = nasService;
+        this.radiusUserService = radiusUserService;
+        this.securityService = securityService;
+        this.steps = steps;
 
         radioGroup = new RadioButtonGroup<>();
         radioGroup.setItems(NAS, NAS_GROUP, USER, USER_GROUP, ATTRIBUTE);
@@ -79,7 +88,7 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
                 steps.add(new NasGroupStep(nasService));
                 break;
             case USER:
-//                steps.add(new Step3());
+                steps.add(new UserStep(radiusUserService, securityService, steps));
                 break;
             case USER_GROUP:
                 break;

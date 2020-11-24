@@ -21,11 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
 import software.netcore.radman.buisness.service.nas.NasService;
+import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
+import software.netcore.radman.buisness.service.security.SecurityService;
+import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.ui.component.wizard.Wizard;
 import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
 import software.netcore.radman.ui.component.wizard.demo.NewEntityWizardDataStorage;
 import software.netcore.radman.ui.view.*;
 import software.netcore.radman.ui.view.nas.NasView;
+import software.netcore.radman.ui.view.systemUsers.SystemUsersView;
+import software.netcore.radman.ui.view.userToGroup.UserToGroupView;
 
 import javax.transaction.Transactional;
 import java.util.Objects;
@@ -46,6 +51,10 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
 
     @Autowired
     private NasService nasService;
+    @Autowired
+    private RadiusUserService radiusUserService;
+    @Autowired
+    private SecurityService securityService;
 
     public interface MenuTemplateModel extends TemplateModel {
 
@@ -127,8 +136,10 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
                 new NewEntityWizardDataStorage());
 
         additionWizard.getSteps().add(
-                new IntroductionStep(additionWizard.getSteps(),
-                        nasService));
+                new IntroductionStep(nasService,
+                        radiusUserService,
+                        securityService,
+                        additionWizard.getSteps()));
         additionWizard.displayFirstStep();
 
         additionWizard.open();
@@ -140,8 +151,10 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
             nasService.createNas(dataStorage.getNasDto());
         }
 
-        if (Objects.nonNull(dataStorage.getNasGroupDto())) {
-            nasService.createNasGroup(dataStorage.getNasGroupDto());
+        if (Objects.nonNull(dataStorage.getNasGroupDtos())) {
+            for (NasGroupDto nasGroupDto : dataStorage.getNasGroupDtos()) {
+                nasService.createNasGroup(nasGroupDto);
+            }
         }
     }
 

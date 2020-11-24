@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view;
+package software.netcore.radman.ui.view.systemUsers;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -12,9 +12,11 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.*;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
@@ -36,6 +38,9 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
+import software.netcore.radman.ui.view.systemUsers.widget.SystemUserCreationDialog;
+import software.netcore.radman.ui.view.systemUsers.widget.SystemUserEditDialog;
+import software.netcore.radman.ui.view.systemUsers.widget.SystemUserForm;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -97,9 +102,9 @@ public class SystemUsersView extends VerticalLayout {
             grid.setMinHeight("500px");
             grid.setHeight("100%");
 
-            SystemUserCreationDialog createDialog = new SystemUserCreationDialog(
+            SystemUserCreationDialog createDialog = new SystemUserCreationDialog(service,
                     (source, bean) -> grid.getDataProvider().refreshAll());
-            SystemUserEditDialog editDialog = new SystemUserEditDialog(
+            SystemUserEditDialog editDialog = new SystemUserEditDialog(service,
                     (source, bean) -> grid.getDataProvider().refreshItem(bean));
             ConfirmationDialog deleteDialog = new ConfirmationDialog();
             deleteDialog.setTitle("Delete system user");
@@ -153,142 +158,6 @@ public class SystemUsersView extends VerticalLayout {
             add(horizontalLayout);
             add(grid);
         }
-    }
-
-    private class SystemUserCreationDialog extends Dialog {
-
-        private final Binder<SystemUserDto> binder;
-
-        SystemUserCreationDialog(CreationListener<SystemUserDto> creationListener) {
-            binder = new BeanValidationBinder<>(SystemUserDto.class);
-
-            FormLayout formLayout = new FormLayout();
-            formLayout.add(new H3("New system user"));
-            TextField username = new TextField("Username");
-            username.setValueChangeMode(ValueChangeMode.EAGER);
-            username.setWidthFull();
-            PasswordField password = new PasswordField("Password");
-            password.setValueChangeMode(ValueChangeMode.EAGER);
-            password.setWidthFull();
-            ComboBox<RoleDto> role = new ComboBox<>("Role", RoleDto.values());
-            role.setPreventInvalidInput(true);
-            role.setWidthFull();
-            ComboBox<AuthProviderDto> authProvider = new ComboBox<>("Authentication provider", AuthProviderDto.values());
-            authProvider.setPreventInvalidInput(true);
-            authProvider.setWidthFull();
-            authProvider.addValueChangeListener(event -> {
-                if (AuthProviderDto.LOCAL == event.getValue()) {
-                    binder.bind(password, "password");
-                    password.setVisible(true);
-                } else {
-                    binder.removeBinding("password");
-                    password.setVisible(false);
-                }
-            });
-
-            binder.bind(username, "username");
-            binder.bind(role, "role");
-            binder.bind(authProvider, "authProvider");
-
-            Button createBtn = new Button("Create", event -> {
-                SystemUserDto userDto = new SystemUserDto();
-                if (binder.writeBeanIfValid(userDto)) {
-                    try {
-                        userDto = service.createSystemUser(userDto);
-                        creationListener.onCreated(this, userDto);
-                        setOpened(false);
-                    } catch (DataIntegrityViolationException e) {
-                        username.setInvalid(true);
-                        username.setErrorMessage("User with the same username already exist.");
-                    } catch (Exception e) {
-                        log.warn("Failed to create system user. Reason = '{}'", e.getMessage());
-                        ErrorNotification.show("Error",
-                                "Ooops, something went wrong, try again please");
-                    }
-                }
-            });
-            Button cancelBtn = new Button("Cancel", event -> setOpened(false));
-            HorizontalLayout controls = new HorizontalLayout();
-            controls.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            controls.add(cancelBtn, createBtn);
-            controls.setWidthFull();
-
-            formLayout.add(username);
-            formLayout.add(password);
-            formLayout.add(role);
-            formLayout.add(authProvider);
-            formLayout.add(new Hr());
-            formLayout.add(controls);
-            formLayout.setMaxWidth("400px");
-            add(formLayout);
-        }
-
-        void startCreation() {
-            SystemUserDto systemUserDto = new SystemUserDto();
-            systemUserDto.setRole(RoleDto.ADMIN);
-            systemUserDto.setAuthProvider(AuthProviderDto.LOCAL);
-            binder.readBean(systemUserDto);
-            setOpened(true);
-        }
-
-    }
-
-    private class SystemUserEditDialog extends Dialog {
-
-        private final Binder<SystemUserDto> binder;
-
-        SystemUserEditDialog(UpdateListener<SystemUserDto> updateListener) {
-            FormLayout formLayout = new FormLayout();
-            formLayout.add(new H3("Edit system user"));
-            ComboBox<RoleDto> role = new ComboBox<>("Role", RoleDto.values());
-            role.setPreventInvalidInput(true);
-            role.setWidthFull();
-
-            binder = new Binder<>(SystemUserDto.class);
-            binder.forField(role)
-                    .asRequired("Role is required")
-                    .withValidator((Validator<RoleDto>) (value, context) -> {
-                        if (value == null) {
-                            return ValidationResult.error("System user access role is required.");
-                        }
-                        return ValidationResult.ok();
-                    })
-                    .bind(SystemUserDto::getRole, SystemUserDto::setRole);
-
-            Button saveBtn = new Button("Save", event -> {
-                BinderValidationStatus<SystemUserDto> validationStatus = binder.validate();
-                if (validationStatus.isOk()) {
-                    try {
-                        SystemUserDto userDto = binder.getBean();
-                        userDto = service.updateSystemUser(userDto);
-                        updateListener.onUpdated(this, userDto);
-                        setOpened(false);
-                    } catch (Exception e) {
-                        log.warn("Failed to update system user. Reason = '{}'", e.getMessage());
-                        ErrorNotification.show("Error",
-                                "Ooops, something went wrong, try again please");
-                    }
-                }
-            });
-            Button cancelBtn = new Button("Cancel", event -> setOpened(false));
-
-            HorizontalLayout controls = new HorizontalLayout();
-            controls.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            controls.add(cancelBtn, saveBtn);
-            controls.setWidthFull();
-
-            formLayout.add(role);
-            formLayout.add(new Hr());
-            formLayout.add(controls);
-            formLayout.setMaxWidth("400px");
-            add(formLayout);
-        }
-
-        void edit(SystemUserDto systemUserDto) {
-            setOpened(true);
-            binder.setBean(systemUserDto);
-        }
-
     }
 
 }

@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view;
+package software.netcore.radman.ui.view.userToGroup;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -36,6 +36,7 @@ import software.netcore.radman.ui.converter.RadiusUserDtoToNameConverter;
 import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.support.Filter;
+import software.netcore.radman.ui.view.userToGroup.widget.AddUserToGroupDialog;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -79,7 +80,7 @@ public class UserToGroupView extends VerticalLayout {
         grid.setHeight("100%");
 
         Button addUserToGroup = new Button("Add user to group", event -> {
-            AddUserToGroupDialog addDialog = new AddUserToGroupDialog(
+            AddUserToGroupDialog addDialog = new AddUserToGroupDialog(userService,
                     (source, bean) -> grid.getDataProvider().refreshAll());
             addDialog.startAdding();
         });
@@ -123,82 +124,6 @@ public class UserToGroupView extends VerticalLayout {
         horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
-    }
-
-    private class AddUserToGroupDialog extends Dialog {
-
-        private final Binder<RadiusUserToGroupDto> binder;
-
-        AddUserToGroupDialog(UpdateListener<RadiusUserToGroupDto> updateListener) {
-            add(new H3("Add user to group"));
-
-            ComboBox<RadiusUserDto> username = new ComboBox<>("Username");
-            username.setItemLabelGenerator(RadiusUserDto::getUsername);
-            username.setAutofocus(true);
-            ComboBox<RadiusGroupDto> groupName = new ComboBox<>("Group name");
-            groupName.setItemLabelGenerator(RadiusGroupDto::getName);
-
-            username.setDataProvider(new CallbackDataProvider<>(query ->
-                    userService.pageRadiusUsers(new RadiusUserFilter(query.getFilter().orElse(null),
-                            true, false), PageRequest.of(query.getOffset(),
-                            query.getLimit(), new Sort(Sort.Direction.ASC, "id")))
-                            .stream(),
-                    query -> (int) userService.countRadiusUsers(new RadiusUserFilter(query.getFilter()
-                            .orElse(null), true, false))));
-            groupName.setDataProvider(new CallbackDataProvider<>(query ->
-                    userService.pageRadiusUsersGroup(new RadiusGroupFilter(query.getFilter().orElse(null),
-                            true, false), PageRequest.of(query.getOffset(),
-                            query.getLimit(), new Sort(Sort.Direction.ASC, "id")))
-                            .stream(),
-                    query -> (int) userService.countRadiusUsersGroup(new RadiusGroupFilter(query.getFilter()
-                            .orElse(null), true, false))));
-            groupName.addValueChangeListener(event -> username.setInvalid(false));
-
-            binder = new BeanValidationBinder<>(RadiusUserToGroupDto.class);
-            binder.forField(username)
-                    .withConverter(new RadiusUserDtoToNameConverter())
-                    .bind("username");
-            binder.forField(groupName)
-                    .withConverter(new RadiusGroupDtoToNameConverter())
-                    .bind("groupName");
-
-            Button add = new Button("Add", event -> {
-                BinderValidationStatus<RadiusUserToGroupDto> status = binder.validate();
-                if (status.isOk()) {
-                    try {
-                        RadiusUserToGroupDto dto = new RadiusUserToGroupDto();
-                        binder.writeBean(dto);
-                        dto = userService.addRadiusUserToGroup(dto);
-                        updateListener.onUpdated(this, dto);
-                        setOpened(false);
-                    } catch (DuplicityException e) {
-                        username.setInvalid(true);
-                        username.setErrorMessage("User already in the group");
-                    } catch (Exception e) {
-                        log.warn("Failed to add radius user to a group. Reason = '{}'", e.getMessage());
-                        ErrorNotification.show("Error",
-                                "Ooops, something went wrong, try again please");
-                        setOpened(false);
-                    }
-                }
-            });
-            Button cancel = new Button("Cancel", event -> setOpened(false));
-
-            add(new HorizontalLayout(username, groupName));
-            add(new Hr());
-            HorizontalLayout controlsLayout = new HorizontalLayout();
-            controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            controlsLayout.setWidthFull();
-            controlsLayout.add(add);
-            controlsLayout.add(cancel);
-            add(controlsLayout);
-        }
-
-        void startAdding() {
-            setOpened(true);
-            binder.readBean(new RadiusUserToGroupDto());
-        }
-
     }
 
 }

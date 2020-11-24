@@ -19,6 +19,10 @@ import software.netcore.radman.ui.view.nas.widget.NasForm;
 
 import java.util.List;
 
+/**
+ * @author daniel
+ * @since v. 1.0.3
+ */
 public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VVerticalLayout contentLayout = new VVerticalLayout();
@@ -80,6 +84,8 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
                     query -> (int) nasService.countNasGroupRecords(query.getFilter().orElse(null))));
 
             newGroupName = new TextField("New group name");
+            binder.forField(newGroupName)
+                    .bind(NasGroupDto::getGroupName, NasGroupDto::setGroupName);
 
             radioGroup.addValueChangeListener(event -> {
                 switch (event.getValue()) {
@@ -106,7 +112,7 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return true; //TODO check binder
+            return binder.validate().isOk();
         }
 
         @Override
@@ -120,7 +126,7 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
                 }
                 nasGroupDto.setNasIpAddress(nasIpAddress);
 
-                dataStorage.setNasGroupDto(nasGroupDto);
+                dataStorage.getNasGroupDtos().add(nasGroupDto);
             }
         }
 

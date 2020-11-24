@@ -16,7 +16,7 @@ import javax.validation.constraints.NotEmpty;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id", "groupName", "nasIpAddress"})
 @GroupSequence(value = {Cheap.class, Expensive.class, NasGroupDto.class})
 public class NasGroupDto implements DataStorage {
 

@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view;
+package software.netcore.radman.ui.view.userGroups;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -35,6 +35,8 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
+import software.netcore.radman.ui.view.userGroups.widget.UserGroupCreationDialog;
+import software.netcore.radman.ui.view.userGroups.widget.UserGroupEditDialog;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -76,9 +78,9 @@ public class UserGroupsView extends VerticalLayout {
         grid.setMinHeight("500px");
         grid.setHeight("100%");
 
-        UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(
+        UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshAll());
-        UserGroupEditDialog editDialog = new UserGroupEditDialog(
+        UserGroupEditDialog editDialog = new UserGroupEditDialog(service,
                 (source, bean) -> grid.getDataProvider().refreshItem(bean));
 
         Checkbox removeFromRadius = new Checkbox("Remove from Radius");
@@ -155,116 +157,6 @@ public class UserGroupsView extends VerticalLayout {
         horizontalLayout.add(search);
         add(horizontalLayout);
         add(grid);
-    }
-
-    private abstract class UserGroupFormDialog extends Dialog {
-
-        final Binder<RadiusGroupDto> binder;
-
-        UserGroupFormDialog() {
-
-            TextField username = new TextField("Name");
-            username.setValueChangeMode(ValueChangeMode.EAGER);
-            TextField description = new TextField("Description");
-            description.setValueChangeMode(ValueChangeMode.EAGER);
-
-            binder = new BeanValidationBinder<>(RadiusGroupDto.class);
-            binder.bind(username, "name");
-            binder.bind(description, "description");
-
-            HorizontalLayout controlsLayout = new HorizontalLayout();
-            controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            controlsLayout.add(new Button("Cancel", event -> setOpened(false)));
-            controlsLayout.add(getConfirmBtn());
-            controlsLayout.setWidthFull();
-
-            add(new H3(getDialogTitle()));
-            add(new FormLayout(username, description));
-            add(new Hr());
-            add(controlsLayout);
-        }
-
-        abstract String getDialogTitle();
-
-        abstract Button getConfirmBtn();
-
-    }
-
-    private class UserGroupCreationDialog extends UserGroupFormDialog {
-
-        private final CreationListener<RadiusGroupDto> creationListener;
-
-        UserGroupCreationDialog(CreationListener<RadiusGroupDto> creationListener) {
-            this.creationListener = creationListener;
-        }
-
-        @Override
-        String getDialogTitle() {
-            return "Create Radius group";
-        }
-
-        @Override
-        Button getConfirmBtn() {
-            return new Button("Create", event -> {
-                RadiusGroupDto dto = new RadiusGroupDto();
-                if (binder.writeBeanIfValid(dto)) {
-                    try {
-                        dto = service.createRadiusUsersGroup(dto);
-                        creationListener.onCreated(this, dto);
-                        setOpened(false);
-                    } catch (Exception e) {
-                        log.warn("Failed to create radius group. Reason = '{}'", e.getMessage());
-                        ErrorNotification.show("Error",
-                                "Ooops, something went wrong, try again please");
-                    }
-                }
-            });
-        }
-
-        void startCreation() {
-            binder.readBean(new RadiusGroupDto());
-            setOpened(true);
-        }
-
-    }
-
-    private class UserGroupEditDialog extends UserGroupFormDialog {
-
-        private final UpdateListener<RadiusGroupDto> updateListener;
-
-        UserGroupEditDialog(UpdateListener<RadiusGroupDto> updateListener) {
-            this.updateListener = updateListener;
-        }
-
-        @Override
-        String getDialogTitle() {
-            return "Edit Radius group";
-        }
-
-        @Override
-        Button getConfirmBtn() {
-            return new Button("Save", event -> {
-                BinderValidationStatus<RadiusGroupDto> validationStatus = binder.validate();
-                if (validationStatus.isOk()) {
-                    try {
-                        RadiusGroupDto dto = binder.getBean();
-                        dto = service.updateRadiusUsersGroup(dto);
-                        updateListener.onUpdated(this, dto);
-                        setOpened(false);
-                    } catch (Exception e) {
-                        log.warn("Failed to update Radius group. Reason = '{}'", e.getMessage());
-                        ErrorNotification.show("Error",
-                                "Ooops, something went wrong, try again please");
-                    }
-                }
-            });
-        }
-
-        void edit(RadiusGroupDto dto) {
-            binder.setBean(dto);
-            setOpened(true);
-        }
-
     }
 
 }

@@ -5,12 +5,12 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
+import software.netcore.radman.buisness.service.attribute.AttributeService;
+import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
-import software.netcore.radman.ui.component.wizard.DataStorage;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 
 import java.util.List;
@@ -34,14 +34,20 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
     private static final String ATTRIBUTE = "Attribute";
 
     private final NasService nasService;
+    private final AuthService authService;
+    private final AttributeService attributeService;
     private final RadiusUserService radiusUserService;
     private final SecurityService securityService;
 
     public IntroductionStep(NasService nasService,
+                            AuthService authService,
+                            AttributeService attributeService,
                             RadiusUserService radiusUserService,
                             SecurityService securityService,
                             List<WizardStep<NewEntityWizardDataStorage>> steps) {
         this.nasService = nasService;
+        this.authService = authService;
+        this.attributeService = attributeService;
         this.radiusUserService = radiusUserService;
         this.securityService = securityService;
         this.steps = steps;
@@ -88,9 +94,10 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
                 steps.add(new NasGroupStep(nasService));
                 break;
             case USER:
-                steps.add(new UserStep(radiusUserService, securityService, steps));
+                steps.add(new UserStep(authService, attributeService, radiusUserService, securityService, steps));
                 break;
             case USER_GROUP:
+                steps.add(new UserGroupStep(steps));
                 break;
             case ATTRIBUTE:
                 break;

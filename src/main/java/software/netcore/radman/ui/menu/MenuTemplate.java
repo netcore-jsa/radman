@@ -20,6 +20,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
+import software.netcore.radman.buisness.service.attribute.AttributeService;
+import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.buisness.service.security.SecurityService;
@@ -28,8 +30,10 @@ import software.netcore.radman.ui.component.wizard.Wizard;
 import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
 import software.netcore.radman.ui.component.wizard.demo.NewEntityWizardDataStorage;
 import software.netcore.radman.ui.view.*;
+import software.netcore.radman.ui.view.auth.AuthView;
 import software.netcore.radman.ui.view.nas.NasView;
 import software.netcore.radman.ui.view.systemUsers.SystemUsersView;
+import software.netcore.radman.ui.view.userGroups.UserGroupsView;
 import software.netcore.radman.ui.view.userToGroup.UserToGroupView;
 
 import javax.transaction.Transactional;
@@ -51,6 +55,10 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
 
     @Autowired
     private NasService nasService;
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private AttributeService attributeService;
     @Autowired
     private RadiusUserService radiusUserService;
     @Autowired
@@ -137,6 +145,8 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
 
         additionWizard.getSteps().add(
                 new IntroductionStep(nasService,
+                        authService,
+                        attributeService,
                         radiusUserService,
                         securityService,
                         additionWizard.getSteps()));

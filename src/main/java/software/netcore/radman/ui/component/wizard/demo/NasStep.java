@@ -65,10 +65,10 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
         private final VVerticalLayout contentLayout = new VVerticalLayout();
         private final Binder<NasGroupDto> binder = new Binder<>();
 
-        private RadioButtonGroup<String> radioGroup;
-        private ComboBox<NasGroupDto> existingGroups;
-        private TextField newGroupName;
-        private String nasIpAddress;
+        private final RadioButtonGroup<String> radioGroup;
+        private final ComboBox<NasGroupDto> existingGroups;
+        private final TextField newGroupName;
+        private final String nasIpAddress;
 
         public NasStepSecond(NasService nasService, String nasIpAddress) {
             this.nasIpAddress = nasIpAddress;

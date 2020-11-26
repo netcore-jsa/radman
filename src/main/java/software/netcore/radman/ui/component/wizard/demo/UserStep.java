@@ -10,6 +10,8 @@ import lombok.NonNull;
 import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
+import software.netcore.radman.buisness.service.attribute.AttributeService;
+import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
@@ -17,6 +19,8 @@ import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilte
 import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
+import software.netcore.radman.ui.view.auth.widget.AuthenticationGrid;
+import software.netcore.radman.ui.view.auth.widget.AuthorizationGrid;
 import software.netcore.radman.ui.view.systemUsers.widget.SystemUserForm;
 import software.netcore.radman.ui.view.userToGroup.widget.AddUserToGroupDialog;
 
@@ -32,12 +36,18 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
     private final List<WizardStep<NewEntityWizardDataStorage>> steps;
     private final SystemUserForm userForm;
 
+    private final AuthService authService;
+    private final AttributeService attributeService;
     private final RadiusUserService radiusUserService;
     private final SecurityService securityService;
 
-    public UserStep(RadiusUserService radiusUserService,
+    public UserStep(AuthService authService,
+                    AttributeService attributeService,
+                    RadiusUserService radiusUserService,
                     SecurityService securityService,
                     List<WizardStep<NewEntityWizardDataStorage>> steps) {
+        this.authService = authService;
+        this.attributeService = attributeService;
         this.radiusUserService = radiusUserService;
         this.securityService = securityService;
         this.steps = steps;
@@ -45,12 +55,11 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
         userForm = new SystemUserForm();
         userForm.setBean(new SystemUserDto());
         contentLayout.withComponent(userForm);
-
     }
 
     @Override
     public Component getContent() {
-        steps.add(new UserStepSecond(radiusUserService, securityService, steps));
+        steps.add(new UserStepSecond(steps));
         return contentLayout;
     }
 
@@ -64,16 +73,12 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
     }
 
-    private static class UserStepSecond implements WizardStep<NewEntityWizardDataStorage> {
+    private class UserStepSecond implements WizardStep<NewEntityWizardDataStorage> {
 
         private final VVerticalLayout contentLayout = new VVerticalLayout();
         private final List<WizardStep<NewEntityWizardDataStorage>> steps;
-        private final RadiusUserService radiusUserService;
 
-        UserStepSecond(RadiusUserService radiusUserService,
-                       SecurityService securityService,
-                       List<WizardStep<NewEntityWizardDataStorage>> steps) {
-            this.radiusUserService = radiusUserService;
+        UserStepSecond(List<WizardStep<NewEntityWizardDataStorage>> steps) {
             this.steps = steps;
 
             RadiusGroupFilter filter = new RadiusGroupFilter();
@@ -115,18 +120,27 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return false;
+            return true;
         }
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
 
         }
+
     }
 
-    private static class UserStepThird implements WizardStep<NewEntityWizardDataStorage> {
+    private class UserStepThird implements WizardStep<NewEntityWizardDataStorage> {
 
         private final VVerticalLayout contentLayout = new VVerticalLayout();
+
+        UserStepThird() {
+            AuthenticationGrid authGrid = new AuthenticationGrid(authService, attributeService, radiusUserService, securityService);
+            AuthorizationGrid autzGrid = new AuthorizationGrid(authService, attributeService, radiusUserService, securityService);
+
+            contentLayout.withComponent(authGrid)
+                    .withComponent(autzGrid);
+        }
 
         @Override
         public Component getContent() {
@@ -135,13 +149,19 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return false;
+            return true;
         }
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
 
         }
+
+        @Override
+        public boolean hasNextStep() {
+            return false;
+        }
+
     }
 
 }

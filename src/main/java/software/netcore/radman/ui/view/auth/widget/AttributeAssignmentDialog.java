@@ -44,10 +44,7 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
     private final RadiusUserService userService;
     private final CreationListener<Void> creationListener;
 
-    Binder<T> binder;
-    private ComboBox<RadiusUserDto> username;
-    private ComboBox<RadiusGroupDto> groupName;
-    private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> value;
+    private final AuthForm<T, U> authForm;
 
     public AttributeAssignmentDialog(RadiusUserService userService,
                                      CreationListener<Void> creationListener) {
@@ -57,90 +54,8 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
 
     private void build() {
         removeAll();
-        binder = new BeanValidationBinder<>(getClazz());
 
-        HorizontalLayout authTargetConfigLayout = new HorizontalLayout();
-        username = new ComboBox<>("Username");
-        username.setItemLabelGenerator(RadiusUserDto::getUsername);
-        groupName = new ComboBox<>("Group name");
-        groupName.setItemLabelGenerator(RadiusGroupDto::getName);
-        username.setDataProvider(new CallbackDataProvider<>(query ->
-                userService.pageRadiusUsers(new RadiusUserFilter(query.getFilter().orElse(null),
-                        true, false), PageRequest.of(query.getOffset(),
-                        query.getLimit(), new Sort(Sort.Direction.ASC, "id"))).stream(),
-                query -> (int) userService.countRadiusUsers(new RadiusUserFilter(query.getFilter()
-                        .orElse(null), true, false))));
-        groupName.setDataProvider(new CallbackDataProvider<>(query ->
-                userService.pageRadiusUsersGroup(new RadiusGroupFilter(query.getFilter().orElse(null),
-                        true, false), PageRequest.of(query.getOffset(),
-                        query.getLimit(), new Sort(Sort.Direction.ASC, "id"))).stream(),
-                query -> (int) userService.countRadiusUsersGroup(new RadiusGroupFilter(query.getFilter()
-                        .orElse(null), true, false))));
-
-        Select<AuthTarget> authTargetSelect = new Select<>(AuthTarget.values());
-        authTargetSelect.setLabel("Type");
-        authTargetSelect.setItemLabelGenerator(AuthTarget::getValue);
-        authTargetSelect.setTextRenderer(AuthTarget::getValue);
-        authTargetSelect.addValueChangeListener(event -> {
-            binder.removeBinding("name");
-            authTargetConfigLayout.removeAll();
-            if (event.getValue() == AuthTarget.RADIUS_USER) {
-                authTargetConfigLayout.add(username);
-                binder.forField(username)
-                        .withConverter(new RadiusUserDtoToNameConverter())
-                        .bind("name");
-            } else {
-                authTargetConfigLayout.add(groupName);
-                binder.forField(groupName)
-                        .withConverter(new RadiusGroupDtoToNameConverter())
-                        .bind("name");
-            }
-            authTargetConfigLayout.add(authTargetSelect);
-        });
-        authTargetSelect.setEmptySelectionAllowed(false);
-        authTargetConfigLayout.add(authTargetSelect);
-
-        HorizontalLayout attrConfigLayout = new HorizontalLayout();
-        ComboBox<U> attribute = new ComboBox<>("Attribute");
-        attribute.setItemLabelGenerator(AttributeDto::getName);
-        attribute.setDataProvider((ComboBox.FetchItemsCallback<U>)
-                        (searchText, offset, limit) -> pageAttributes(new AttributeFilter(searchText,
-                                        true, false),
-                                PageRequest.of(offset, limit, new Sort(Sort.Direction.ASC, "id")))
-                                .stream(),
-                (SerializableFunction<String, Integer>) searchText ->
-                        (int) countAttributes(new AttributeFilter(searchText, true,
-                                false)));
-        attribute.addValueChangeListener(event -> {
-            if (event.getValue() != null && event.getValue().isSensitiveData()) {
-                if (!(value instanceof PasswordField)) {
-                    AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> newValueField
-                            = buildPasswordValueField();
-                    attrConfigLayout.replace(value, newValueField);
-                    value = newValueField;
-                }
-            } else {
-                if (!(value instanceof TextField)) {
-                    AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> newValueField
-                            = buildTextValueField();
-                    attrConfigLayout.replace(value, newValueField);
-                    value = newValueField;
-                }
-            }
-        });
-
-        Select<RadiusOp> opSelect = new Select<>(RadiusOp.values());
-        opSelect.setLabel("Operation");
-        opSelect.setItemLabelGenerator(RadiusOp::getValue);
-        opSelect.setTextRenderer(RadiusOp::getValue);
-        opSelect.setWidth("75px");
-        value = buildTextValueField();
-
-        binder.bind(authTargetSelect, "authTarget");
-        binder.forField(attribute)
-                .withConverter(new AttributeDtoToNameConverter<>())
-                .bind("attribute");
-        binder.bind(opSelect, "op");
+        authForm = new AuthForm<>(getClazz());
 
         Button assignBtn = new Button("Assign", event -> {
             T dto = getNewBeanInstance();
@@ -158,11 +73,10 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
         });
         Button cancelBtn = new Button("Cancel", event -> setOpened(false));
 
-        attrConfigLayout.add(attribute, opSelect, value);
+
 
         add(new H3(getDialogTitle()));
-        add(authTargetConfigLayout);
-        add(attrConfigLayout);
+
         HorizontalLayout controlsLayout = new HorizontalLayout();
         controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         controlsLayout.setWidthFull();
@@ -170,24 +84,6 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
         controlsLayout.add(assignBtn);
         add(new Hr());
         add(controlsLayout);
-    }
-
-    private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> buildTextValueField() {
-        binder.removeBinding("value");
-        TextField valueField = new TextField("Value");
-        valueField.setValueChangeMode(ValueChangeMode.EAGER);
-        valueField.setClearButtonVisible(false);
-        binder.bind(valueField, "value");
-        return valueField;
-    }
-
-    private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> buildPasswordValueField() {
-        binder.removeBinding("value");
-        PasswordField valueField = new PasswordField("Value");
-        valueField.setValueChangeMode(ValueChangeMode.EAGER);
-        valueField.setClearButtonVisible(false);
-        binder.bind(valueField, "value");
-        return valueField;
     }
 
     abstract String getDialogTitle();

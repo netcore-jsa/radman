@@ -1,19 +1,17 @@
-package software.netcore.radman.ui.view.userGroups.widget;
+package software.netcore.radman.ui.view.user_groups.widget;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 import software.netcore.radman.ui.CreationListener;
 import software.netcore.radman.ui.notification.ErrorNotification;
-
-import java.awt.*;
 
 @Slf4j
 public class UserGroupCreationDialog extends Dialog {
@@ -23,10 +21,10 @@ public class UserGroupCreationDialog extends Dialog {
     private final RadiusUserService radiusUserService;
     private final CreationListener<RadiusGroupDto> creationListener;
 
-    private UserGroupsForm userGroupsForm;
+    private final UserGroupsForm userGroupsForm;
 
-    public UserGroupCreationDialog(RadiusUserService radiusUserService,
-                                   CreationListener<RadiusGroupDto> creationListener) {
+    public UserGroupCreationDialog(@NonNull RadiusUserService radiusUserService,
+                                   @NonNull CreationListener<RadiusGroupDto> creationListener) {
         this.radiusUserService = radiusUserService;
         this.creationListener = creationListener;
 

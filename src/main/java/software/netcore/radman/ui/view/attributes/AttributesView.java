@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view;
+package software.netcore.radman.ui.view.attributes;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -11,7 +11,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -19,6 +18,7 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,6 +39,7 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
+import software.netcore.radman.ui.view.attributes.widget.AttributeForm;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -292,66 +293,31 @@ public class AttributesView extends VerticalLayout {
 
     private abstract class AttributeCreationDialog<T extends AttributeDto> extends Dialog {
 
-        private static final String SENSITIVE_DATA_WARNING_MESSAGE = "" +
-                "WARNING: " +
-                "Creating an attribute as \"Sensitive\" - " +
-                "this can not be changed later. " +
-                "If you want to see the attribute value, " +
-                "you will have to delete and re-create this attribute.";
-
         final AttributeService attributeService;
-        private final Binder<T> binder;
+        private final AttributeForm<T> attributeForm;
 
         AttributeCreationDialog(AttributeService attributeService,
                                 CreationListener<T> creationListener) {
             this.attributeService = attributeService;
 
-            FormLayout formLayout = new FormLayout();
-            formLayout.add(new H3(getDialogTitle()));
-            TextField name = new TextField("Name");
-            name.setValueChangeMode(ValueChangeMode.EAGER);
-            name.setWidthFull();
-            TextArea description = new TextArea("Description");
-            description.setValueChangeMode(ValueChangeMode.EAGER);
-            description.setWidthFull();
-            Checkbox sensitive = new Checkbox("Sensitive");
-            sensitive.setWidthFull();
-            Span sensitiveDataWarningMessage = new Span(SENSITIVE_DATA_WARNING_MESSAGE);
-            sensitiveDataWarningMessage.getElement().getStyle().set("font-weight", "500");
-            sensitiveDataWarningMessage.getElement().getStyle().set("word-break", "break-word");
-            Div sensitiveDataWarningContainer = new Div();
-            sensitiveDataWarningContainer.setWidthFull();
-            sensitiveDataWarningContainer.add(new Hr());
-            sensitiveDataWarningContainer.add(sensitiveDataWarningMessage);
-
-            binder = new BeanValidationBinder<>(getClazz());
-            binder.bind(name, "name");
-            binder.bind(description, "description");
-            binder.bind(sensitive, "sensitiveData");
+            attributeForm = new AttributeForm<>(getClazz());
+//            attributeForm.setBean(getClazz().newInstance()); //TODO wizard
 
             Button createBtn = new Button("Create", event -> {
-                T dto = getNewBeanInstance();
-                if (binder.writeBeanIfValid(dto)) {
+
+                if (attributeForm.isValid()) {
                     try {
-                        dto = create(dto);
+                        T dto = create((T) attributeForm.getBean());
                         creationListener.onCreated(this, dto);
                         setOpened(false);
                     } catch (DataIntegrityViolationException e) {
-                        name.setInvalid(true);
-                        name.setErrorMessage("Attribute with the same name already exist.");
+                        attributeForm.getName().setInvalid(true);
+                        attributeForm.getName().setErrorMessage("Attribute with the same name already exist.");
                     } catch (Exception e) {
                         log.warn("Failed to create attribute. Reason = '{}'", e.getMessage());
                         ErrorNotification.show("Error",
                                 "Ooops, something went wrong, try again please");
                     }
-                }
-            });
-
-            sensitive.addValueChangeListener(event -> {
-                if (event.getValue()) {
-                    formLayout.addComponentAtIndex(4, sensitiveDataWarningContainer);
-                } else {
-                    formLayout.remove(sensitiveDataWarningContainer);
                 }
             });
 
@@ -361,13 +327,11 @@ public class AttributesView extends VerticalLayout {
             controlsLayout.add(new Button("Cancel", event -> setOpened(false)));
             controlsLayout.add(createBtn);
 
-            formLayout.add(name);
-            formLayout.add(description);
-            formLayout.add(sensitive);
-            formLayout.add(new Hr());
-            formLayout.add(controlsLayout);
-            formLayout.setMaxWidth("500px");
-            add(formLayout);
+            add(new H3(getDialogTitle()));
+            add(attributeForm);
+            add(new Hr());
+            add(controlsLayout);
+            attributeForm.setMaxWidth("500px");
         }
 
         abstract Class<T> getClazz();
@@ -380,7 +344,7 @@ public class AttributesView extends VerticalLayout {
 
         void startCreation() {
             setOpened(true);
-            binder.readBean(getNewBeanInstance());
+            attributeForm.setBean(getNewBeanInstance());
         }
 
     }

@@ -21,8 +21,8 @@ import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 import software.netcore.radman.ui.view.auth.widget.AuthenticationGrid;
 import software.netcore.radman.ui.view.auth.widget.AuthorizationGrid;
-import software.netcore.radman.ui.view.systemUsers.widget.SystemUserForm;
-import software.netcore.radman.ui.view.userToGroup.widget.AddUserToGroupDialog;
+import software.netcore.radman.ui.view.system_users.widget.SystemUserForm;
+import software.netcore.radman.ui.view.user_to_group.widget.AddUserToGroupDialog;
 
 import java.util.List;
 

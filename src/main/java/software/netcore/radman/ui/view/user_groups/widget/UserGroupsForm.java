@@ -1,11 +1,10 @@
-package software.netcore.radman.ui.view.userGroups.widget;
+package software.netcore.radman.ui.view.user_groups.widget;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 
 public class UserGroupsForm extends FormLayout {

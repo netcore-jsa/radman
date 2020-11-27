@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view.userToGroup.widget;
+package software.netcore.radman.ui.view.user_to_group.widget;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;

@@ -1,13 +1,12 @@
-package software.netcore.radman.ui.view.userGroups.widget;
+package software.netcore.radman.ui.view.user_groups.widget;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.binder.BinderValidationStatus;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
@@ -22,10 +21,10 @@ public class UserGroupEditDialog extends Dialog {
     private final RadiusUserService radiusUserService;
     private final UpdateListener<RadiusGroupDto> updateListener;
 
-    private UserGroupsForm userGroupsForm;
+    private final UserGroupsForm userGroupsForm;
 
-    public UserGroupEditDialog(RadiusUserService radiusUserService,
-                               UpdateListener<RadiusGroupDto> updateListener) {
+    public UserGroupEditDialog(@NonNull RadiusUserService radiusUserService,
+                               @NonNull UpdateListener<RadiusGroupDto> updateListener) {
         this.radiusUserService = radiusUserService;
         this.updateListener = updateListener;
 
@@ -60,7 +59,7 @@ public class UserGroupEditDialog extends Dialog {
         });
     }
 
-    public void edit(RadiusGroupDto dto) {
+    public void edit(@NonNull RadiusGroupDto dto) {
         userGroupsForm.setBean(dto);
         setOpened(true);
     }

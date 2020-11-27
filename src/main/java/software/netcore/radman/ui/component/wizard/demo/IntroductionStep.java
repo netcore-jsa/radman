@@ -97,9 +97,10 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
                 steps.add(new UserStep(authService, attributeService, radiusUserService, securityService, steps));
                 break;
             case USER_GROUP:
-                steps.add(new UserGroupStep(steps));
+                steps.add(new UserGroupStep(radiusUserService, securityService, steps));
                 break;
             case ATTRIBUTE:
+                steps.add(new AttributeStep(steps));
                 break;
         }
     }

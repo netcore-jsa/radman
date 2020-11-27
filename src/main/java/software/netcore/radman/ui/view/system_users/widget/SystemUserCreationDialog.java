@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view.systemUsers.widget;
+package software.netcore.radman.ui.view.system_users.widget;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;

@@ -23,18 +23,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import software.netcore.radman.buisness.exception.DuplicityException;
 import software.netcore.radman.buisness.service.attribute.AttributeService;
 import software.netcore.radman.buisness.service.auth.AuthService;
+import software.netcore.radman.buisness.service.auth.dto.AuthenticationDto;
+import software.netcore.radman.buisness.service.auth.dto.AuthorizationDto;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
+import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserToGroupDto;
 import software.netcore.radman.ui.component.wizard.Wizard;
 import software.netcore.radman.ui.component.wizard.demo.IntroductionStep;
 import software.netcore.radman.ui.component.wizard.demo.NewEntityWizardDataStorage;
-import software.netcore.radman.ui.view.*;
+import software.netcore.radman.ui.view.AccountingView;
+import software.netcore.radman.ui.view.NasGroupsView;
 import software.netcore.radman.ui.view.attributes.AttributesView;
 import software.netcore.radman.ui.view.auth.AuthView;
 import software.netcore.radman.ui.view.nas.NasView;
+import software.netcore.radman.ui.view.radius_users.UsersView;
 import software.netcore.radman.ui.view.system_users.SystemUsersView;
 import software.netcore.radman.ui.view.user_groups.UserGroupsView;
 import software.netcore.radman.ui.view.user_to_group.UserToGroupView;
@@ -170,8 +175,10 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
             }
         }
 
-        if (Objects.nonNull(dataStorage.getRadiusGroupDto())) {
-            radiusUserService.createRadiusUsersGroup(dataStorage.getRadiusGroupDto());
+        if (Objects.nonNull(dataStorage.getRadiusGroupDtos())) {
+            for (RadiusGroupDto dto : dataStorage.getRadiusGroupDtos()) {
+                radiusUserService.createRadiusUsersGroup(dto);
+            }
         }
 
         if (!dataStorage.getRadiusUserToGroupDtos().isEmpty()) {
@@ -181,6 +188,26 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
                 } catch (DuplicityException e) {
                     e.printStackTrace(); //TODO wizard
                 }
+            }
+        }
+
+        if (Objects.nonNull(dataStorage.getAuthenticationAttributeDto())) {
+            attributeService.createAuthenticationAttribute(dataStorage.getAuthenticationAttributeDto());
+        }
+
+        if (Objects.nonNull(dataStorage.getAuthorizationAttributeDto())) {
+            attributeService.createAuthorizationAttribute(dataStorage.getAuthorizationAttributeDto());
+        }
+
+        if (!dataStorage.getAuthenticationDto().isEmpty()) {
+            for (AuthenticationDto dto : dataStorage.getAuthenticationDto()) {
+                authService.createAuthentication(dto);
+            }
+        }
+
+        if (!dataStorage.getAuthorizationDto().isEmpty()) {
+            for (AuthorizationDto dto : dataStorage.getAuthorizationDto()) {
+                authService.createAuthorization(dto);
             }
         }
     }

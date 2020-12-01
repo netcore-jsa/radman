@@ -46,6 +46,13 @@ public class AttributeForm<T extends AttributeDto> extends FormLayout {
         sensitiveDataWarningContainer.add(sensitiveDataWarningMessage);
 
         binder = new BeanValidationBinder<>(clazz);
+        try {
+            binder.setBean(clazz.newInstance());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
         binder.bind(name, "name");
         binder.bind(description, "description");
         binder.bind(sensitive, "sensitiveData");

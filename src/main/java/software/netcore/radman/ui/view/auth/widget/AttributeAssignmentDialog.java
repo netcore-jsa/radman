@@ -1,22 +1,11 @@
 package software.netcore.radman.ui.view.auth.widget;
 
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.CallbackDataProvider;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.function.SerializableFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,16 +15,8 @@ import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.auth.dto.AuthDto;
 import software.netcore.radman.buisness.service.auth.dto.AuthTarget;
-import software.netcore.radman.buisness.service.auth.dto.RadiusOp;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
-import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
-import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
-import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
-import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserFilter;
 import software.netcore.radman.ui.CreationListener;
-import software.netcore.radman.ui.converter.AttributeDtoToNameConverter;
-import software.netcore.radman.ui.converter.RadiusGroupDtoToNameConverter;
-import software.netcore.radman.ui.converter.RadiusUserDtoToNameConverter;
 import software.netcore.radman.ui.notification.ErrorNotification;
 
 @Slf4j
@@ -44,7 +25,7 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
     private final RadiusUserService userService;
     private final CreationListener<Void> creationListener;
 
-    private final AuthForm<T, U> authForm;
+    private AuthForm<T, U> authForm;
 
     public AttributeAssignmentDialog(RadiusUserService userService,
                                      CreationListener<Void> creationListener) {
@@ -55,11 +36,16 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
     private void build() {
         removeAll();
 
-        authForm = new AuthForm<>(getClazz());
+        authForm = new AuthForm<>(getClazz(), userService, false, false, null,
+                (searchText, offset, limit) ->
+                        pageAttributes(new AttributeFilter(searchText, true, false),
+                                PageRequest.of(offset, limit, new Sort(Sort.Direction.ASC, "id"))),
+                filter ->
+                        (int) countAttributes(filter));
 
         Button assignBtn = new Button("Assign", event -> {
             T dto = getNewBeanInstance();
-            if (binder.writeBeanIfValid(dto)) {
+            if (authForm.isValid()) {
                 try {
                     assignAuth(dto);
                     creationListener.onCreated(this, null);
@@ -73,10 +59,8 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
         });
         Button cancelBtn = new Button("Cancel", event -> setOpened(false));
 
-
-
         add(new H3(getDialogTitle()));
-
+        add(authForm);
         HorizontalLayout controlsLayout = new HorizontalLayout();
         controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         controlsLayout.setWidthFull();
@@ -103,7 +87,7 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
         setOpened(true);
         T auth = getNewBeanInstance();
         auth.setAuthTarget(AuthTarget.RADIUS_USER);
-        binder.readBean(auth);
+        authForm.setBean(auth);
     }
 
 }

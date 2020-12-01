@@ -4,10 +4,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.provider.InMemoryDataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import lombok.NonNull;
-import org.vaadin.artur.spring.dataprovider.SpringDataProviderBuilder;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import software.netcore.radman.buisness.service.attribute.AttributeService;
@@ -15,16 +14,17 @@ import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupDto;
-import software.netcore.radman.buisness.service.user.radius.dto.RadiusGroupFilter;
+import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
+import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserToGroupDto;
 import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
-import software.netcore.radman.buisness.service.user.system.dto.SystemUserDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 import software.netcore.radman.ui.view.auth.widget.AuthenticationGrid;
 import software.netcore.radman.ui.view.auth.widget.AuthorizationGrid;
-import software.netcore.radman.ui.view.system_users.widget.SystemUserForm;
+import software.netcore.radman.ui.view.radius_users.widget.RadiusUserForm;
+import software.netcore.radman.ui.view.user_groups.widget.UserGroupCreationDialog;
 import software.netcore.radman.ui.view.user_to_group.widget.AddUserToGroupDialog;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * @author daniel
@@ -34,7 +34,7 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
     private final VVerticalLayout contentLayout = new VVerticalLayout();
     private final List<WizardStep<NewEntityWizardDataStorage>> steps;
-    private final SystemUserForm userForm;
+    private final RadiusUserForm userForm;
 
     private final AuthService authService;
     private final AttributeService attributeService;
@@ -52,14 +52,13 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
         this.securityService = securityService;
         this.steps = steps;
 
-        userForm = new SystemUserForm();
-        userForm.setBean(new SystemUserDto());
+        userForm = new RadiusUserForm();
+        userForm.setBean(new RadiusUserDto());
         contentLayout.withComponent(userForm);
     }
 
     @Override
     public Component getContent() {
-        steps.add(new UserStepSecond(steps));
         return contentLayout;
     }
 
@@ -70,7 +69,12 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
     @Override
     public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
+        dataStorage.setRadiusUserDto(userForm.getBean());
+    }
 
+    @Override
+    public void onTransition() {
+        steps.add(new UserStepSecond(userForm.getBean(), steps));
     }
 
     private class UserStepSecond implements WizardStep<NewEntityWizardDataStorage> {
@@ -78,19 +82,18 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
         private final VVerticalLayout contentLayout = new VVerticalLayout();
         private final List<WizardStep<NewEntityWizardDataStorage>> steps;
 
-        UserStepSecond(List<WizardStep<NewEntityWizardDataStorage>> steps) {
+        private final Set<RadiusGroupDto> radiusGroupDtoSet = new HashSet<>();
+        private final List<RadiusUserToGroupDto> radiusUserToGroupDtoList;
+
+        UserStepSecond(RadiusUserDto radiusUserDto, List<WizardStep<NewEntityWizardDataStorage>> steps) {
             this.steps = steps;
 
-            RadiusGroupFilter filter = new RadiusGroupFilter();
             RoleDto role = securityService.getLoggedUserRole();
 
-            Grid<RadiusGroupDto> grid = new Grid<>(RadiusGroupDto.class, false);
-            grid.addColumns("name", "description");
-            DataProvider<RadiusGroupDto, Object> dataProvider = new SpringDataProviderBuilder<>(
-                    (pageable, o) -> radiusUserService.pageRadiusUsersGroup(filter, pageable),
-                    value -> radiusUserService.countRadiusUsersGroup(filter))
-                    .withDefaultSort("id", SortDirection.ASCENDING)
-                    .build();
+            Grid<RadiusUserToGroupDto> grid = new Grid<>(RadiusUserToGroupDto.class, false);
+            grid.addColumns("groupName");
+            radiusUserToGroupDtoList = new ArrayList<>();
+            InMemoryDataProvider<RadiusUserToGroupDto> dataProvider = new ListDataProvider<>(radiusUserToGroupDtoList);
             grid.getColumns().forEach(column -> column.setResizable(true));
             grid.setDataProvider(dataProvider);
             grid.setMinHeight("200px");
@@ -98,18 +101,35 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
             Button addUserToGroup = new Button("Add user to group", event -> {
                 AddUserToGroupDialog addDialog = new AddUserToGroupDialog(radiusUserService,
-                        (source, bean) -> grid.getDataProvider().refreshAll());
-                addDialog.startAdding();
+                        (source, bean) -> {
+                            radiusUserToGroupDtoList.add(bean);
+                            grid.getDataProvider().refreshAll();
+                        });
+                addDialog.updateUsernameDataProvider(new ListDataProvider<>(Collections.singletonList(radiusUserDto)));
+                addDialog.open();
             });
             addUserToGroup.setEnabled(role == RoleDto.ADMIN);
 
+            Button createGroup = new Button("Create group", event -> {
+                UserGroupCreationDialog creationDialog = new UserGroupCreationDialog(radiusUserService,
+                        (source, bean) -> {
+                            radiusGroupDtoSet.add(bean);
+                            RadiusUserToGroupDto radiusUserToGroupDto = new RadiusUserToGroupDto();
+                            radiusUserToGroupDto.setUsername(radiusUserDto.getUsername());
+                            radiusUserToGroupDto.setGroupName(bean.getName());
+                            radiusUserToGroupDtoList.add(radiusUserToGroupDto);
+                            grid.getDataProvider().refreshAll();
+                        });
+                creationDialog.open();
+            });
+
             VHorizontalLayout controls = new VHorizontalLayout()
                     .withDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE)
-                    .withComponent(addUserToGroup);
+                    .withComponent(addUserToGroup)
+                    .withComponent(createGroup);
 
             contentLayout.withComponent(controls)
                     .withComponent(grid);
-
         }
 
         @Override
@@ -125,7 +145,8 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-
+            dataStorage.setRadiusUserToGroupDtos(new HashSet<>(radiusUserToGroupDtoList));
+            dataStorage.setRadiusGroupDtos(radiusGroupDtoSet);
         }
 
     }

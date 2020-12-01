@@ -11,6 +11,8 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
+import com.vaadin.flow.data.provider.InMemoryDataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,11 +28,12 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 public class AddUserToGroupDialog extends Dialog {
 
     private final Binder<RadiusUserToGroupDto> binder;
+    private final ComboBox<RadiusUserDto> username;
 
     public AddUserToGroupDialog(RadiusUserService userService, UpdateListener<RadiusUserToGroupDto> updateListener) {
         add(new H3("Add user to group"));
 
-        ComboBox<RadiusUserDto> username = new ComboBox<>("Username");
+        username = new ComboBox<>("Username");
         username.setItemLabelGenerator(RadiusUserDto::getUsername);
         username.setAutofocus(true);
         ComboBox<RadiusGroupDto> groupName = new ComboBox<>("Group name");
@@ -95,6 +98,10 @@ public class AddUserToGroupDialog extends Dialog {
     public void startAdding() {
         setOpened(true);
         binder.readBean(new RadiusUserToGroupDto());
+    }
+
+    public void updateUsernameDataProvider(ListDataProvider<RadiusUserDto> dataProvider) {
+        username.setDataProvider(dataProvider);
     }
 
 }

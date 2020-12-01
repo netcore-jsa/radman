@@ -1,4 +1,4 @@
-package software.netcore.radman.ui.view;
+package software.netcore.radman.ui.view.radius_users;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -36,6 +36,7 @@ import software.netcore.radman.ui.component.ConfirmationDialog;
 import software.netcore.radman.ui.menu.MenuTemplate;
 import software.netcore.radman.ui.notification.ErrorNotification;
 import software.netcore.radman.ui.notification.LoadingResultNotification;
+import software.netcore.radman.ui.view.radius_users.widget.RadiusUserForm;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -160,17 +161,11 @@ public class UsersView extends VerticalLayout {
 
     private abstract class UserFormDialog extends Dialog {
 
-        final Binder<RadiusUserDto> binder;
+        RadiusUserForm userForm;
 
         UserFormDialog() {
-            TextField username = new TextField("Username");
-            username.setValueChangeMode(ValueChangeMode.EAGER);
-            TextField description = new TextField("Description");
-            description.setValueChangeMode(ValueChangeMode.EAGER);
-
-            binder = new BeanValidationBinder<>(RadiusUserDto.class);
-            binder.bind(username, "username");
-            binder.bind(description, "description");
+            userForm = new RadiusUserForm();
+            userForm.setBean(new RadiusUserDto());
 
             HorizontalLayout controlsLayout = new HorizontalLayout();
             controlsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -179,7 +174,7 @@ public class UsersView extends VerticalLayout {
             controlsLayout.setWidthFull();
 
             add(new H3(getDialogTitle()));
-            add(new FormLayout(username, description));
+            add(userForm);
             add(new Hr());
             add(controlsLayout);
         }
@@ -206,10 +201,9 @@ public class UsersView extends VerticalLayout {
         @Override
         Button getConfirmBtn() {
             return new Button("Create", event -> {
-                RadiusUserDto dto = new RadiusUserDto();
-                if (binder.writeBeanIfValid(dto)) {
+                if (userForm.isValid()) {
                     try {
-                        dto = userService.createRadiusUser(dto);
+                        RadiusUserDto dto = userService.createRadiusUser(userForm.getBean());
                         creationListener.onCreated(this, dto);
                         setOpened(false);
                     } catch (Exception e) {
@@ -223,7 +217,7 @@ public class UsersView extends VerticalLayout {
 
         void startCreation() {
             setOpened(true);
-            binder.readBean(new RadiusUserDto());
+            userForm.setBean(new RadiusUserDto());
         }
 
     }
@@ -244,11 +238,9 @@ public class UsersView extends VerticalLayout {
         @Override
         Button getConfirmBtn() {
             return new Button("Save", event -> {
-                BinderValidationStatus<RadiusUserDto> validationStatus = binder.validate();
-                if (validationStatus.isOk()) {
+                if (userForm.isValid()) {
                     try {
-                        RadiusUserDto dto = binder.getBean();
-                        dto = userService.updateRadiusUser(dto);
+                        RadiusUserDto dto = userService.updateRadiusUser(userForm.getBean());
                         updateListener.onUpdated(this, dto);
                         setOpened(false);
                     } catch (Exception e) {
@@ -262,7 +254,7 @@ public class UsersView extends VerticalLayout {
 
         void edit(RadiusUserDto dto) {
             setOpened(true);
-            binder.setBean(dto);
+            userForm.setBean(dto);
         }
 
     }

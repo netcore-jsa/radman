@@ -100,7 +100,11 @@ public final class Wizard<T extends DataStorage> extends Dialog {
             }
         } else {
             try {
-                getSteps().forEach(step -> step.writeDataToStorage(dataStorage));
+                getSteps().forEach(step -> {
+                    if (step.isValid()) {
+                        step.writeDataToStorage(dataStorage);
+                    }
+                });
                 wizardFinalizer.finalizeWizard(dataStorage);
                 setOpened(false);
             } catch (WizardFinalizeException e) {

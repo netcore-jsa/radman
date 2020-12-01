@@ -32,6 +32,10 @@ import software.netcore.radman.ui.view.user_groups.widget.UserGroupsForm;
 
 import java.util.*;
 
+/**
+ * @author daniel
+ * @since v. 1.0.3
+ */
 public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
 
     private final RadiusUserService userService;
@@ -63,13 +67,13 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
     }
 
     @Override
-    public void onTransition() {
-        steps.add(new UserGroupStepSecond(securityService, userGroupsForm.getBean().getName()));
+    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
+        dataStorage.getRadiusGroupDtos().add(userGroupsForm.getBean());
     }
 
     @Override
-    public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-        dataStorage.setRadiusGroupDto(userGroupsForm.getBean());
+    public void onTransition() {
+        steps.add(new UserGroupStepSecond(securityService, userGroupsForm.getBean().getName()));
     }
 
     private class UserGroupStepSecond implements WizardStep<NewEntityWizardDataStorage> {

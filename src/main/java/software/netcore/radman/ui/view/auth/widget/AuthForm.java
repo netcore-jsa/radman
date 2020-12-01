@@ -11,13 +11,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableFunction;
+import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
+import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeFilter;
 import software.netcore.radman.buisness.service.auth.dto.AuthDto;
@@ -32,33 +35,51 @@ import software.netcore.radman.ui.converter.AttributeDtoToNameConverter;
 import software.netcore.radman.ui.converter.RadiusGroupDtoToNameConverter;
 import software.netcore.radman.ui.converter.RadiusUserDtoToNameConverter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLayout {
 
     @FunctionalInterface
-    private interface AttributePager<U extends AttributeDto> {
+    public interface AttributePager<U extends AttributeDto> {
 
-        Page<U> pageAttributes(AttributeFilter filter, Pageable pageable);
+        Page<U> pageAttributes(String searchText, int offset, int limit);
 
     }
 
     @FunctionalInterface
-    private interface AttributeCounter {
+    public interface AttributeCounter {
 
         int countAttributes(AttributeFilter filter);
 
     }
 
     private final Binder<T> binder;
+    @Getter
     private final ComboBox<RadiusUserDto> username;
+    @Getter
     private final ComboBox<RadiusGroupDto> groupName;
+    @Getter
+    private final Select<AuthTarget> authTargetSelect;
+
     private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> value;
 
     public AuthForm(@NonNull Class<T> clazz,
                     @NonNull RadiusUserService userService,
-                    @NonNull AttributePager<U> attributePager,
-                    @NonNull AttributeCounter attributeCounter) {
+                    boolean showForWizard,
+                    boolean nameAuthTarget,
+                    U attributeItem,
+                    AttributePager<U> attributePager,
+                    AttributeCounter attributeCounter) {
 
         binder = new BeanValidationBinder<>(clazz);
+        try {
+            binder.setBean(clazz.newInstance());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         HorizontalLayout authTargetConfigLayout = new HorizontalLayout();
         username = new ComboBox<>("Username");
@@ -78,7 +99,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                 query -> (int) userService.countRadiusUsersGroup(new RadiusGroupFilter(query.getFilter()
                         .orElse(null), true, false))));
 
-        Select<AuthTarget> authTargetSelect = new Select<>(AuthTarget.values());
+        authTargetSelect = new Select<>(AuthTarget.values());
         authTargetSelect.setLabel("Type");
         authTargetSelect.setItemLabelGenerator(AuthTarget::getValue);
         authTargetSelect.setTextRenderer(AuthTarget::getValue);
@@ -104,14 +125,21 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
         HorizontalLayout attrConfigLayout = new HorizontalLayout();
         ComboBox<U> attribute = new ComboBox<>("Attribute");
         attribute.setItemLabelGenerator(AttributeDto::getName);
-        attribute.setDataProvider((ComboBox.FetchItemsCallback<U>)
-                        (searchText, offset, limit) -> attributePager.pageAttributes(new AttributeFilter(searchText,
-                                        true, false),
-                                PageRequest.of(offset, limit, new Sort(Sort.Direction.ASC, "id")))
-                                .stream(),
-                (SerializableFunction<String, Integer>) searchText ->
-                        (int) attributeCounter.countAttributes(new AttributeFilter(searchText, true,
-                                false)));
+        if (!showForWizard) {
+            attribute.setDataProvider((ComboBox.FetchItemsCallback<U>)
+                            (searchText, offset, limit) -> attributePager.pageAttributes(searchText, offset, limit)
+                                    .stream(),
+                    (SerializableFunction<String, Integer>) searchText ->
+                            (int) attributeCounter.countAttributes(new AttributeFilter(searchText, true,
+                                    false)));
+        } else {
+//            attribute.setItems(attributeItem);
+            List<AttributeDto> list = new ArrayList<>();
+            list.add(attributeItem);
+            attribute.setDataProvider((ListDataProvider<U>) new ListDataProvider<>(list));
+            attribute.setValue(attributeItem);
+        }
+
         attribute.addValueChangeListener(event -> {
             if (event.getValue() != null && event.getValue().isSensitiveData()) {
                 if (!(value instanceof PasswordField)) {
@@ -143,9 +171,24 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                 .bind("attribute");
         binder.bind(opSelect, "op");
 
-        attrConfigLayout.add(attribute, opSelect, value);
-        add(authTargetConfigLayout);
-        add(attrConfigLayout);
+        if (showForWizard) {
+            if (nameAuthTarget) {
+                authTargetSelect.setValue(AuthTarget.RADIUS_USER);
+            } else {
+                authTargetSelect.setValue(AuthTarget.RADIUS_GROUP);
+            }
+
+            authTargetConfigLayout.remove(authTargetSelect);
+            add(new VHorizontalLayout()
+                    .withComponents(authTargetConfigLayout)
+                    .withComponents(opSelect)
+                    .withComponents(value));
+        } else {
+            attrConfigLayout.add(attribute, opSelect, value);
+            add(new VVerticalLayout()
+                    .withComponents(authTargetConfigLayout)
+                    .withComponents(attrConfigLayout));
+        }
 
     }
 

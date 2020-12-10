@@ -18,10 +18,11 @@ public class AuthorizationGrid extends AuthGrid<AuthorizationsDto, Authorization
     public AuthorizationGrid(@NonNull AuthService authService,
                              @NonNull AttributeService attributeService,
                              @NonNull RadiusUserService userService,
-                             @NonNull SecurityService securityService) {
+                             @NonNull SecurityService securityService,
+                             @NonNull AuthFormConfiguration formConfig) {
         super(securityService);
         this.authService = authService;
-        assigmentDialog = new AuthorizationAttributeAssigmentDialog(authService, attributeService, userService,
+        assigmentDialog = new AuthorizationAttributeAssigmentDialog(authService, attributeService, userService, formConfig,
                 (source, bean) -> refreshGrid());
         refreshGrid();
     }

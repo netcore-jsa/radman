@@ -23,12 +23,15 @@ import software.netcore.radman.ui.notification.ErrorNotification;
 public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends AttributeDto> extends Dialog {
 
     private final RadiusUserService userService;
+    private final AuthFormConfiguration formConfig;
     private final CreationListener<Void> creationListener;
 
     private AuthForm<T, U> authForm;
 
     public AttributeAssignmentDialog(RadiusUserService userService,
+                                     AuthFormConfiguration formConfig,
                                      CreationListener<Void> creationListener) {
+        this.formConfig = formConfig;
         this.userService = userService;
         this.creationListener = creationListener;
     }
@@ -36,7 +39,7 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
     private void build() {
         removeAll();
 
-        authForm = new AuthForm<>(getClazz(), userService, false, false, null,
+        authForm = new AuthForm<>(getClazz(), userService, formConfig, null,
                 (searchText, offset, limit) ->
                         pageAttributes(new AttributeFilter(searchText, true, false),
                                 PageRequest.of(offset, limit, new Sort(Sort.Direction.ASC, "id"))),
@@ -47,6 +50,7 @@ public abstract class AttributeAssignmentDialog<T extends AuthDto, U extends Att
             T dto = getNewBeanInstance();
             if (authForm.isValid()) {
                 try {
+                    dto = authForm.getBean();
                     assignAuth(dto);
                     creationListener.onCreated(this, null);
                     setOpened(false);

@@ -55,6 +55,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
     }
 
     private final Binder<T> binder;
+    private final AuthFormConfiguration formConfig;
     @Getter
     private final ComboBox<RadiusUserDto> username;
     @Getter
@@ -66,12 +67,12 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
 
     public AuthForm(@NonNull Class<T> clazz,
                     @NonNull RadiusUserService userService,
-                    boolean showForWizard,
-                    boolean nameAuthTarget,
+                    AuthFormConfiguration formConfig,
                     U attributeItem,
                     AttributePager<U> attributePager,
                     AttributeCounter attributeCounter) {
 
+        this.formConfig = formConfig;
         binder = new BeanValidationBinder<>(clazz);
         try {
             binder.setBean(clazz.newInstance());
@@ -125,7 +126,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
         HorizontalLayout attrConfigLayout = new HorizontalLayout();
         ComboBox<U> attribute = new ComboBox<>("Attribute");
         attribute.setItemLabelGenerator(AttributeDto::getName);
-        if (!showForWizard) {
+        if (formConfig.isShowFullForm() || formConfig.isPredefinedUser()) {
             attribute.setDataProvider((ComboBox.FetchItemsCallback<U>)
                             (searchText, offset, limit) -> attributePager.pageAttributes(searchText, offset, limit)
                                     .stream(),
@@ -133,7 +134,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                             (int) attributeCounter.countAttributes(new AttributeFilter(searchText, true,
                                     false)));
         } else {
-//            attribute.setItems(attributeItem);
+            attribute.setItems(attributeItem);
             List<AttributeDto> list = new ArrayList<>();
             list.add(attributeItem);
             attribute.setDataProvider((ListDataProvider<U>) new ListDataProvider<>(list));
@@ -171,11 +172,25 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                 .bind("attribute");
         binder.bind(opSelect, "op");
 
-        if (showForWizard) {
-            if (nameAuthTarget) {
+        if (formConfig.isShowFullForm()) {
+            authTargetSelect.setValue(AuthTarget.RADIUS_USER);
+            attrConfigLayout.add(attribute, opSelect, value);
+            add(new VVerticalLayout()
+                    .withComponents(authTargetConfigLayout)
+                    .withComponents(attrConfigLayout));
+        } else if (formConfig.isPredefinedUser()) {
+            username.setValue(formConfig.getPredefinedUserDto());
+            authTargetSelect.setValue(AuthTarget.RADIUS_USER);
+            attrConfigLayout.add(attribute, opSelect, value);
+            add(new VVerticalLayout()
+                    .withComponents(attrConfigLayout));
+        } else {
+            if (formConfig.isPredefinedAttrTargetAsUser()) {
                 authTargetSelect.setValue(AuthTarget.RADIUS_USER);
-            } else {
+                attribute.setValue(attributeItem);
+            } else if (formConfig.isPredefinedAttrTargetAsGroup()) {
                 authTargetSelect.setValue(AuthTarget.RADIUS_GROUP);
+                attribute.setValue(attributeItem);
             }
 
             authTargetConfigLayout.remove(authTargetSelect);
@@ -183,13 +198,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                     .withComponents(authTargetConfigLayout)
                     .withComponents(opSelect)
                     .withComponents(value));
-        } else {
-            attrConfigLayout.add(attribute, opSelect, value);
-            add(new VVerticalLayout()
-                    .withComponents(authTargetConfigLayout)
-                    .withComponents(attrConfigLayout));
         }
-
     }
 
     private AbstractSinglePropertyField<? extends AbstractField<?, ?>, String> buildTextValueField() {
@@ -214,7 +223,7 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
         return binder.validate().isOk();
     }
 
-    public AuthDto getBean() {
+    public T getBean() {
         return binder.getBean();
     }
 

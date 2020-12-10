@@ -14,6 +14,7 @@ import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 import software.netcore.radman.ui.view.attributes.widget.AttributeForm;
 import software.netcore.radman.ui.view.auth.widget.AuthForm;
+import software.netcore.radman.ui.view.auth.widget.AuthFormConfiguration;
 
 import java.util.List;
 
@@ -95,13 +96,13 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
             this.steps = steps;
             if (attrType.equals(AUTH_ATTR)) {
                 authForm = new AuthForm<AuthenticationDto, AuthenticationAttributeDto>(AuthenticationDto.class,
-                        radiusUserService, true, true, (AuthenticationAttributeDto) attribute,
-                        null, null);
+                        radiusUserService, new AuthFormConfiguration(false, false, true, false, null),
+                        (AuthenticationAttributeDto) attribute, null, null);
 //                authForm.setBean(new AuthenticationDto());
             } else if (attrType.equals(AUTZ_ATTR)) {
                 authForm = new AuthForm<AuthorizationDto, AuthorizationAttributeDto>(AuthorizationDto.class,
-                        radiusUserService, true, true, (AuthorizationAttributeDto) attribute,
-                        null, null);
+                        radiusUserService, new AuthFormConfiguration(false, false, true, false, null),
+                        (AuthorizationAttributeDto) attribute, null, null);
 //                authForm.setBean(new AuthorizationDto());
             }
 
@@ -144,12 +145,12 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
             this.attrType = attrType;
             if (attrType.equals(AUTH_ATTR)) {
                 authForm = new AuthForm<AuthenticationDto, AuthenticationAttributeDto>(AuthenticationDto.class,
-                        radiusUserService, true, false, (AuthenticationAttributeDto) attribute,
-                        null, null);
+                        radiusUserService, new AuthFormConfiguration(false, false, false, true, null),
+                        (AuthenticationAttributeDto) attribute, null, null);
             } else if (attrType.equals(AUTZ_ATTR)) {
                 authForm = new AuthForm<AuthorizationDto, AuthorizationAttributeDto>(AuthorizationDto.class,
-                        radiusUserService, true, false, (AuthorizationAttributeDto) attribute,
-                        null, null);
+                        radiusUserService, new AuthFormConfiguration(false, false, false, true, null),
+                        (AuthorizationAttributeDto) attribute, null, null);
             }
 
             contentLayout.add(authForm);

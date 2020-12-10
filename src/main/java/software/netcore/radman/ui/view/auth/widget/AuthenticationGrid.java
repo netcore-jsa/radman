@@ -18,11 +18,12 @@ public class AuthenticationGrid extends AuthGrid<AuthenticationsDto, Authenticat
     public AuthenticationGrid(@NonNull AuthService authService,
                               @NonNull AttributeService attributeService,
                               @NonNull RadiusUserService radiusUserService,
-                              @NonNull SecurityService securityService) {
+                              @NonNull SecurityService securityService,
+                              @NonNull AuthFormConfiguration formConfig) {
         super(securityService);
         this.authService = authService;
         this.assigmentDialog = new AuthenticationAttributeAssigmentDialog(authService, attributeService,
-                radiusUserService, (source, bean) -> refreshGrid());
+                radiusUserService, formConfig, (source, bean) -> refreshGrid());
         refreshGrid();
     }
 

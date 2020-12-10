@@ -18,6 +18,7 @@ import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserDto;
 import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserToGroupDto;
 import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
+import software.netcore.radman.ui.view.auth.widget.AuthFormConfiguration;
 import software.netcore.radman.ui.view.auth.widget.AuthenticationGrid;
 import software.netcore.radman.ui.view.auth.widget.AuthorizationGrid;
 import software.netcore.radman.ui.view.radius_users.widget.RadiusUserForm;
@@ -134,7 +135,6 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public Component getContent() {
-            steps.add(new UserStepThird());
             return contentLayout;
         }
 
@@ -149,15 +149,21 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
             dataStorage.setRadiusGroupDtos(radiusGroupDtoSet);
         }
 
+        @Override
+        public void onTransition() {
+            steps.add(new UserStepThird(userForm.getBean()));
+        }
+
     }
 
     private class UserStepThird implements WizardStep<NewEntityWizardDataStorage> {
 
         private final VVerticalLayout contentLayout = new VVerticalLayout();
 
-        UserStepThird() {
-            AuthenticationGrid authGrid = new AuthenticationGrid(authService, attributeService, radiusUserService, securityService);
-            AuthorizationGrid autzGrid = new AuthorizationGrid(authService, attributeService, radiusUserService, securityService);
+        UserStepThird(RadiusUserDto radiusUserDto) {
+            AuthFormConfiguration formConfig = new AuthFormConfiguration(false, true, false, false, radiusUserDto);
+            AuthenticationGrid authGrid = new AuthenticationGrid(authService, attributeService, radiusUserService, securityService, formConfig);
+            AuthorizationGrid autzGrid = new AuthorizationGrid(authService, attributeService, radiusUserService, securityService, formConfig);
 
             contentLayout.withComponent(authGrid)
                     .withComponent(autzGrid);

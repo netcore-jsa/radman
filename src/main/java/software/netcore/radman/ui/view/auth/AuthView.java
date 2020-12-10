@@ -12,6 +12,7 @@ import software.netcore.radman.buisness.service.auth.AuthService;
 import software.netcore.radman.buisness.service.security.SecurityService;
 import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.ui.menu.MenuTemplate;
+import software.netcore.radman.ui.view.auth.widget.AuthFormConfiguration;
 import software.netcore.radman.ui.view.auth.widget.AuthenticationGrid;
 import software.netcore.radman.ui.view.auth.widget.AuthorizationGrid;
 
@@ -43,8 +44,10 @@ public class AuthView extends VerticalLayout {
     private void buildView() {
         setSpacing(false);
         add(new H4("Data from Radius DB - \"radcheck\", \"radgroupcheck\", \"radreply\", \"radgroupreply\" tables"));
-        add(new AuthenticationGrid(authService, attributeService, userService, securityService));
-        add(new AuthorizationGrid(authService, attributeService, userService, securityService));
+
+        AuthFormConfiguration formConfig = new AuthFormConfiguration(true, false, false, false, null);
+        add(new AuthenticationGrid(authService, attributeService, userService, securityService, formConfig));
+        add(new AuthorizationGrid(authService, attributeService, userService, securityService, formConfig));
     }
 
 }

@@ -19,8 +19,9 @@ public class AuthorizationAttributeAssigmentDialog
     public AuthorizationAttributeAssigmentDialog(AuthService authService,
                                                  AttributeService attributeService,
                                                  RadiusUserService userService,
+                                                 AuthFormConfiguration formConfig,
                                                  CreationListener<Void> creationListener) {
-        super(userService, creationListener);
+        super(userService, formConfig, creationListener);
         this.authService = authService;
         this.attributeService = attributeService;
     }

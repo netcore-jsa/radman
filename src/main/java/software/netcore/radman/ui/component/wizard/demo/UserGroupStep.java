@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.InMemoryDataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -145,11 +146,17 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
     private class AddUserDialog extends Dialog {
 
         AddUserDialog(String groupName, UpdateListener<RadiusUserToGroupDto> updateListener) {
+            BeanValidationBinder<RadiusUserDto> binder = new BeanValidationBinder<>(RadiusUserDto.class);
             add(new H3("Add user to group"));
 
             ComboBox<RadiusUserDto> username = new ComboBox<>("Username");
             username.setItemLabelGenerator(RadiusUserDto::getUsername);
+            username.setAllowCustomValue(false);
             username.setAutofocus(true);
+            username.setRequired(true);
+
+            binder.forField(username)
+                    .asRequired();
 
             username.setDataProvider(new CallbackDataProvider<>(query ->
                     userService.pageRadiusUsers(new RadiusUserFilter(query.getFilter().orElse(null),
@@ -160,13 +167,13 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
                             .orElse(null), true, false))));
 
             Button add = new Button("Add", event -> {
-                if (StringUtils.isNotEmpty(groupName)) {
+                if (StringUtils.isNotEmpty(groupName) && binder.isValid() && Objects.nonNull(username.getValue())) {
                     RadiusUserToGroupDto dto = new RadiusUserToGroupDto();
                     dto.setUsername(username.getValue().getUsername());
                     dto.setGroupName(groupName);
                     updateListener.onUpdated(this, dto);
+                    close();
                 }
-                close();
             });
             Button cancel = new Button("Cancel", event -> setOpened(false));
 

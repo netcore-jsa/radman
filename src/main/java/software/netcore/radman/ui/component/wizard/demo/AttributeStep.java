@@ -45,12 +45,10 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
         attrType.addValueChangeListener(event -> {
             if (event.getValue().equals(AUTH_ATTR)) {
                 formLayout.removeAll();
-//                AttributeForm<AuthenticationAttributeDto> authForm = new AttributeForm<>(AuthenticationAttributeDto.class);
                 attributeForm = new AttributeForm<>(AuthenticationAttributeDto.class);
                 formLayout.add(attributeForm);
             } else {
                 formLayout.removeAll();
-//                AttributeForm<AuthorizationAttributeDto> autzForm = new AttributeForm<>(AuthorizationAttributeDto.class);
                 attributeForm = new AttributeForm<>(AuthorizationAttributeDto.class);
                 formLayout.add(attributeForm);
             }
@@ -116,7 +114,7 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return true;
+            return authForm.isValid();
         }
 
         @Override
@@ -163,7 +161,7 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return false;
+            return authForm.isValid();
         }
 
         @Override

@@ -179,8 +179,8 @@ public class AuthForm<T extends AuthDto, U extends AttributeDto> extends FormLay
                     .withComponents(authTargetConfigLayout)
                     .withComponents(attrConfigLayout));
         } else if (formConfig.isPredefinedUser()) {
-            username.setValue(formConfig.getPredefinedUserDto());
             authTargetSelect.setValue(AuthTarget.RADIUS_USER);
+            username.setValue(formConfig.getPredefinedUserDto());
             attrConfigLayout.add(attribute, opSelect, value);
             add(new VVerticalLayout()
                     .withComponents(attrConfigLayout));

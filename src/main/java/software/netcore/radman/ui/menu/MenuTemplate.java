@@ -169,10 +169,14 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
             nasService.createNas(dataStorage.getNasDto());
         }
 
-        if (Objects.nonNull(dataStorage.getNasGroupDtos())) {
+        if (!dataStorage.getNasGroupDtos().isEmpty()) {
             for (NasGroupDto dto : dataStorage.getNasGroupDtos()) {
                 nasService.createNasGroup(dto);
             }
+        }
+
+        if (Objects.nonNull(dataStorage.getRadiusUserDto())) {
+            radiusUserService.createRadiusUser(dataStorage.getRadiusUserDto());
         }
 
         if (Objects.nonNull(dataStorage.getRadiusGroupDtos())) {
@@ -186,7 +190,7 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
                 try {
                     radiusUserService.addRadiusUserToGroup(dto);
                 } catch (DuplicityException e) {
-                    e.printStackTrace(); //TODO wizard
+//                    e.printStackTrace(); //TODO wizard
                 }
             }
         }

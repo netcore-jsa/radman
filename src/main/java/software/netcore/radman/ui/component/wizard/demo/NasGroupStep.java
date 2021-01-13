@@ -29,6 +29,7 @@ public class NasGroupStep implements WizardStep<NewEntityWizardDataStorage> {
         newGroupName = new TextField("New group name");
         newGroupName.setRequired(true);
         binder.forField(newGroupName)
+                .asRequired()
                 .bind(NasGroupDto::getGroupName, NasGroupDto::setGroupName);
 
         grid = new Grid<>(NasDto.class, false);
@@ -56,7 +57,7 @@ public class NasGroupStep implements WizardStep<NewEntityWizardDataStorage> {
 
     @Override
     public boolean isValid() {
-        return binder.validate().isOk();
+        return binder.validate().isOk() && !grid.getSelectedItems().isEmpty();
     }
 
     @Override

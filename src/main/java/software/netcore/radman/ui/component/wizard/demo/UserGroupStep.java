@@ -29,6 +29,7 @@ import software.netcore.radman.buisness.service.user.radius.dto.RadiusUserToGrou
 import software.netcore.radman.buisness.service.user.system.dto.RoleDto;
 import software.netcore.radman.ui.UpdateListener;
 import software.netcore.radman.ui.component.wizard.WizardStep;
+import software.netcore.radman.ui.converter.RadiusUserDtoToNameConverter;
 import software.netcore.radman.ui.view.user_groups.widget.UserGroupsForm;
 
 import java.util.*;
@@ -155,8 +156,13 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
             username.setAutofocus(true);
             username.setRequired(true);
 
+            //workaround - https://github.com/vaadin/vaadin-combo-box-flow/issues/235
+            username.setDataProvider(new ListDataProvider<>(new ArrayList<>()));
+
             binder.forField(username)
-                    .asRequired();
+                    .asRequired()
+                    .withConverter(new RadiusUserDtoToNameConverter())
+                    .bind(RadiusUserDto::getUsername, RadiusUserDto::setUsername);
 
             username.setDataProvider(new CallbackDataProvider<>(query ->
                     userService.pageRadiusUsers(new RadiusUserFilter(query.getFilter().orElse(null),

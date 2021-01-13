@@ -11,11 +11,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
-import org.vaadin.firitin.components.textfield.VTextField;
 import software.netcore.radman.buisness.service.nas.NasService;
 import software.netcore.radman.buisness.service.nas.dto.NasDto;
 import software.netcore.radman.buisness.service.nas.dto.NasGroupDto;
 import software.netcore.radman.ui.component.wizard.WizardStep;
+import software.netcore.radman.ui.converter.NasGroupDtoToNameConverter;
 import software.netcore.radman.ui.view.nas.widget.NasForm;
 
 import java.util.List;
@@ -80,9 +80,12 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
             this.nasIpAddress = nasIpAddress;
             VHorizontalLayout groupHolder = new VHorizontalLayout();
             radioGroup = new RadioButtonGroup<>();
+            radioGroup.setLabel("Add to group:");
+            radioGroup.setRequired(true);
             radioGroup.setItems(NO, EXISTING_GROUPS, NEW_GROUP);
+            radioGroup.setValue(NO);
             radioGroup.setItemEnabledProvider(item -> {
-                if (EXISTING_GROUPS.equals((String) item) && nasService.countNasGroupRecords("") == 0) {
+                if (EXISTING_GROUPS.equals(item) && nasService.countNasGroupRecords("") == 0) {
                     return false;
                 }
 
@@ -98,11 +101,9 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
 
             newGroupName = new TextField("New group name");
             newGroupName.setRequired(true);
-            binder.forField(newGroupName)
-                    .asRequired("Group name is required")
-                    .bind(NasGroupDto::getGroupName, NasGroupDto::setGroupName);
 
             radioGroup.addValueChangeListener(event -> {
+                binder.removeBinding("groupName");
                 switch (event.getValue()) {
                     case NO:
                         groupHolder.removeAll();
@@ -110,10 +111,17 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
                     case EXISTING_GROUPS:
                         groupHolder.removeAll();
                         groupHolder.withComponent(existingGroups);
+                        binder.forField(existingGroups)
+                                .asRequired("Group name is required")
+                                .withConverter(new NasGroupDtoToNameConverter())
+                                .bind(NasGroupDto::getGroupName, NasGroupDto::setGroupName);
                         break;
                     case NEW_GROUP:
                         groupHolder.removeAll();
                         groupHolder.withComponent(newGroupName);
+                        binder.forField(newGroupName)
+                                .asRequired("Group name is required")
+                                .bind(NasGroupDto::getGroupName, NasGroupDto::setGroupName);
                         break;
                 }
             });
@@ -127,12 +135,16 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public boolean isValid() {
-            return binder.validate().isOk();
+            if (radioGroup.getValue().equals(NO)) {
+                return true;
+            } else {
+                return binder.validate().isOk();
+            }
         }
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-            if (!radioGroup.getValue().equals(NO)) {
+            if (Objects.nonNull(radioGroup.getValue()) && !radioGroup.getValue().equals(NO)) {
                 NasGroupDto nasGroupDto = new NasGroupDto();
                 if (radioGroup.getValue().equals(EXISTING_GROUPS) && Objects.nonNull(existingGroups.getValue())) {
                     nasGroupDto.setGroupName(existingGroups.getValue().getGroupName());

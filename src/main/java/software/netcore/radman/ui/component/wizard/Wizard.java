@@ -44,6 +44,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     private final WizardFinalizer<T> wizardFinalizer;
     private final T dataStorage;
     private int position = 0;
+    boolean invalid = false;
 
     public Wizard(@NonNull Configuration configuration,
                   @NonNull WizardFinalizer<T> wizardFinalizer,
@@ -99,25 +100,27 @@ public final class Wizard<T extends DataStorage> extends Dialog {
                 }
             }
         } else {
-            try {
-                getSteps().forEach(step -> {
-                    if (step.isValid()) {
-                        step.writeDataToStorage(dataStorage);
-                    }
-                });
-                wizardFinalizer.finalizeWizard(dataStorage);
-                setOpened(false);
-            } catch (WizardFinalizeException e) {
-                contentHolder.removeAll();
-                contentHolder.add(new Label(e.getMessage()));
+            getSteps().forEach(step -> {
+                if (step.isValid()) {
+                    step.writeDataToStorage(dataStorage);
+                }
+                if (!step.hasNextStep() && step.isValid()) {
+                    try {
+                        wizardFinalizer.finalizeWizard(dataStorage);
+                        setOpened(false);
+                    } catch (WizardFinalizeException e) {
+                        contentHolder.removeAll();
+                        contentHolder.add(new Label(e.getMessage()));
 
-                Button backToWizard = new Button("Back to wizard");
-                backToWizard.addClickListener(buttonClickEvent -> {
-                    contentHolder.removeAll();
-                    contentHolder.add(getSteps().get(position).getContent());
-                });
-                contentHolder.add(backToWizard);
-            }
+                        Button backToWizard = new Button("Back to wizard");
+                        backToWizard.addClickListener(buttonClickEvent -> {
+                            contentHolder.removeAll();
+                            contentHolder.add(getSteps().get(position).getContent());
+                        });
+                        contentHolder.add(backToWizard);
+                    }
+                }
+            });
         }
     }
 

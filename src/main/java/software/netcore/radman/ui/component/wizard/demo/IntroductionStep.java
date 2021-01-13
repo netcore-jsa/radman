@@ -14,6 +14,7 @@ import software.netcore.radman.buisness.service.user.radius.RadiusUserService;
 import software.netcore.radman.ui.component.wizard.WizardStep;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author daniel
@@ -53,8 +54,11 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
         this.steps = steps;
 
         radioGroup = new RadioButtonGroup<>();
+        radioGroup.setLabel("New entity of table:");
         radioGroup.setItems(NAS, NAS_GROUP, USER, USER_GROUP, ATTRIBUTE);
         radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        radioGroup.setRequired(true);
+        radioGroup.setErrorMessage("Next step is required");
 
         contentLayout.withComponent(new Label("This is an introduction to this wizard"))
                 .withComponent(radioGroup);
@@ -67,7 +71,7 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
 
     @Override
     public boolean isValid() {
-        return true;
+        return Objects.nonNull(radioGroup.getValue());
     }
 
     @Override
@@ -86,6 +90,9 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
     }
 
     private void buildWizardSteps() {
+        WizardStep<NewEntityWizardDataStorage> introStep = steps.get(0);
+        steps.clear();
+        steps.add(introStep);
         switch (radioGroup.getValue()) {
             case NAS:
                 steps.add(new NasStep(nasService, steps));

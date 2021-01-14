@@ -75,6 +75,7 @@ public abstract class AuthGrid<T extends AuthsDto, U extends AuthDto> extends Di
         });
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPlaceholder("Search...");
+        search.setMinWidth("30px");
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);

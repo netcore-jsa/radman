@@ -2,6 +2,7 @@ package software.netcore.radman.ui.component.wizard.demo;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -46,7 +47,8 @@ public class NasGroupStep implements WizardStep<NewEntityWizardDataStorage> {
 
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        contentLayout.withComponent(newGroupName)
+        contentLayout.withComponent(new Label("NAS Group - Lorem ipsum"))
+                .withComponent(newGroupName)
                 .withComponent(grid);
     }
 

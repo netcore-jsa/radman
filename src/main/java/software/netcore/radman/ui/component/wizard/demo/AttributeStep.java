@@ -2,6 +2,7 @@ package software.netcore.radman.ui.component.wizard.demo;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
 import lombok.NonNull;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import software.netcore.radman.buisness.service.attribute.dto.AttributeDto;
@@ -31,7 +32,7 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
     private final List<WizardStep<NewEntityWizardDataStorage>> steps;
 
     private final VVerticalLayout contentLayout = new VVerticalLayout();
-    private ComboBox<String> attrType;
+    private final ComboBox<String> attrType = new ComboBox<>();
     private AttributeForm<? extends AttributeDto> attributeForm;
 
     public AttributeStep(RadiusUserService radiusUserService, List<WizardStep<NewEntityWizardDataStorage>> steps) {
@@ -40,7 +41,6 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
         VVerticalLayout formLayout = new VVerticalLayout();
 
-        attrType = new ComboBox<>();
         attrType.setItems(AUTH_ATTR, AUTZ_ATTR);
         attrType.addValueChangeListener(event -> {
             if (event.getValue().equals(AUTH_ATTR)) {
@@ -54,7 +54,9 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
             }
         });
 
-        contentLayout.withComponent(attrType)
+        contentLayout
+                .withComponent(new Label("Attribute - Lorem ipsum"))
+                .withComponent(attrType)
                 .withComponent(formLayout);
     }
 
@@ -65,7 +67,7 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
     @Override
     public boolean isValid() {
-        return true;
+        return attributeForm.isValid();
     }
 
     @Override
@@ -79,31 +81,28 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
     @Override
     public void onTransition() {
-        steps.add(new AttributeStepSecond(attrType.getValue(), attributeForm.getBean(), steps));
+        steps.add(new AttributeStepSecond(attributeForm.getBean(), steps));
     }
 
     private class AttributeStepSecond implements WizardStep<NewEntityWizardDataStorage> {
 
         private final VVerticalLayout contentLayout = new VVerticalLayout();
-        private final String attrType;
         private final List<WizardStep<NewEntityWizardDataStorage>> steps;
         private AuthForm<? extends AuthDto, ? extends AttributeDto> authForm;
 
-        AttributeStepSecond(String attrType, AttributeDto attribute, List<WizardStep<NewEntityWizardDataStorage>> steps) {
-            this.attrType = attrType;
+        AttributeStepSecond(AttributeDto attribute, List<WizardStep<NewEntityWizardDataStorage>> steps) {
             this.steps = steps;
-            if (attrType.equals(AUTH_ATTR)) {
-                authForm = new AuthForm<AuthenticationDto, AuthenticationAttributeDto>(AuthenticationDto.class,
+            if (attrType.getValue().equals(AUTH_ATTR)) {
+                authForm = new AuthForm<>(AuthenticationDto.class,
                         radiusUserService, new AuthFormConfiguration(false, false, true, false, null),
                         (AuthenticationAttributeDto) attribute, null, null);
-//                authForm.setBean(new AuthenticationDto());
-            } else if (attrType.equals(AUTZ_ATTR)) {
-                authForm = new AuthForm<AuthorizationDto, AuthorizationAttributeDto>(AuthorizationDto.class,
+            } else if (attrType.getValue().equals(AUTZ_ATTR)) {
+                authForm = new AuthForm<>(AuthorizationDto.class,
                         radiusUserService, new AuthFormConfiguration(false, false, true, false, null),
                         (AuthorizationAttributeDto) attribute, null, null);
-//                authForm.setBean(new AuthorizationDto());
             }
 
+            contentLayout.add(new Label("Add to user"));
             contentLayout.add(authForm);
         }
 
@@ -119,16 +118,16 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-            if (attrType.equals(AUTH_ATTR)) {
+            if (attrType.getValue().equals(AUTH_ATTR)) {
                 dataStorage.getAuthenticationDto().add((AuthenticationDto) authForm.getBean());
-            } else if (attrType.equals(AUTZ_ATTR)) {
+            } else if (attrType.getValue().equals(AUTZ_ATTR)) {
                 dataStorage.getAuthorizationDto().add((AuthorizationDto) authForm.getBean());
             }
         }
 
         @Override
         public void onTransition() {
-            steps.add(new AttributeStepThird(attrType, attributeForm.getBean()));
+            steps.add(new AttributeStepThird(attributeForm.getBean()));
         }
 
     }
@@ -136,21 +135,20 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
     private class AttributeStepThird implements WizardStep<NewEntityWizardDataStorage> {
 
         private final VVerticalLayout contentLayout = new VVerticalLayout();
-        private final String attrType;
         private AuthForm<? extends AuthDto, ? extends AttributeDto> authForm;
 
-        AttributeStepThird(String attrType, AttributeDto attribute) {
-            this.attrType = attrType;
-            if (attrType.equals(AUTH_ATTR)) {
-                authForm = new AuthForm<AuthenticationDto, AuthenticationAttributeDto>(AuthenticationDto.class,
+        AttributeStepThird(AttributeDto attribute) {
+            if (attrType.getValue().equals(AUTH_ATTR)) {
+                authForm = new AuthForm<>(AuthenticationDto.class,
                         radiusUserService, new AuthFormConfiguration(false, false, false, true, null),
                         (AuthenticationAttributeDto) attribute, null, null);
-            } else if (attrType.equals(AUTZ_ATTR)) {
-                authForm = new AuthForm<AuthorizationDto, AuthorizationAttributeDto>(AuthorizationDto.class,
+            } else if (attrType.getValue().equals(AUTZ_ATTR)) {
+                authForm = new AuthForm<>(AuthorizationDto.class,
                         radiusUserService, new AuthFormConfiguration(false, false, false, true, null),
                         (AuthorizationAttributeDto) attribute, null, null);
             }
 
+            contentLayout.add(new Label("Add to group"));
             contentLayout.add(authForm);
         }
 
@@ -166,9 +164,9 @@ public class AttributeStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-            if (attrType.equals(AUTH_ATTR)) {
+            if (attrType.getValue().equals(AUTH_ATTR)) {
                 dataStorage.getAuthenticationDto().add((AuthenticationDto) authForm.getBean());
-            } else if (attrType.equals(AUTZ_ATTR)) {
+            } else if (attrType.getValue().equals(AUTZ_ATTR)) {
                 dataStorage.getAuthorizationDto().add((AuthorizationDto) authForm.getBean());
             }
         }

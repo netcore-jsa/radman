@@ -2,6 +2,7 @@ package software.netcore.radman.ui.component.wizard.demo;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -37,7 +38,8 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
 
         nasForm = new NasForm();
         nasForm.setBean(new NasDto());
-        contentLayout.withComponent(nasForm);
+        contentLayout.withComponent(new Label("NAS - Lorem ipsum"))
+                .withComponent(nasForm);
 
         this.steps = steps;
     }
@@ -125,6 +127,7 @@ public class NasStep implements WizardStep<NewEntityWizardDataStorage> {
                         break;
                 }
             });
+            contentLayout.add(new Label("Add NAS to group?"));
             contentLayout.add(radioGroup, groupHolder);
         }
 

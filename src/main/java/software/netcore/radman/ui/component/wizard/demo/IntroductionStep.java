@@ -60,7 +60,7 @@ public class IntroductionStep implements WizardStep<NewEntityWizardDataStorage> 
         radioGroup.setRequired(true);
         radioGroup.setErrorMessage("Next step is required");
 
-        contentLayout.withComponent(new Label("This is an introduction to this wizard"))
+        contentLayout.withComponent(new Label("This is an introduction step to New entity wizard. Please choose what you want to create."))
                 .withComponent(radioGroup);
     }
 

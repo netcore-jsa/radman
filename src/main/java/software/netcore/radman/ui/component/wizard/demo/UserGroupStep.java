@@ -7,6 +7,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -55,7 +56,8 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
         this.steps = steps;
         userGroupsForm = new UserGroupsForm();
         userGroupsForm.setBean(new RadiusGroupDto());
-        contentLayout.withComponent(userGroupsForm);
+        contentLayout.withComponent(new Label("User Group - Lorem ipsum"))
+                .withComponent(userGroupsForm);
     }
 
     @Override
@@ -83,7 +85,7 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
         private final VVerticalLayout contentLayout = new VVerticalLayout();
         private final Grid<RadiusUserToGroupDto> grid;
 
-        private List<RadiusUserToGroupDto> radiusUserToGroupDtoList = new ArrayList<>();
+        private final List<RadiusUserToGroupDto> radiusUserToGroupDtoList = new ArrayList<>();
 
         UserGroupStepSecond(SecurityService securityService, String groupName) {
             RoleDto role = securityService.getLoggedUserRole();
@@ -100,7 +102,10 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
             Button addUserToGroup = new VButton("Add user to group", event -> {
                 AddUserDialog addDialog = new AddUserDialog(groupName,
                         (source, bean) -> {
-                            radiusUserToGroupDtoList.add(bean);
+                            if (!radiusUserToGroupDtoList.contains(bean)) {
+                                radiusUserToGroupDtoList.add(bean);
+                            }
+
                             grid.getDataProvider().refreshAll();
                         });
                 addDialog.open();
@@ -115,10 +120,11 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
             grid.asSingleSelect().addValueChangeListener(event ->
                     removeUserFromGroup.setEnabled(Objects.nonNull(event.getValue()) && role == RoleDto.ADMIN));
 
-            contentLayout.withComponent(
-                    new VHorizontalLayout()
-                            .withComponent(addUserToGroup)
-                            .withComponent(removeUserFromGroup))
+            contentLayout.withComponent(new Label("Users in group"))
+                    .withComponent(
+                            new VHorizontalLayout()
+                                    .withComponent(addUserToGroup)
+                                    .withComponent(removeUserFromGroup))
                     .withComponent(grid);
         }
 
@@ -173,7 +179,7 @@ public class UserGroupStep implements WizardStep<NewEntityWizardDataStorage> {
                             .orElse(null), true, false))));
 
             Button add = new Button("Add", event -> {
-                if (StringUtils.isNotEmpty(groupName) && binder.isValid() && Objects.nonNull(username.getValue())) {
+                if (StringUtils.isNotEmpty(groupName) && binder.validate().isOk() && Objects.nonNull(username.getValue())) {
                     RadiusUserToGroupDto dto = new RadiusUserToGroupDto();
                     dto.setUsername(username.getValue().getUsername());
                     dto.setGroupName(groupName);

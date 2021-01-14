@@ -145,8 +145,8 @@ public class MenuTemplate extends PolymerTemplate<MenuTemplate.MenuTemplateModel
     private void add() {
         Wizard<NewEntityWizardDataStorage> additionWizard = new Wizard<>(
                 Wizard.Configuration.<NewEntityWizardDataStorage>builder()
-                        .title("Addition wizard")
-                        .maxWidth("500px")
+                        .title("New entity wizard")
+                        .maxWidth("550px")
                         .build(),
                 this::saveNewEntityWizardData,
                 new NewEntityWizardDataStorage());

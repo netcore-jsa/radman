@@ -1,5 +1,6 @@
 package software.netcore.radman.buisness.service.user.radius.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class RadiusUserToGroupDto {
 
     private Integer id;

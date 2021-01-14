@@ -44,7 +44,6 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     private final WizardFinalizer<T> wizardFinalizer;
     private final T dataStorage;
     private int position = 0;
-    boolean invalid = false;
 
     public Wizard(@NonNull Configuration configuration,
                   @NonNull WizardFinalizer<T> wizardFinalizer,
@@ -82,14 +81,11 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     }
 
     private void handleTransitionToNext() {
-//        if (position + 1 < getSteps().size()) {
         if (getStep().hasNextStep()) {
             if (getStep().isValid()) {
                 getStep().onTransition();
                 WizardStep<? extends DataStorage> nextStepCandidate = getSteps().get(position + 1);
                 if (Objects.nonNull(nextStepCandidate)) {
-
-//                    nextStepCandidate.onTransition();
 
                     contentHolder.removeAll();
                     contentHolder.add(nextStepCandidate.getContent());
@@ -127,6 +123,7 @@ public final class Wizard<T extends DataStorage> extends Dialog {
     private void handleTransitionToPrevious() {
         if (position > 0) {
             WizardStep<? extends DataStorage> nextStepCandidate = getSteps().get(position - 1);
+            getSteps().remove(position);
             if (Objects.nonNull(nextStepCandidate)) {
                 contentHolder.removeAll();
                 contentHolder.add(nextStepCandidate.getContent());

@@ -3,6 +3,7 @@ package software.netcore.radman.ui.component.wizard.demo;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.data.provider.InMemoryDataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -55,7 +56,8 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         userForm = new RadiusUserForm();
         userForm.setBean(new RadiusUserDto());
-        contentLayout.withComponent(userForm);
+        contentLayout.withComponent(new Label("User - Lorem ipsum"))
+                .withComponent(userForm);
     }
 
     @Override
@@ -129,7 +131,8 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
                     .withComponent(addUserToGroup)
                     .withComponent(createGroup);
 
-            contentLayout.withComponent(controls)
+            contentLayout.withComponent(new Label("User's groups"))
+                    .withComponent(controls)
                     .withComponent(grid);
         }
 
@@ -164,8 +167,13 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
             AuthFormConfiguration formConfig = new AuthFormConfiguration(false, true, false, false, radiusUserDto);
             AuthenticationGrid authGrid = new AuthenticationGrid(authService, attributeService, radiusUserService, securityService, formConfig);
             AuthorizationGrid autzGrid = new AuthorizationGrid(authService, attributeService, radiusUserService, securityService, formConfig);
+            authGrid.setMaxHeight("250px");
+            autzGrid.setMaxHeight("250px");
+            authGrid.getStyle().set("overflow", "auto");
+            autzGrid.getStyle().set("overflow", "auto");
 
-            contentLayout.withComponent(authGrid)
+            contentLayout.withComponent(new Label("Attributes"))
+                    .withComponent(authGrid)
                     .withComponent(autzGrid);
         }
 
@@ -181,7 +189,7 @@ public class UserStep implements WizardStep<NewEntityWizardDataStorage> {
 
         @Override
         public void writeDataToStorage(@NonNull NewEntityWizardDataStorage dataStorage) {
-
+            //no-op
         }
 
         @Override
